@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.graalvm.buildtools.native' version '1.1.1'
+}
+
+java {
+    sourceCompatibility = 25
+    targetCompatibility = 25
+}
+
+group = 'org.kroj'
+version = '1.0-SNAPSHOT'
+
+dependencies {
+
+    implementation "io.netty:netty-all:4.2.15.Final";
+    String[] natives = ['windows-x86_64','linux-x86_64','linux-aarch_64','osx-x86_64','osx-aarch_64'];
+
+    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final";
+    implementation("$boringSSL");
+
+    for (String nat : natives) {
+        implementation("$boringSSL:$nat");
+    }
+
+    implementation "org.msgpack:msgpack-core:0.9.8"
+    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.8"
+}
+
+application {
+    mainClass = 'org.Kroj.Network.Download.Manager'
+}
+
+tasks.register("fatJar", Jar) {
+    manifest {
+        attributes "Main-Class": application.mainClass.get();
+    }
+    archiveClassifier = "all";
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar;
+}
+
+graalvmNative {
+    metadataRepository {
+        enabled = true
+    }
+
+    toolchainDetection = false;
+    binaries {
+        main {
+            imageName = "jvdm";
+            buildArgs.add("--no-fallback");
+            buildArgs.add('--enable-native-access=ALL-UNNAMED');
+            buildArgs.add('-H:+UnlockExperimentalVMOptions');
+            buildArgs.add('-H:IncludeResources=.*');
+
+            buildArgs.add("-H:JNIConfigurationFiles=${project.projectDir}/jni-config.json");
+            buildArgs.add("-H:ReflectionConfigurationFiles=${project.projectDir}/jni-config.json");
+
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSsl')
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslContext')
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslContext')
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslPrivateKeyMethod')
+            buildArgs.add('--initialize-at-run-time=io.netty.util.AbstractReferenceCounted')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative')
+
+            buildArgs.add("-O0");
+        }
+    }
+}

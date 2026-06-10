@@ -1,0 +1,40 @@
+
+
+Linux-Router-Bypass: Complete
+
+Logger: Complete
+
+DNS Cache: Complete
+
+NIO-Download: Complete
+MultiThreading-Download: Very Soon
+
+Extension: Need url finder
+Extension-Server: Complete
+Extension-Server-H3: Soon
+Extension-Download-Sync: Not Reached Yet
+
+UI:
+// Going To Start
+
+-- For Far Future --
+HTTP/1.1: Complete
+HTTP/2: Near
+HTTP/3: Near
+FTP: Near
+SFTP:
+FTPS:
+BitTorrent:
+M (uTorrent):
+Gnutella:
+eDonkey2000:
+Magnet links:
+WebDAV:
+Rsync:
+SCP:
+SMB/CIFS:
+NFS:
+IPFS:
+ARPANET FTP:
+NNTP:
+MMS:
