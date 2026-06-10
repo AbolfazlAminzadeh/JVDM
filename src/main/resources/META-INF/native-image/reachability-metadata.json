@@ -1307,6 +1307,12 @@
     },
     {
       "type": "io.netty.internal.tcnative.SSLPrivateKeyMethodDecryptTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
