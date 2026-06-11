@@ -88,7 +88,7 @@ graalvmNative {
                 buildArgs.add('-H:+MLCallCountProfileInference');
                 buildArgs.add('-H:+OptimizeVectorAPI');
                 buildArgs.add('--enable-url-protocols=http,https')
-                buildArgs.add('--gc=G1');
+                buildArgs.add("--gc=serial")
                 buildArgs.add('-O3');
             }
 
