@@ -21,11 +21,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Liberica NIK
-        uses: actions/setup-java@v4
+      - name: Set up GraalVM (Liberica NIK)
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '25'
-          distribution: 'liberica-nik'
+          distribution: 'liberica'
+          native-image-job-reports: 'true'
 
       - name: Install Linux Dependencies
         if: matrix.os == 'ubuntu-latest'
