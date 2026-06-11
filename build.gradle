@@ -77,7 +77,7 @@ graalvmNative {
                 buildArgs.add("--no-fallback");
                 buildArgs.add('--enable-native-access=ALL-UNNAMED');
                 buildArgs.add('-H:IncludeResources=.*');
-                buildArgs.add('-H:+MLCallCountProfileInference');
+//                buildArgs.add('-H:+MLCallCountProfileInference');
                 buildArgs.add('-H:+OptimizeVectorAPI');
                 buildArgs.add('--enable-url-protocols=http,https')
                 buildArgs.add("--gc=serial")
