@@ -80,7 +80,54 @@
       ]
     },
     {
+      "type": "com.sun.glass.events.DndEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.events.InputMethodEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.events.KeyEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.events.MouseEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.events.ViewEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.events.WindowEvent",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
       "type": "com.sun.glass.ui.Application",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -126,6 +173,10 @@
     },
     {
       "type": "com.sun.glass.ui.Pixels",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -138,6 +189,10 @@
     },
     {
       "type": "com.sun.glass.ui.Screen",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -189,6 +244,12 @@
     },
     {
       "type": "com.sun.glass.ui.View",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -307,6 +368,11 @@
     },
     {
       "type": "com.sun.glass.ui.Window",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -377,6 +443,9 @@
     },
     {
       "type": "com.sun.glass.ui.gtk.GtkApplication",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -389,6 +458,13 @@
           "name": "visualID"
         }
       ]
+    },
+    {
+      "type": "com.sun.glass.ui.gtk.GtkCursor",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
     },
     {
       "type": "com.sun.glass.ui.gtk.GtkPixels",
@@ -415,6 +491,9 @@
     },
     {
       "type": "com.sun.glass.ui.gtk.GtkView",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -436,6 +515,9 @@
     },
     {
       "type": "com.sun.glass.ui.gtk.GtkWindow",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -452,6 +534,27 @@
           ]
         }
       ]
+    },
+    {
+      "type": "com.sun.glass.ui.win.WinApplication",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.ui.win.WinView",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.glass.ui.win.WinWindow",
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true,
+      "jniAccessible": true
     },
     {
       "type": "com.sun.javafx.PreviewFeature"
@@ -689,7 +792,60 @@
       ]
     },
     {
+      "type": "com.sun.prism.shader.AlphaOne_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.AlphaOne_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.AlphaOne_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.AlphaOne_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.AlphaOne_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DisplacementMap_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DisplacementMap_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
       "type": "com.sun.prism.shader.DrawPgram_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -700,9 +856,76 @@
           ]
         }
       ]
+    },
+    {
+      "type": "com.sun.prism.shader.DrawPgram_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawPgram_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawPgram_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawPgram_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawRoundRect_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawRoundRect_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawRoundRect_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawRoundRect_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.DrawRoundRect_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
     },
     {
       "type": "com.sun.prism.shader.FillPgram_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -715,7 +938,116 @@
       ]
     },
     {
+      "type": "com.sun.prism.shader.FillPgram_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillPgram_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillPgram_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillPgram_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillRoundRect_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillRoundRect_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillRoundRect_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillRoundRect_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.FillRoundRect_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.LCD_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.LCD_Constant_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.LCD_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.LCD_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.LCD_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.Mask_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
       "type": "com.sun.prism.shader.Mask_TextureSuper_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -729,6 +1061,10 @@
     },
     {
       "type": "com.sun.prism.shader.Solid_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -739,9 +1075,20 @@
           ]
         }
       ]
+    },
+    {
+      "type": "com.sun.prism.shader.Solid_TextureRGB_AlphaTest_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
     },
     {
       "type": "com.sun.prism.shader.Solid_TextureRGB_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -754,7 +1101,25 @@
       ]
     },
     {
+      "type": "com.sun.prism.shader.Solid_Texture_AlphaTest_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.Solid_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
       "type": "com.sun.prism.shader.Texture_Color_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
       "methods": [
         {
           "name": "loadShader",
@@ -765,6 +1130,34 @@
           ]
         }
       ]
+    },
+    {
+      "type": "com.sun.prism.shader.Texture_Image_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.Texture_LinearGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.Texture_RadialGradient_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
+    },
+    {
+      "type": "com.sun.prism.shader.Texture_Texture_Loader",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true
     },
     {
       "type": "com.sun.scenario.effect.impl.es2.ES2ShaderSource",
@@ -813,6 +1206,12 @@
       "type": "double[]"
     },
     {
+      "type": "io.netty.bootstrap.ServerBootstrap$1"
+    },
+    {
+      "type": "io.netty.bootstrap.ServerBootstrap$ServerBootstrapAcceptor"
+    },
+    {
       "type": "io.netty.buffer.AbstractByteBufAllocator"
     },
     {
@@ -857,6 +1256,15 @@
     },
     {
       "type": "io.netty.channel.epoll.EpollDatagramChannel",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.netty.channel.epoll.EpollServerSocketChannel",
       "methods": [
         {
           "name": "<init>",
@@ -996,6 +1404,27 @@
     },
     {
       "type": "io.netty.handler.codec.http.HttpClientCodec"
+    },
+    {
+      "type": "io.netty.handler.codec.http.HttpObjectAggregator"
+    },
+    {
+      "type": "io.netty.handler.codec.http.HttpServerCodec"
+    },
+    {
+      "type": "io.netty.handler.codec.http.websocketx.Utf8FrameValidator"
+    },
+    {
+      "type": "io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder"
+    },
+    {
+      "type": "io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder"
+    },
+    {
+      "type": "io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler"
+    },
+    {
+      "type": "io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandshakeHandler"
     },
     {
       "type": "io.netty.handler.codec.quic.BoringSSL",
@@ -1249,14 +1678,73 @@
       "type": "io.netty.handler.timeout.ReadTimeoutHandler"
     },
     {
-      "type": "io.netty.internal.tcnative.Buffer",
+      "type": "io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
-      "type": "io.netty.internal.tcnative.CertificateCallback"
+      "type": "io.netty.internal.tcnative.AsyncSSLPrivateKeyMethodAdapter",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.AsyncSSLPrivateKeyMethodTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.AsyncTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.Buffer",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.CertificateCallback",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.CertificateCallbackTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -1271,7 +1759,43 @@
       ]
     },
     {
+      "type": "io.netty.internal.tcnative.CertificateCompressionAlgo",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.CertificateRequestedCallback",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.CertificateVerifier",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
       "type": "io.netty.internal.tcnative.CertificateVerifierTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -1287,22 +1811,72 @@
     },
     {
       "type": "io.netty.internal.tcnative.Library",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.NativeStaticallyReferencedJniMethods",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.ResultCallback",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.SSL",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.SSLContext",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.SSLCredential",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.SSLPrivateKeyMethod",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
@@ -1327,6 +1901,12 @@
     },
     {
       "type": "io.netty.internal.tcnative.SSLPrivateKeyMethodSignTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -1342,6 +1922,12 @@
     },
     {
       "type": "io.netty.internal.tcnative.SSLPrivateKeyMethodTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -1351,10 +1937,32 @@
     },
     {
       "type": "io.netty.internal.tcnative.SSLSession",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.SSLSessionCache",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true
     },
     {
       "type": "io.netty.internal.tcnative.SSLTask",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -1366,7 +1974,30 @@
       ]
     },
     {
+      "type": "io.netty.internal.tcnative.SessionTicketKey",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
+      "type": "io.netty.internal.tcnative.SniHostNameMatcher",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
+      "jniAccessible": true
+    },
+    {
       "type": "io.netty.util.DefaultAttributeMap"
+    },
+    {
+      "type": "io.netty.util.DefaultAttributeMap$DefaultAttribute"
     },
     {
       "type": "io.netty.util.Recycler$DefaultHandle"
@@ -1455,6 +2086,12 @@
     },
     {
       "type": "java.io.FileDescriptor",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -1778,6 +2415,12 @@
     },
     {
       "type": "java.nio.Buffer",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "fields": [
         {
@@ -1800,6 +2443,12 @@
     },
     {
       "type": "java.nio.ByteBuffer",
+      "allDeclaredFields": true,
+      "allPublicFields": true,
+      "allDeclaredMethods": true,
+      "allPublicMethods": true,
+      "allDeclaredConstructors": true,
+      "allPublicConstructors": true,
       "jniAccessible": true,
       "methods": [
         {
@@ -2418,6 +3067,15 @@
     },
     {
       "type": "org.Kroj.Core.Network.SocketBind.BindToDeviceHandler"
+    },
+    {
+      "type": "org.Kroj.UI.Extensions.Handlers.DownloadListener"
+    },
+    {
+      "type": "org.Kroj.UI.Extensions.Handlers.WebSocketDataConverter"
+    },
+    {
+      "type": "org.Kroj.UI.Extensions.Server$1"
     },
     {
       "type": "org.Kroj.UI.JavaFX.App",

@@ -85,18 +85,12 @@ graalvmNative {
                 buildArgs.add('--enable-native-access=ALL-UNNAMED');
                 buildArgs.add('-H:+UnlockExperimentalVMOptions');
                 buildArgs.add('-H:IncludeResources=.*');
+                buildArgs.add('-H:+MLCallCountProfileInference');
+                buildArgs.add('-H:+OptimizeVectorAPI');
                 buildArgs.add('--enable-url-protocols=http,https')
-                buildArgs.add("-O0");
+                buildArgs.add('--gc=G1');
+                buildArgs.add('-O3');
             }
-
-            /* Old
-            {
-                buildArgs.add("-H:JNIConfigurationFiles=${project.projectDir}/jni-config.json");
-                buildArgs.add("-H:ReflectionConfigurationFiles=${project.projectDir}/jni-config.json");
-            }
-             */
-
-
 
             // BoringSSL Initialization
             {
@@ -128,6 +122,7 @@ graalvmNative {
         defaultMode = "standard";
 
         metadataCopy {
+            trackReflectionMetadata.set(true);
             inputTaskNames.add("run")
             outputDirectories.add("src/main/resources/META-INF/native-image")
             mergeWithExisting = true

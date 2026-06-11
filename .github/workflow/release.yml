@@ -1,0 +1,68 @@
+name: Build and Release Native Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libxxf86vm-dev libgl1-mesa-dev libgtk-3-dev libglu1-mesa-dev
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        if: matrix.os != 'windows-latest'
+        run: chmod +x gradlew
+
+      - name: Build Native Binary
+        run: ./gradlew nativeCompile
+
+      - name: Package Binary
+        shell: bash
+        run: |
+          cd build/native/nativeCompile
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            powershell Compress-Archive -Path jvdm.exe -DestinationPath ../../../jvdm-windows.zip
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            zip -r ../../../jvdm-macos.zip jvdm
+          else
+            zip -r ../../../jvdm-linux.zip jvdm
+          fi
+
+      - name: Upload Artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            jvdm-windows.zip
+            jvdm-macos.zip
+            jvdm-linux.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
