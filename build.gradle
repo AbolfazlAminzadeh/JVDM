@@ -34,7 +34,7 @@ dependencies {
     {
         implementation 'io.github.mkpaz:atlantafx-base:2.0.1';
 
-        String javaFXVersion = "23"
+        String javaFXVersion = "25-ea+29"
         String[] platforms = ['win', 'linux', 'mac']
         String[] javaFXModules = ['graphics', 'controls', 'base', 'fxml']
 
@@ -51,7 +51,7 @@ application {
 }
 
 javafx {
-    version = "23"
+    version = "25-ea+29"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.base' ]
 }
 
