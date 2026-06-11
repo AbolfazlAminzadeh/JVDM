@@ -34,7 +34,7 @@ dependencies {
     {
         implementation 'io.github.mkpaz:atlantafx-base:2.0.1';
 
-        String javaFXVersion = "21"
+        String javaFXVersion = "23"
         String[] platforms = ['win', 'linux', 'mac']
         String[] javaFXModules = ['graphics', 'controls', 'base', 'fxml']
 
@@ -51,7 +51,7 @@ application {
 }
 
 javafx {
-    version = "21"
+    version = "23"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.base' ]
 }
 
@@ -77,11 +77,12 @@ graalvmNative {
                 buildArgs.add("--no-fallback");
                 buildArgs.add('--enable-native-access=ALL-UNNAMED');
                 buildArgs.add('-H:IncludeResources=.*');
+                buildArgs.add('-H:+UnlockExperimentalVMOptions');
 //                buildArgs.add('-H:+MLCallCountProfileInference');
                 buildArgs.add('-H:+OptimizeVectorAPI');
                 buildArgs.add('--enable-url-protocols=http,https')
                 buildArgs.add("--gc=serial")
-                buildArgs.add('-O3'); // ۲. نگه داشتن بهینه‌سازی سرعت حداکثری و حذف فلگ متناقض -Os برای سرعت دانلود بیشتر
+                buildArgs.add('-O3');
             }
 
             // BoringSSL Initialization
@@ -96,13 +97,14 @@ graalvmNative {
 
             // JavaFX Initialize
             {
+                /*
                 buildArgs.add('--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED')
                 buildArgs.add('--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED')
                 buildArgs.add('--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED')
                 buildArgs.add('--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED')
                 buildArgs.add('--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED')
                 buildArgs.add('--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED')
-
+*/
                 buildArgs.add('--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED')
                 buildArgs.add('--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED')
                 buildArgs.add('--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED')
