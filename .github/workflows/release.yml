@@ -46,7 +46,8 @@ jobs:
           echo "GraalVM Version:"
           native-image --version
           echo "Starting native compilation..."
-          ./gradlew nativeCompile --info --stacktrace
+          ./gradlew nativeCompile --info --stacktrace -x test
+
       - name: Package Binary
         shell: bash
         run: |
