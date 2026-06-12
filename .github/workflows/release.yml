@@ -42,8 +42,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Native Binary
-        run: ./gradlew nativeCompile
-
+        run: |
+          echo "GraalVM Version:"
+          native-image --version
+          echo "Starting native compilation..."
+          ./gradlew nativeCompile --info --stacktrace
       - name: Package Binary
         shell: bash
         run: |
