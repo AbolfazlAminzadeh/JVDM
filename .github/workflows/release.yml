@@ -48,19 +48,20 @@ jobs:
           echo "Starting native compilation..."
           ./gradlew nativeCompile --info --stacktrace -x test
 
-      - name: Package Binary
+      - name: Package Binary (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cd build/native/nativeCompile
+          Copy-Item "$env:JAVA_HOME\bin\*.dll" . -ErrorAction SilentlyContinue
+          Compress-Archive -Path jvdm.exe, *.dll -DestinationPath ../../../jvdm-windows.zip
+
+      - name: Package Binary (Linux & macOS)
+        if: matrix.os != 'windows-latest'
         shell: bash
         run: |
           cd build/native/nativeCompile
-          
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # 1. Safely copy all graphics and system DLLs from the runner's native binary bin directory
-            cp "$JAVA_HOME/bin"/*.dll . || true
-          
-            # 2. Package the Windows executable and dependent DLLs securely using native zip to avoid shell layer errors
-            zip -r ../../../jvdm-windows.zip jvdm.exe *.dll
-          
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
             zip -r ../../../jvdm-macos.zip jvdm
           else
             zip -r ../../../jvdm-linux.zip jvdm
