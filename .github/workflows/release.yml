@@ -54,10 +54,10 @@ jobs:
           cd build/native/nativeCompile
           
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # ۱. کپی کردن سریع و ۱۰۰٪ تضمینی تمام فایل‌های DLL گرافیکی و سیستمی از پوشه bin بومی رانر
+            # 1. Safely copy all graphics and system DLLs from the runner's native binary bin directory
             cp "$JAVA_HOME/bin"/*.dll . || true
           
-            # ۲. 🌟 راهکار طلایی: استفاده از ابزار zip بومی گیت‌بش به جای پاورشل برای پکیج‌بندی امن و بدون خطای لایه شل
+            # 2. Package the Windows executable and dependent DLLs securely using native zip to avoid shell layer errors
             zip -r ../../../jvdm-windows.zip jvdm.exe *.dll
           
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then

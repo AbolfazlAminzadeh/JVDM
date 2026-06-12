@@ -73,9 +73,7 @@ public class Initializer {
     // -=-=-=-=-=-=-=-=-=-=-=-
 
     public final static CharSequence DNS_CACHE_URL = null;
-
     public final static CharSequence DNS_CACHE_NAME = "JVDM_DNS_CACHE";
-
     public final static int DNS_TIMEOUT = 10000;
 
     public static void refreshDnsServer(CharSequence ip, short port) {
@@ -87,7 +85,6 @@ public class Initializer {
     // -=-=-=-=-=-=-=-=-=-=-=-
 
     public static final int OBJECTPOOL_FAILED = 0x01;
-
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //         Threads

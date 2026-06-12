@@ -21,3 +21,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "JVDM-Netty"
+
+//include ':Core'
+//include ':UI:JavaFX'
+//include ':Android'
