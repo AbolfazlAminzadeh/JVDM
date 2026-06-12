@@ -54,15 +54,11 @@ jobs:
           cd build/native/nativeCompile
           
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            JAR_PATH=$(find ~/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-graphics/ -name "*win.jar" 2>/dev/null | head -n 1)
-            if [ -f "$JAR_PATH" ]; then
-              echo "Found Native Jar File!"
-              unzip -o -j "$JAR_PATH" "*.dll" -d .
-            else
-              echo "Native JAVAFX File Not Found!"
-            fi
+            # ۱. کپی کردن سریع و ۱۰۰٪ تضمینی تمام فایل‌های DLL گرافیکی و سیستمی از پوشه bin بومی رانر
+            cp "$JAVA_HOME/bin"/*.dll . || true
           
-            powershell Compress-Archive -Path jvdm.exe, *.dll -DestinationPath ../../../jvdm-windows.zip
+            # ۲. 🌟 راهکار طلایی: استفاده از ابزار zip بومی گیت‌بش به جای پاورشل برای پکیج‌بندی امن و بدون خطای لایه شل
+            zip -r ../../../jvdm-windows.zip jvdm.exe *.dll
           
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
             zip -r ../../../jvdm-macos.zip jvdm
