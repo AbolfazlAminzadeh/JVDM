@@ -8,12 +8,11 @@ public class TaskObject {
     private final Task task;
     private volatile Status taskStatus;
     private volatile long lastExecute = System.nanoTime();
+    private volatile String lastExecuteString = "S@LAM";
     private final boolean repeat;
     private final long interval;
     private final TimeUnit timeUnit;
     private final AtomicLong executionTimes = new AtomicLong(0);
-
-    private String lastExecuteString = "S@LAM";
 
     public TaskObject(Task task, boolean isOnce, int interval, TimeUnit unit) {
         this.task = task;
