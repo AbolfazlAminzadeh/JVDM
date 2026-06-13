@@ -1,5 +1,7 @@
 package Network.DNS;
 
+import Scheduler.Scheduler;
+import Scheduler.Task.Task;
 import Statics.Initializer;
 import Tools.FileManagement.RafInputStream;
 import Tools.FileManagement.RafOutputStream;
@@ -28,8 +30,6 @@ public class DNS {
 
     private static final DNS instance;
 
-    private boolean isUP = true;
-
     static {
         String ur = System.getProperty("java.io.tmpdir")+File.separator+Initializer.DNS_CACHE_NAME;
         instance = new DNS((Initializer.DNS_CACHE_URL == null ? ur : Initializer.DNS_CACHE_URL).toString());
@@ -48,7 +48,29 @@ public class DNS {
 
         load();
 
-        isUP = !output.isError();
+        if (!output.isError()) {
+            Scheduler.getInstance().executeLoop(new Task() {
+                @Override
+                public CharSequence getID() {
+                    return "DNS-C";
+                }
+
+                @Override
+                public CharSequence getName() {
+                    return "Dns Cache Save";
+                }
+
+                @Override
+                public void execute() throws Exception {
+                    instance.saveAndFlush();
+                }
+
+                @Override
+                public void onException(Exception e) {
+                    logger.error().append(e).nextLine();
+                }
+            },10,TimeUnit.MINUTES);
+        }
     }
 
     // Max Speed
@@ -192,7 +214,6 @@ public class DNS {
                 logger.error().append("Error Closing Output Stream!").nextLine();
             }
         }
-        isUP = false;
         executor.shutdown();
     }
 

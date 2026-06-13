@@ -1,4 +1,4 @@
-package Scheduler;
+package Scheduler.Task;
 
 public enum Status {
 

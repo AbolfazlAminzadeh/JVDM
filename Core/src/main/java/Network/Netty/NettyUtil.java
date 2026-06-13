@@ -27,7 +27,7 @@ public class NettyUtil {
     public static MultiThreadIoEventLoopGroup getEventLoopGroup(int maxThreads) {
         return new MultiThreadIoEventLoopGroup(
                 maxThreads,
-                Initializer.threadFactory,
+                Initializer.daemonFactory,
                 Epoll.isAvailable() ?
                         EpollIoHandler.newFactory() :
                         KQueue.isAvailable() ?

@@ -89,6 +89,20 @@ public final class Initializer {
     //         Threads
     // -=-=-=-=-=-=-=-=-=-=-=-
 
-    public static final ThreadFactory threadFactory = new DefaultThreadFactory("JVDM-Thread-Factory",true);
+    public static final ThreadFactory daemonFactory = new DefaultThreadFactory("JVDM-Thread-Factory",true);
+    public static final ThreadFactory importantFactory = new DefaultThreadFactory("JVDM-Thread-Factory",false);
+
+    // -=-=-=-=-=-=-=-=-=-=-=-
+    //        Scheduler
+    // -=-=-=-=-=-=-=-=-=-=-=-
+
+    public static final byte schedulerThread = 2;
+
+    // -=-=-=-=-=-=-=-=-=-=-=-
+    //          Info
+    // -=-=-=-=-=-=-=-=-=-=-=-
+
+    public static final int totalThreads = JVDM_THREADS+schedulerThread;
+
 
 }

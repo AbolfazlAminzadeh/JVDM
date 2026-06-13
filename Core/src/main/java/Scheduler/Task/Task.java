@@ -1,9 +1,10 @@
-package Scheduler;
+package Scheduler.Task;
 
 public interface Task {
 
-    int getID();
+    CharSequence getID();
     CharSequence getName();
     void execute() throws Exception;
+    void onException(Exception e);
 
 }

@@ -7,8 +7,8 @@ public class Part implements Progress {
     private URI uri;
     private final String device;
     private final long start;
-    private final long end;
 
+    private volatile long end;
     private volatile long downloaded;
     private volatile boolean paused;
 
@@ -25,6 +25,10 @@ public class Part implements Progress {
 
     public void setURI(URI uri) {
         this.uri = uri;
+    }
+
+    public void resize(long end) {
+        this.end = end;
     }
 
     @Override
