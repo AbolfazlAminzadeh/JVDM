@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.String;
+package Tools.String;
 
 public class StrPart implements CharSequence {
     private final CharSequence parent;

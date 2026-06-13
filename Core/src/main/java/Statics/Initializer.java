@@ -1,14 +1,14 @@
-package org.Kroj.Core.Statics;
+package Statics;
 
 
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.Kroj.Core.Network.DNS.Resolver;
+import Network.DNS.Resolver;
 
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
 
-public class Initializer {
+public final class Initializer {
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //          JVDM
@@ -33,7 +33,6 @@ public class Initializer {
     public final static int CONNECTION_TIMEOUT = 10000;
 
     public final static int RECEIVE_TIMEOUT = 10000;
-
 
     public final static int DOWNLOADER_THREADS = JVDM_THREADS;
 

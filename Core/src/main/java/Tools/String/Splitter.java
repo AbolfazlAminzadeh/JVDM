@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.String;
+package Tools.String;
 
 
 import java.util.Arrays;

@@ -1,13 +1,14 @@
-package org.Kroj.Core.Tools.FileManagement;
+package Tools.FileManagement;
 
-import org.Kroj.Core.Tools.ObjectManagement.ObjectsPool;
+import Tools.ObjectManagement.ObjectsPool;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
+
 
 public abstract class FileObject {
     protected final FileChannel fc;

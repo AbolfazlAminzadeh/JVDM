@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.URL;
+package Tools.URL;
 
 import java.net.URI;
 import java.net.URISyntaxException;

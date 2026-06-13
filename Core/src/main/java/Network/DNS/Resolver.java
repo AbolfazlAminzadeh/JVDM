@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.DNS;
+package Network.DNS;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -6,8 +6,8 @@ import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.handler.codec.dns.*;
 import io.netty.util.concurrent.Promise;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Statics.Initializer;
+import Network.Netty.NettyUtil;
+import Statics.Initializer;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class Resolver {
 

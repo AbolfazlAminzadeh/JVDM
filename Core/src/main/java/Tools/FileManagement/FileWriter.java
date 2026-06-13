@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.FileManagement;
+package Tools.FileManagement;
 
 
 import java.io.File;
@@ -7,7 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
+
 
 public class FileWriter extends FileObject {
 

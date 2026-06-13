@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download;
+package Network.Download;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -7,10 +7,10 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.Kroj.Core.Network.DNS.DNS;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
-import org.Kroj.Core.Tools.Logger.Logger;
+import Network.DNS.DNS;
+import Network.Netty.NettyUtil;
+import Network.SocketBind.BindToDeviceHandler;
+import Tools.Logger.Logger;
 
 import javax.net.ssl.SSLException;
 import java.net.InetAddress;
@@ -18,7 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 public class Test {
 
 // public static String url = "https://ndl1.hollowofthealley.space/anime/2017/Fall/Black%20Clover/1080/Black%20Clover%20-%20011.%5BSS%5D%5B1080%5D%5BMixFlixTop%5D.mkv";

@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Part;
+package Network.Download.Part;
 
 public interface Progress {
     long getTotalBytes();

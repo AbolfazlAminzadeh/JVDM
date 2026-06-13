@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.String;
+package Tools.String;
 
 public class SizeManager {
     private static final double log1024 = Math.log(1024);

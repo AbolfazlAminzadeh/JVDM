@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.TestUnit;
+package Tools.TestUnit;
 
 import java.util.concurrent.atomic.AtomicLong;
 

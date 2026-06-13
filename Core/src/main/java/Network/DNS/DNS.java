@@ -1,9 +1,9 @@
-package org.Kroj.Core.Network.DNS;
+package Network.DNS;
 
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.RafInputStream;
-import org.Kroj.Core.Tools.FileManagement.RafOutputStream;
-import org.Kroj.Core.Tools.TestUnit.Tester;
+import Statics.Initializer;
+import Tools.FileManagement.RafInputStream;
+import Tools.FileManagement.RafOutputStream;
+import Tools.TestUnit.Tester;
 import org.msgpack.core.MessageInsufficientBufferException;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -15,7 +15,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class DNS {
 
@@ -24,10 +24,11 @@ public class DNS {
     private final RafInputStream input;
     private final RafOutputStream output;
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    private final ScheduledExecutorService scheduler;
-    private boolean edited = true;
+    private boolean edited = false;
 
     private static final DNS instance;
+
+    private boolean isUP = true;
 
     static {
         String ur = System.getProperty("java.io.tmpdir")+File.separator+Initializer.DNS_CACHE_NAME;
@@ -47,13 +48,7 @@ public class DNS {
 
         load();
 
-        if (output.isError()) {
-            scheduler = null;
-        } else {
-            scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(this::saveAndFlush,10,10,TimeUnit.MINUTES);
-        }
-
+        isUP = !output.isError();
     }
 
     // Max Speed
@@ -158,6 +153,7 @@ public class DNS {
             return;
         }
         if (!edited) return;
+        edited = false;
         //TODO Binary Save/Read
         try {
             MessagePacker packer = MessagePack.newDefaultPacker(output);
@@ -196,8 +192,8 @@ public class DNS {
                 logger.error().append("Error Closing Output Stream!").nextLine();
             }
         }
+        isUP = false;
         executor.shutdown();
-        scheduler.shutdown();
     }
 
     public static void main(String[] args) {

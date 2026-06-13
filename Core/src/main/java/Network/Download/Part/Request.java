@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Part;
+package Network.Download.Part;
 
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.HttpConversionUtil;

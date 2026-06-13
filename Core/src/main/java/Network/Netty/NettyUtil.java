@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Netty;
+package Network.Netty;
 
 import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -10,7 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.Kroj.Core.Statics.Initializer;
+import Statics.Initializer;
 
 public class NettyUtil {
 

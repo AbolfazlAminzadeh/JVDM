@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'org.graalvm.buildtools.native' version '0.10.2'
+}
+
+java {
+    sourceCompatibility = 25
+    targetCompatibility = 25
+}
+
+group = 'org.kroj'
+version = '1.0.0'
+
+dependencies {
+    implementation "io.netty:netty-all:4.2.15.Final";
+    String[] natives = ['windows-x86_64', 'linux-x86_64', 'linux-aarch_64', 'osx-x86_64', 'osx-aarch_64'];
+
+    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final";
+    implementation("$boringSSL");
+
+    for (String nat : natives) {
+        implementation("$boringSSL:$nat");
+    }
+
+    implementation "org.msgpack:msgpack-core:0.9.8"
+    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.8"
+}
+
+tasks.register("fatJar", Jar) {
+    manifest {
+        attributes "Main-Class": application.mainClass.get();
+    }
+    archiveClassifier = "all";
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar;
+}

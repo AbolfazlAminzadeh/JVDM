@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Part;
+package Network.Download.Part;
 
 import java.net.URI;
 
@@ -10,6 +10,7 @@ public class Part implements Progress {
     private final long end;
 
     private volatile long downloaded;
+    private volatile boolean paused;
 
     public Part(URI uri, String device, long start, long end) {
         this.uri = uri;
@@ -36,6 +37,18 @@ public class Part implements Progress {
         return downloaded;
     }
 
+    public void pause() {
+        paused = true;
+    }
+
+    public void resume() {
+        paused = false;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
     public URI getUri() { return uri; }
     public long getStart() { return start; }
     public long getEnd() { return end; }
@@ -43,6 +56,6 @@ public class Part implements Progress {
 
     @Override
     public String toString() {
-        return "Device: "+device+", Start: "+start+", End: "+end;
+        return "D="+downloaded+",S="+start+",E="+end;
     }
 }

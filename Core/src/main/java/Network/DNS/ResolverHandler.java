@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.DNS;
+package Network.DNS;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +8,7 @@ import io.netty.util.concurrent.Promise;
 
 import java.net.InetAddress;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class ResolverHandler extends SimpleChannelInboundHandler<DatagramDnsResponse> {
 

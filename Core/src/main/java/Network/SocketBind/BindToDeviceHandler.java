@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.SocketBind;
+package Network.SocketBind;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.epoll.Epoll;
@@ -15,12 +15,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelPromise;
-
-import java.net.*;
-import java.util.*;
 
 // TODO Caching + Performance Increase
 public class BindToDeviceHandler extends ChannelDuplexHandler {

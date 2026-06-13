@@ -15,7 +15,6 @@ import org.Kroj.UI.JavaFX.Controllers.MainController;
 
 import java.io.IOException;
 
-import static org.Kroj.Core.Tools.Logger.Logger.*;
 public class App extends Application {
 
     private MainController controller;

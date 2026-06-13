@@ -1,11 +1,11 @@
-package org.Kroj.Core.Tools.FileManagement;
+package Tools.FileManagement;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class RafOutputStream extends OutputStream {
 

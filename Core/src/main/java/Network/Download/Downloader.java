@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download;
+package Network.Download;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -6,16 +6,16 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.NetUtil;
-import org.Kroj.Core.Network.DNS.DNS;
-import org.Kroj.Core.Network.Download.Handlers.DownloadHandler;
-import org.Kroj.Core.Network.Download.Handlers.ProtocolSwitchHandler;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Download.Security.TLS;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.FileWriter;
-import org.Kroj.Core.Tools.URL.URL;
+import Network.DNS.DNS;
+import Network.Download.Handlers.DownloadHandler;
+import Network.Download.Handlers.ProtocolSwitchHandler;
+import Network.Download.Part.Part;
+import Network.Download.Security.TLS;
+import Network.Netty.NettyUtil;
+import Network.SocketBind.BindToDeviceHandler;
+import Statics.Initializer;
+import Tools.FileManagement.FileWriter;
+import Tools.URL.URL;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +25,7 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class Downloader {
 

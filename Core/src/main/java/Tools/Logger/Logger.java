@@ -1,8 +1,7 @@
-package org.Kroj.Core.Tools.Logger;
+package Tools.Logger;
 
+import Tools.ObjectManagement.ObjectsPool;
 import io.netty.buffer.ByteBuf;
-import org.Kroj.Core.Tools.ObjectManagement.ObjectsPool;
-
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;

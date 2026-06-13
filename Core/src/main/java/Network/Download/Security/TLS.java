@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Security;
+package Network.Download.Security;
 
 import io.netty.handler.codec.quic.QuicSslContext;
 import io.netty.handler.codec.quic.QuicSslContextBuilder;

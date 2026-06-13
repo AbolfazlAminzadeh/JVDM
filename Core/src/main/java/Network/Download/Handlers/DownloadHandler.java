@@ -1,18 +1,18 @@
-package org.Kroj.Core.Network.Download.Handlers;
+package Network.Download.Handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutException;
-import org.Kroj.Core.Network.Download.Downloader;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Download.Part.Request;
-import org.Kroj.Core.Statics.Initializer;
+import Network.Download.Downloader;
+import Network.Download.Part.Part;
+import Network.Download.Part.Request;
+import Statics.Initializer;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 
 //TODO Better Log

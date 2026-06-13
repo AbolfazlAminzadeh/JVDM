@@ -1,6 +1,6 @@
 package Scheduler;
 
-import java.time.Instant;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,6 +12,8 @@ public class TaskObject {
     private final long interval;
     private final TimeUnit timeUnit;
     private final AtomicLong executionTimes = new AtomicLong(0);
+
+    private String lastExecuteString = "S@LAM";
 
     public TaskObject(Task task, boolean isOnce, int interval, TimeUnit unit) {
         this.task = task;
@@ -53,9 +55,18 @@ public class TaskObject {
         return lastExecute;
     }
 
-    protected void setLastTime(long nanoTime) {
-        
+    public void setLastTime(long nanoTime) {
+        lastExecute = nanoTime;
+        lastExecuteString = Duration.ofNanos(nanoTime).toString();
     }
 
+    public void setStatus(Status status) {
+        this.taskStatus = status;
+    }
+
+    @Override
+    public String toString() {
+        return "["+task.getID()+"]"+" Name: "+task.getName()+", Status: ,"+taskStatus+"Last Executed: "+lastExecuteString;
+    }
 
 }

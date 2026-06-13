@@ -1,13 +1,12 @@
-package org.Kroj.Core.Network.Download;
+package Network.Download;
 
 import io.netty.channel.IoEventLoopGroup;
 import io.netty.util.concurrent.ScheduledFuture;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.FileWriter;
-import org.Kroj.Core.Tools.URL.URL;
-import org.Kroj.UI.JavaFX.App;
+import Network.Download.Part.Part;
+import Network.Netty.NettyUtil;
+import Statics.Initializer;
+import Tools.FileManagement.FileWriter;
+import Tools.URL.URL;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -22,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class Manager {
 

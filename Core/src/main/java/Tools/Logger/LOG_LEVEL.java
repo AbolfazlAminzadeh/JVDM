@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.Logger;
+package Tools.Logger;
 
 public enum LOG_LEVEL {
     DEBUG,

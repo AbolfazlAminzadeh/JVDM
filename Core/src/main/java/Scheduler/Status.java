@@ -1,4 +1,10 @@
 package Scheduler;
 
-public class Status {
+public enum Status {
+    Pending,
+    Running,
+    Complete,
+    Failed,
+    Cancelled,
+
 }

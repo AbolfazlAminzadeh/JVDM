@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.Logger;
+package Tools.Logger;
 
 import java.util.Arrays;
 

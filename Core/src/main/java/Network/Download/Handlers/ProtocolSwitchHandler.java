@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Handlers;
+package Network.Download.Handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -7,10 +7,10 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
-import org.Kroj.Core.Network.Download.Downloader;
-import org.Kroj.Core.Network.Download.Part.Part;
+import Network.Download.Downloader;
+import Network.Download.Part.Part;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static Tools.Logger.Logger.logger;
 
 public class ProtocolSwitchHandler extends ApplicationProtocolNegotiationHandler {
     private final Part part;

@@ -1,0 +1,7 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.kroj'
+version = '1.0-SNAPSHOT'
+

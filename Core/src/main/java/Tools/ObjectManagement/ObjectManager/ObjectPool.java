@@ -1,13 +1,14 @@
-package org.Kroj.Core.Tools.ObjectManagement.ObjectManager;
+package Tools.ObjectManagement.ObjectManager;
 
-import org.Kroj.Core.Statics.Initializer;
+
+import Statics.Initializer;
+import static Tools.Logger.Logger.logger;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 public class ObjectPool<T> {
 

@@ -1,6 +1,7 @@
-package org.Kroj.Core.Tools.ObjectManagement;
+package Tools.ObjectManagement;
 
-import org.Kroj.Core.Tools.ObjectManagement.ObjectManager.ObjectPool;
+
+import Tools.ObjectManagement.ObjectManager.ObjectPool;
 
 public class ObjectsPool {
 
