@@ -43,9 +43,9 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         sendRequest(ctx);
-        super.channelActive(ctx);
+        super.handlerAdded(ctx);
     }
 
     private void sendRequest(ChannelHandlerContext ctx){
@@ -120,22 +120,15 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
         if (isHead) return;
         int size = content.content().readableBytes();
         if (size == 0) return;
-        long pos = part.getStart()+part.getCurrentBytes();
+        long pos = part.getStart() + part.getCurrentBytes();
         int wroteBytes = 0;
-        if (content.content().nioBufferCount() == 1) {
-            ByteBuf buffer = content.content().retain();
-            try {
-                ByteBuffer buf = buffer.nioBuffer();
-                wroteBytes = channel.write(buf, pos);
-            } finally {
-                buffer.release();
+        ByteBuf buffer = content.content().retain();
+        try {
+            for (ByteBuffer buf : buffer.nioBuffers()) {
+                wroteBytes = channel.write(buf, pos+wroteBytes);
             }
-        } else {
-            for (java.nio.ByteBuffer nioBuf : content.content().nioBuffers()) {
-                int written = channel.write(nioBuf, pos + wroteBytes);
-                if (written <= 0) break;
-                wroteBytes += written;
-            }
+        } finally {
+            buffer.release();
         }
         if (size != wroteBytes) {
             logger.append("Partial Write Is Not Synced, Maybe output file be damaged").nextLine();

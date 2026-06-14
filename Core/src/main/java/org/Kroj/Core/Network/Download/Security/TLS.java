@@ -20,16 +20,18 @@ public class TLS {
             ssl = SslContextBuilder.forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .sslProvider(
-//                            OpenSsl.isAvailable() ? SslProvider.OPENSSL :
+                            // Required For Speed
+                            OpenSsl.isAvailable() ? SslProvider.OPENSSL :
                             SslProvider.JDK
                     )
                     .protocols("TLSv1.3","TLSv1.2")
+//                  I should fix this later to works on android
 /*
                     .applicationProtocolConfig(
                             new ApplicationProtocolConfig(
                             ApplicationProtocolConfig.Protocol.ALPN,
                             ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.CHOOSE_MY_LAST_PROTOCOL,
+                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
                             ApplicationProtocolNames.HTTP_2,
                             ApplicationProtocolNames.HTTP_1_1
                     ))
