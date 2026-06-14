@@ -30,20 +30,6 @@ dependencies {
         implementation "org.msgpack:jackson-dataformat-msgpack:0.9.8"
     }
 
-    // UI
-    {
-        implementation 'io.github.mkpaz:atlantafx-base:2.0.1';
-
-        String javaFXVersion = "25-ea+29"
-        String[] platforms = ['win', 'linux', 'mac']
-        String[] javaFXModules = ['graphics', 'controls', 'base', 'fxml']
-
-        for (String platform : platforms) {
-            for (String module : javaFXModules) {
-                runtimeOnly "org.openjfx:javafx-$module:$javaFXVersion:$platform"
-            }
-        }
-    }
 }
 
 application {

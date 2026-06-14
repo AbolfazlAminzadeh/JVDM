@@ -1,0 +1,49 @@
+package org.Kroj.Core.Network.Download.Security;
+
+import io.netty.handler.codec.quic.Quic;
+import io.netty.handler.codec.quic.QuicSslContext;
+import io.netty.handler.codec.quic.QuicSslContextBuilder;
+import io.netty.handler.ssl.*;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.internal.tcnative.SSL;
+
+import javax.net.ssl.SSLException;
+
+public class TLS {
+
+    public static final SslContext ssl;
+    public static final QuicSslContext quicSSL;
+
+    static {
+        try {
+
+            ssl = SslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .sslProvider(
+//                            OpenSsl.isAvailable() ? SslProvider.OPENSSL :
+                            SslProvider.JDK
+                    )
+                    .protocols("TLSv1.3","TLSv1.2")
+/*
+                    .applicationProtocolConfig(
+                            new ApplicationProtocolConfig(
+                            ApplicationProtocolConfig.Protocol.ALPN,
+                            ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.CHOOSE_MY_LAST_PROTOCOL,
+                            ApplicationProtocolNames.HTTP_2,
+                            ApplicationProtocolNames.HTTP_1_1
+                    ))
+ */
+                    .build();
+
+            quicSSL = Quic.isAvailable() ? QuicSslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .earlyData(true)
+                    .build() : null;
+        } catch (SSLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+}
