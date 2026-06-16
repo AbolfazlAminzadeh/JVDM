@@ -44,40 +44,53 @@ tasks.register("fatJar", Jar) {
 }
 
 graalvmNative {
-    toolchainDetection = false
+    metadataRepository {
+        enabled = true
+    }
     binaries {
         main {
-            // Core
-            {
-                imageName = "jvdm-core"
-                buildArgs.add("--no-fallback")
-                buildArgs.add('--enable-native-access=ALL-UNNAMED')
-                buildArgs.add('-H:+UnlockExperimentalVMOptions')
-                buildArgs.add('-H:IncludeResources=.*')
-                buildArgs.add('-H:+OptimizeVectorAPI')
-                buildArgs.add('--enable-url-protocols=http,https')
-                buildArgs.add("--gc=serial")
-                buildArgs.add('-O3')
-            }
+            imageName = 'JVDM'
+            mainClass = "org.Kroj.Core.Network.Download.Manager"
+            debug = false
+            verbose = true
+            fallback = false
+            sharedLibrary = false
+            quickBuild = false
+            richOutput = true
+            useFatJar = false
 
-            // BoringSSL Initialization
-            {
-                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSsl')
-                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslContext')
-                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslContext')
-                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslPrivateKeyMethod')
-                buildArgs.add('--initialize-at-run-time=io.netty.util.AbstractReferenceCounted')
-                buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative')
-            }
+//            buildArgs.add()
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:IncludeResources=.*')
+//            buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            buildArgs.add('--enable-url-protocols=http,https')
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLPrivateKeyMethod')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateCompressionAlgo')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSL')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLContext')
+            buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
+
+            // For Optimizations and more
+//            jvmArgs.add()
+//            runtimeArgs.add()
+            // buildArgs.add('--pgo-instrument')
+            // buildArgs.add('--pgo=default.iprof')
+
         }
     }
+
     agent {
         defaultMode = "standard"
+        enabled = true
+
+        trackReflectionMetadata = true
 
         metadataCopy {
-            trackReflectionMetadata.set(true)
             inputTaskNames.add("run")
-            outputDirectories.add("src/main/resources/META-INF/native-image")
+            outputDirectories.add("src/main/resources/META-INF/native-image/org.kroj/UI/")
             mergeWithExisting = true
         }
     }
