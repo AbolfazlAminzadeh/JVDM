@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     name: Build ${{ matrix.os }} (${{ matrix.arch }})
@@ -59,9 +62,9 @@ jobs:
           mkdir -p artifacts
           
           if [[ "${{ matrix.os }}" == "windows" ]]; then
-            cp build/nativeCompile/JVDM.exe "artifacts/${{ matrix.artifact }}"
+            cp build/native/nativeCompile/JVDM.exe "artifacts/${{ matrix.artifact }}"
           else
-            cp build/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
+            cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
           
           cp build/libs/*-all.jar "artifacts/JVDM-all.jar"
