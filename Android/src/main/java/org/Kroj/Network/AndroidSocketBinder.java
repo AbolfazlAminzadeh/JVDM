@@ -1,5 +1,7 @@
 package org.Kroj.Network;
 
+import static org.Kroj.Core.Tools.Logger.Logger.logger;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -10,7 +12,7 @@ import org.Kroj.Core.Network.SocketBind.SocketBind;
 import org.Kroj.Core.Tools.NI.NetworkInterfaces;
 
 import java.net.Socket;
-
+// Not Ready Yet
 public class AndroidSocketBinder implements SocketBind {
 
     private static final String TAG = "AndroidSocketBinder";

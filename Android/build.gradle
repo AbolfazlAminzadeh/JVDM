@@ -5,11 +5,6 @@ plugins {
 group = 'org.kroj'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 android {
     namespace 'org.kroj'
 

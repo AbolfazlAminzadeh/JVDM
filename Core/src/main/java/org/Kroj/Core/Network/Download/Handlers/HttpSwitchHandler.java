@@ -71,6 +71,7 @@ public class ProtocolSwitchHandler extends ApplicationProtocolNegotiationHandler
         }
         if (!downloader.downloadFuture.isDone()) {
             downloader.downloadFuture.completeExceptionally(cause);
-        }        ctx.close();
+        }
+        ctx.close();
     }
 }

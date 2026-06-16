@@ -1,6 +1,6 @@
 package org.Kroj.Android;
 
-import static android.content.ContentValues.TAG;
+import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -12,11 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.Kroj.Core.Network.Download.DownloadListener;
 import org.Kroj.Core.Network.Download.Manager;
 import org.Kroj.Core.Tools.NI.NetworkInterfaces;
+import org.Kroj.Core.Tools.String.FileName;
+import org.Kroj.Core.Tools.URL.URL;
 import org.Kroj.Network.AndroidSocketBinder;
 import org.kroj.R;
 
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView downloadListView;
     private DownloadAdapter adapter;
     private List<DownloadItem> downloadList = new ArrayList<>();
+    private static final String TAG = "AndroidSocketBinder";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +60,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(v -> {
             String url = urlInput.getText().toString().trim();
             if (!url.isEmpty()) {
-                String fileName = url.substring(url.lastIndexOf("/") + 1);
-                if (fileName.contains("?")) {
-                    fileName = fileName.substring(0, fileName.indexOf("?"));
-                }
-                if (fileName.isEmpty()) fileName = "file_" + System.currentTimeMillis();
-
+                String fileName = FileName.getFileName(URL.getSafeURI(url),null);
                 DownloadItem item = new DownloadItem(fileName, 0, "Idle");
                 downloadList.add(0, item);
                 adapter.notifyDataSetChanged();
@@ -74,11 +73,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void startAndroidDownload(String url, String fileName, DownloadItem item) {
         String targetDir = getExternalFilesDir(null).getAbsolutePath();
-        AndroidSocketBinder binder = new AndroidSocketBinder(this);
-
+//        AndroidSocketBinder binder = new AndroidSocketBinder(this);
+        logger.append(targetDir).nextLine();
         new Thread(() -> {
             try {
-                Manager.getInstance().startDownload(url, targetDir + "/" + fileName, new DownloadListener() {
+                Manager.getInstance().makeDownload(url, targetDir + "/" + fileName, new DownloadListener() {
                     @Override
                     public void onReady(String resolvedFileName, long totalSizeBytes) {
                         runOnUiThread(() -> {
@@ -93,11 +92,16 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onProgress(long current, long total, double speed) {
                         runOnUiThread(() -> {
-                            int progressPercent = (int) ((current / total) * 100);
-                            item.setProgress(progressPercent);
-                            item.setStatus(String.format("Downloading... %d%%", progressPercent));
+                            double progressPercent = ((double)current/total)*100;
+                            item.setProgress((int)progressPercent);
+                            item.setStatus(String.format("Downloading... %.2f%%", progressPercent));
                             adapter.notifyDataSetChanged();
                         });
+                    }
+
+                    @Override
+                    public void onPaused(long lastByte, long total) {
+
                     }
 
                     @Override
@@ -117,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                         });
                     }
-                }, NetworkInterfaces.getDevices().toArray(new String[0]));
+                }, NetworkInterfaces.getDevices().toArray(new String[0])).start();
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     item.setStatus("Error: " + e.getMessage());
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             super(context, 0, items);
         }
 
+        @NonNull
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             DownloadItem item = getItem(position);
