@@ -1,4 +1,4 @@
-package org.Kroj.Controllers;
+package org.Kroj.UI.Controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -9,16 +9,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.VBox;
-
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.util.Duration;
+import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Manager;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.NI.NetworkInterfaces;
+import org.Kroj.Core.Tools.String.FileName;
 import org.Kroj.Core.Tools.URL.URL;
-import org.Kroj.Items.DownloadItem;
-import org.Kroj.Items.DownloadUIUpdater;
+import org.Kroj.UI.Items.DownloadItem;
+import org.Kroj.UI.Items.DownloadUIUpdater;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -121,8 +120,7 @@ public class MainController {
         }
 
         selected.statusProperty().set("Connecting To Server...");
-
-        Manager.getInstance().startDownload(uri, Initializer.DOWNLOAD_FOLDER, updater, NetworkInterfaces.getDevices().toArray(String[]::new));
+        updater.start();
     }
 
     public void onPause() {
@@ -130,6 +128,7 @@ public class MainController {
         if (selected != null) {
             selected.statusProperty().set("Paused");
             selected.speedProperty().set("0 KB/s");
+            updaters.get(selected.getFileName()).pause();
         }
     }
     public void onDelete() {
@@ -172,7 +171,7 @@ public class MainController {
             logger.append("Is this a correct url?").nextLine().append(url).nextLine();
             return;
         }
-        String fileName = Manager.getFileName(safeURL,null);
+        String fileName = FileName.getFileName(safeURL,null);
         DownloadItem item = new DownloadItem(fileName);
         item.statusProperty().set("Idle (? Size)");
 
@@ -182,7 +181,7 @@ public class MainController {
         }
 
         links.put(fileName,safeURL);
-        updaters.put(fileName,new DownloadUIUpdater(item));
+        updaters.put(fileName,new DownloadUIUpdater(item,safeURL));
         downloads.addFirst(item);
 
         tableView.getSelectionModel().select(item);

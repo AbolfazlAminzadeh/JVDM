@@ -1,17 +1,36 @@
-package org.Kroj.Items;
+package org.Kroj.UI.Items;
 
 import javafx.application.Platform;
-import org.Kroj.Core.Network.Download.DownloadListener;
+import org.Kroj.Core.Network.Download.Download;
+import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
+import org.Kroj.Core.Network.Download.Manager;
 import org.Kroj.Core.Statics.Initializer;
+import org.Kroj.Core.Tools.NI.NetworkInterfaces;
 import org.Kroj.Core.Tools.String.SizeManager;
+
+import java.net.URI;
 
 public class DownloadUIUpdater implements DownloadListener {
 
     private final DownloadItem dlItem;
+    private final Download dl;
     private long lastUIUpdateTime = 0;
 
-    public DownloadUIUpdater(DownloadItem dlItem) {
+    public DownloadUIUpdater(DownloadItem dlItem, URI url) {
         this.dlItem = dlItem;
+        this.dl = Manager.getInstance().makeDownload(url, Initializer.DOWNLOAD_FOLDER, this, NetworkInterfaces.getDevices().toArray(String[]::new));
+    }
+
+    public void start() {
+        dl.start();
+    }
+
+    public void pause() {
+        dl.pause();
+    }
+
+    public void resume() {
+        dl.resume();
     }
 
     @Override
@@ -36,6 +55,13 @@ public class DownloadUIUpdater implements DownloadListener {
             dlItem.progressProperty().set(progress);
             dlItem.speedProperty().set(SizeManager.formatSpeed(speed));
             dlItem.statusProperty().set("Downloading ("+SizeManager.formatSize(current)+" / "+SizeManager.formatSize(total)+")");
+        });
+    }
+
+    @Override
+    public void onPaused(long lastByte, long total) {
+        Platform.runLater(() -> {
+            dlItem.statusProperty().set("Paused");
         });
     }
 

@@ -1,4 +1,4 @@
-package org.Kroj;
+package org.Kroj.UI;
 
 import atlantafx.base.theme.PrimerDark;
 import javafx.application.Application;
@@ -10,7 +10,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
-import org.Kroj.Controllers.MainController;
+import org.Kroj.UI.Controllers.MainController;
 
 import java.io.IOException;
 

@@ -1,10 +1,9 @@
-package org.Kroj.Items;
+package org.Kroj.UI.Items;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 
 import java.util.Objects;
 
