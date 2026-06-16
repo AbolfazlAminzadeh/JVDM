@@ -53,10 +53,8 @@ jobs:
       - name: Setup GraalVM JDK 21 (with JavaFX support where possible)
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'                    # JavaFX 21 works best on 21
+          java-version: '25'                    # JavaFX 21 works best on 21
           distribution: 'graalvm'               # Oracle GraalVM
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image: true
           cache: gradle
 
       - name: Grant execute permission for gradlew
