@@ -231,6 +231,18 @@
           ]
         },
         {
+          "name": "notifyInputMethod",
+          "parameterTypes": [
+            "java.lang.String",
+            "int[]",
+            "int[]",
+            "byte[]",
+            "int",
+            "int",
+            "int"
+          ]
+        },
+        {
           "name": "notifyKey",
           "parameterTypes": [
             "int",
@@ -418,18 +430,27 @@
       "jniAccessible": true,
       "methods": [
         {
-          "name": "notifyInputMethodCandidateRelativePosRequest",
+          "name": "notifyInputMethodCaret",
           "parameterTypes": [
+            "int",
+            "int",
             "int"
           ]
         },
         {
-          "name": "notifyInputMethodLinux",
+          "name": "notifyInputMethodDraw",
           "parameterTypes": [
             "java.lang.String",
             "int",
             "int",
-            "byte"
+            "int",
+            "byte[]"
+          ]
+        },
+        {
+          "name": "notifyPreeditMode",
+          "parameterTypes": [
+            "boolean"
           ]
         }
       ]
@@ -439,22 +460,12 @@
       "jniAccessible": true,
       "methods": [
         {
-          "name": "dragAreaHitTest",
-          "parameterTypes": [
-            "int",
-            "int"
-          ]
-        },
-        {
           "name": "notifyStateChanged",
           "parameterTypes": [
             "int"
           ]
         }
       ]
-    },
-    {
-      "type": "com.sun.javafx.PreviewFeature"
     },
     {
       "type": "com.sun.javafx.font.FontConfigManager$FcCompFont",
@@ -695,7 +706,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -708,7 +718,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -721,7 +730,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -734,7 +742,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -747,7 +754,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -760,7 +766,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -773,7 +778,6 @@
           "name": "loadShader",
           "parameterTypes": [
             "com.sun.prism.ps.ShaderFactory",
-            "java.lang.String",
             "java.io.InputStream"
           ]
         }
@@ -865,15 +869,6 @@
         },
         {
           "name": "transferred"
-        }
-      ]
-    },
-    {
-      "type": "io.netty.channel.epoll.EpollDatagramChannel",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
         }
       ]
     },
@@ -1000,12 +995,6 @@
     {
       "type": "io.netty.channel.unix.Socket",
       "jniAccessible": true
-    },
-    {
-      "type": "io.netty.handler.codec.dns.DatagramDnsQueryEncoder"
-    },
-    {
-      "type": "io.netty.handler.codec.dns.DatagramDnsResponseDecoder"
     },
     {
       "type": "io.netty.handler.codec.http.HttpClientCodec"
@@ -1452,15 +1441,6 @@
       "type": "io.netty.util.internal.shaded.org.jctools.queues.atomic.MpmcAtomicArrayQueueProducerIndexField"
     },
     {
-      "type": "io.netty.util.internal.shaded.org.jctools.queues.atomic.unpadded.MpscAtomicUnpaddedArrayQueueConsumerIndexField"
-    },
-    {
-      "type": "io.netty.util.internal.shaded.org.jctools.queues.atomic.unpadded.MpscAtomicUnpaddedArrayQueueProducerIndexField"
-    },
-    {
-      "type": "io.netty.util.internal.shaded.org.jctools.queues.atomic.unpadded.MpscAtomicUnpaddedArrayQueueProducerLimitField"
-    },
-    {
       "type": "java.io.FileDescriptor",
       "jniAccessible": true,
       "fields": [
@@ -1654,15 +1634,6 @@
     },
     {
       "type": "java.lang.String[]"
-    },
-    {
-      "type": "java.lang.System",
-      "methods": [
-        {
-          "name": "getSecurityManager",
-          "parameterTypes": []
-        }
-      ]
     },
     {
       "type": "java.lang.Thread",
@@ -2037,9 +2008,6 @@
       "type": "javafx.collections.transformation.SortedList$Element[]"
     },
     {
-      "type": "javafx.css.Rule"
-    },
-    {
       "type": "javafx.fxml.FXMLLoader"
     },
     {
@@ -2406,19 +2374,13 @@
       "type": "javax.net.ssl.X509ExtendedTrustManager"
     },
     {
-      "type": "org.Kroj.Core.Network.DNS.Resolver$1"
-    },
-    {
-      "type": "org.Kroj.Core.Network.DNS.ResolverHandler"
-    },
-    {
-      "type": "org.Kroj.Core.Network.Download.Downloader$1"
-    },
-    {
       "type": "org.Kroj.Core.Network.Download.Handlers.DownloadHandler"
     },
     {
-      "type": "org.Kroj.Core.Network.Download.Handlers.ProtocolSwitchHandler"
+      "type": "org.Kroj.Core.Network.Download.Handlers.HeaderHandler"
+    },
+    {
+      "type": "org.Kroj.Core.Network.Download.Part.Downloader$1"
     },
     {
       "type": "org.Kroj.Core.Network.SocketBind.BindToDeviceHandler"
@@ -2472,26 +2434,6 @@
       "methods": [
         {
           "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "displayAll",
-          "parameterTypes": []
-        },
-        {
-          "name": "displayComplete",
-          "parameterTypes": []
-        },
-        {
-          "name": "displayDownloading",
-          "parameterTypes": []
-        },
-        {
-          "name": "displayPaused",
-          "parameterTypes": []
-        },
-        {
-          "name": "displaySettings",
           "parameterTypes": []
         },
         {
@@ -2570,6 +2512,15 @@
     },
     {
       "type": "sun.security.provider.DSA$SHA256withDSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.MD5",
       "methods": [
         {
           "name": "<init>",
@@ -2711,6 +2662,30 @@
       "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.so"
     },
     {
+      "glob": "META-INF/native/libnetty_quiche42_linux_x86_64.dll"
+    },
+    {
+      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64.dll"
+    },
+    {
+      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64_arch.dll"
+    },
+    {
+      "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.dll"
+    },
+    {
+      "glob": "META-INF/native/libnetty_quiche42_linux_x86_64.dylib"
+    },
+    {
+      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64.dylib"
+    },
+    {
+      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64_arch.dylib"
+    },
+    {
+      "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.dylib"
+    },
+    {
       "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
     },
     {
@@ -2754,6 +2729,14 @@
     {
       "module": "java.base",
       "glob": "sun/net/idn/uidna.spp"
+    },
+    {
+      "module": "java.logging",
+      "glob": "sun/util/logging/resources/logging_en.properties"
+    },
+    {
+      "module": "java.logging",
+      "glob": "sun/util/logging/resources/logging_en_US.properties"
     },
     {
       "module": "javafx.base",
@@ -2820,6 +2803,78 @@
       "glob": "com/sun/prism/es2/glsl/Texture_Color.frag"
     },
     {
+      "module": "javafx.graphics",
+      "glob": "libglass.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libglassgtk3.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_freetype.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libglass.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libglassgtk3.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_freetype.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libglass.dylib"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libglassgtk3.dylib"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font.dylib"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_freetype.dylib"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_pango.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libprism_es2.so"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_pango.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libprism_es2.dll"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libjavafx_font_pango.dylib"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "libprism_es2.dylib"
+    },
+    {
       "module": "jdk.jfr",
       "glob": "jdk/jfr/internal/types/metadata.bin"
     },
@@ -2828,6 +2883,9 @@
     },
     {
       "bundle": "com/sun/javafx/scene/control/skin/resources/controls"
+    },
+    {
+      "bundle": "sun.util.logging.resources.logging"
     }
   ]
 }

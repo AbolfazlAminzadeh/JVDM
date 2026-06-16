@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'com.gradleup.shadow' version '9.3.2'
-    id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.23'
+    id 'com.gradleup.shadow' version '9.2.2'
+    id 'org.graalvm.buildtools.native'
 }
 
 group = 'org.kroj'
@@ -21,6 +21,7 @@ dependencies {
         runtimeOnly "org.openjfx:javafx-graphics:$jfx:$os"
         runtimeOnly "org.openjfx:javafx-controls:$jfx:$os"
         runtimeOnly "org.openjfx:javafx-fxml:$jfx:$os"
+
     }
 
 }
@@ -39,25 +40,55 @@ shadowJar {
     mergeServiceFiles()
 }
 
-gluonfx {
-    target = "host"
+graalvmNative {
+    metadataRepository {
+        enabled = true
+    }
+    binaries {
+        main {
+            imageName = 'JVDM'
+            mainClass = application.mainClass.get()
+            debug = false
+            verbose = true
+            fallback = false
+            sharedLibrary = false
+            quickBuild = false
+            richOutput = true
+            useFatJar = false
 
-    compilerArgs = [
-            "--no-fallback",
-            "-H:+UnlockExperimentalVMOptions",
-            "-H:IncludeResources=.*",
-            "--enable-url-protocols=http,https",
-            "--gc=serial",
-            "-O0",
+//            buildArgs.add()
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:IncludeResources=.*')
+//            buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            buildArgs.add('--enable-url-protocols=http,https')
+            buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLPrivateKeyMethod')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateCompressionAlgo')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSL')
+            buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLContext')
+            buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
 
-            "--initialize-at-run-time=io.netty.handler.ssl.OpenSsl",
-            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslAsyncPrivateKeyMethod",
-            "--initialize-at-run-time=io.netty.handler.ssl.JdkDelegatingPrivateKeyMethod",
-            "--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine",
-            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslContext",
-            "--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslContext",
-            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslPrivateKeyMethod",
-            "--initialize-at-run-time=io.netty.util.AbstractReferenceCounted",
-            "--initialize-at-run-time=io.netty.internal.tcnative"
-    ]
+            // For Optimizations and more
+//            jvmArgs.add()
+//            runtimeArgs.add()
+            // buildArgs.add('--pgo-instrument')
+            // buildArgs.add('--pgo=default.iprof')
+
+        }
+    }
+
+    agent {
+        defaultMode = "standard"
+        enabled = true
+
+        trackReflectionMetadata = true
+
+        metadataCopy {
+            inputTaskNames.add("run")
+            outputDirectories.add("src/main/resources/META-INF/native-image/org.kroj/UI/")
+            mergeWithExisting = true
+        }
+    }
 }

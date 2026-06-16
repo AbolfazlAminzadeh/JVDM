@@ -1,15 +1,16 @@
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
+        google()
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
-        google()
         mavenCentral()
+        google()
+        gradlePluginPortal()
     }
 }
 rootProject.name = "JVDM-Netty"
