@@ -2650,40 +2650,7 @@
   ],
   "resources": [
     {
-      "glob": "META-INF/native/libnetty_quiche42_linux_x86_64.so"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64.so"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64_arch.so"
-    },
-    {
-      "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.so"
-    },
-    {
-      "glob": "META-INF/native/libnetty_quiche42_linux_x86_64.dll"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64.dll"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64_arch.dll"
-    },
-    {
-      "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.dll"
-    },
-    {
-      "glob": "META-INF/native/libnetty_quiche42_linux_x86_64.dylib"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64.dylib"
-    },
-    {
-      "glob": "META-INF/native/libnetty_tcnative_linux_x86_64_arch.dylib"
-    },
-    {
-      "glob": "META-INF/native/libnetty_transport_native_epoll_x86_64.dylib"
+      "glob": "META-INF/native/libnetty_*"
     },
     {
       "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
@@ -2804,75 +2771,15 @@
     },
     {
       "module": "javafx.graphics",
-      "glob": "libglass.so"
+      "glob": "*libglass*"
     },
     {
       "module": "javafx.graphics",
-      "glob": "libglassgtk3.so"
+      "glob": "*libjavafx_font*"
     },
     {
       "module": "javafx.graphics",
-      "glob": "libjavafx_font.so"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_freetype.so"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libglass.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libglassgtk3.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_freetype.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libglass.dylib"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libglassgtk3.dylib"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font.dylib"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_freetype.dylib"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_pango.so"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libprism_es2.so"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_pango.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libprism_es2.dll"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libjavafx_font_pango.dylib"
-    },
-    {
-      "module": "javafx.graphics",
-      "glob": "libprism_es2.dylib"
+      "glob": "*libprism*"
     },
     {
       "module": "jdk.jfr",

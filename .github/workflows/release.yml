@@ -17,31 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64
           - os: linux
             arch: x86_64
             runner: ubuntu-24.04
             artifact: JVDM-linux-x86_64
 
-          # Linux ARM64
-          - os: linux
-            arch: aarch64
-            runner: ubuntu-24.04-arm
-            artifact: JVDM-linux-aarch64
-
-          # macOS Intel
-          - os: macos
-            arch: x86_64
-            runner: macos-13
-            artifact: JVDM-macos-x86_64
-
-          # macOS Apple Silicon
           - os: macos
             arch: aarch64
             runner: macos-latest
             artifact: JVDM-macos-arm64
 
-          # Windows x86_64
           - os: windows
             arch: x86_64
             runner: windows-2022
@@ -62,7 +47,7 @@ jobs:
         if: matrix.os != 'windows'
 
       - name: Build Shadow JAR
-        run: ./gradlew :UI:shadowJar --no-daemon   # Adjust if your UI module name is different
+        run: ./gradlew :UI:shadowJar --no-daemon
 
       - name: Build Native Image
         run: ./gradlew :UI:nativeCompile --no-daemon
@@ -78,7 +63,7 @@ jobs:
             cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
         shell: bash
-        working-directory: UI   # Important: run from UI module if it's a subproject
+        working-directory: UI
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
