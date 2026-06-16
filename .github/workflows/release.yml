@@ -39,7 +39,6 @@ jobs:
         with:
           java-version: '25'
           distribution: 'graalvm'
-          components: 'native-image'
           native-image-job-reports: 'true'
 
       - name: Install System Dependencies (Linux only)
@@ -50,10 +49,14 @@ jobs:
 
       - name: Ensure MSVC (Windows) available
         if: matrix.os == 'windows-latest'
+        shell: powershell
         run: |
-          echo "windows-latest runners normally include MSVC. Listing cl.exe location (if present):"
-          where cl || echo "cl.exe not found - native compilation on Windows will likely fail without Visual C++ tools."
-        shell: cmd
+          Write-Host "windows-latest runners normally include MSVC. Checking for cl.exe..."
+          if (Get-Command cl -ErrorAction SilentlyContinue) {
+            Write-Host "cl.exe found: $(Get-Command cl | Select-Object -First 1)."
+          } else {
+            Write-Warning "cl.exe not found - native compilation on Windows will likely fail without Visual C++ tools."
+          }
 
       - name: Setup Gradle (cache & wrapper)
         uses: gradle/actions/setup-gradle@v4
@@ -141,5 +144,5 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
