@@ -1,5 +1,6 @@
 package org.Kroj.Core.Network.Download.Handlers;
-
+// We should update this later
+/*
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -7,20 +8,20 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
-import org.Kroj.Core.Network.Download.Downloader;
+import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 
 import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
-public class ProtocolSwitchHandler extends ApplicationProtocolNegotiationHandler {
+public class HttpSwitchHandler extends ApplicationProtocolNegotiationHandler {
     private final Part part;
     private final Downloader downloader;
     private final boolean isHead;
 
-    public ProtocolSwitchHandler(Part part, Downloader downloader,boolean isHead) {
+    public HttpSwitchHandler(Part part, Downloader downloader) {
         this.part = part;
         this.downloader = downloader;
-        this.isHead = isHead;
+        this.isHead = true;
         super("");
     }
 
@@ -66,12 +67,8 @@ public class ProtocolSwitchHandler extends ApplicationProtocolNegotiationHandler
     @Override
     protected void handshakeFailure(ChannelHandlerContext ctx, Throwable cause) {
         logger.append("Failed To TLS Hanshake: ").append(cause.getMessage()).nextLine().append(cause.getStackTrace()).nextLine();
-        if (!downloader.contentLength.isDone()) {
-            downloader.contentLength.completeExceptionally(cause);
-        }
-        if (!downloader.downloadFuture.isDone()) {
-            downloader.downloadFuture.completeExceptionally(cause);
-        }
         ctx.close();
     }
 }
+
+ */

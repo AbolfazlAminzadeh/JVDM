@@ -4,67 +4,71 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.Kroj.Core.Network.Download.Downloader;
+import org.Kroj.Core.Network.Download.Download;
+import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
-public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
+public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
     private final Part part;
     private final Downloader downloader;
-    private final SafeFileChannel channel;
+    private final Download download;
 
-    public DownloadHandler(Part part, Downloader downloader,SafeFileChannel channel) {
+    public DownloadHandler(Part part, Downloader downloader, Download download) {
         this.part = part;
         this.downloader = downloader;
-        this.channel = channel;
+        this.download = download;
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) throws Exception {
-        int readableBytes;
-        ByteBuf buffer = msg.content();
-        if ((readableBytes = buffer.readableBytes()) == 0) return;
-        long pos = part.getWritePos();
-        long end = part.getEnd();
+    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+        if (msg instanceof HttpContent content) {
+            ByteBuf data = content.content();
+            int readableBytes = data.readableBytes();
+            if (readableBytes == 0) return;
 
-        if (end >= 0 && pos >= end+1) {
-            ctx.close();
-            downloader.onPartComplete();
-            return;
-        }
+            long pos = part.getWritePos();
+            long end = part.getEnd();
 
-        int partLength = readableBytes;
-        if (end >= 0 && pos + readableBytes > end + 1) {
-            partLength = (int) ((end - 1) + pos);
-        }
-
-        int wroteBytes = 0;
-
-        ByteBuffer[] buffers = buffer.nioBuffers(buffer.readerIndex(), partLength);
-        for (ByteBuffer buf : buffers) {
-            while (buf.hasRemaining()) {
-                wroteBytes += channel.write(buf,pos+wroteBytes);
+            if (end >= 0 && pos >= end + 1) {
+                ctx.close();
+                downloader.onComplete();
+                return;
             }
-        }
 
-        part.addBytes(wroteBytes);
+            int bytesToWrite = readableBytes;
+            if (end >= 0 && (pos + readableBytes) > (end + 1)) {
+                bytesToWrite = (int) ((end + 1) - pos);
+            }
 
-        if (part.isCompleted()) {
-            ctx.close();
-            downloader.onPartComplete();
-        }
+            ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), bytesToWrite);
+            int written = 0;
 
-        if (!ctx.channel().isWritable()) {
-            ctx.channel().config().setAutoRead(false);
-        }
+            for (ByteBuffer buf : nioBuffers) {
+                while (buf.hasRemaining()) {
+                    written += download.getChannel().write(buf, pos + written);
+                }
+            }
 
-        if (msg instanceof LastHttpContent) {
-            ctx.close();
-            downloader.onPartCompleted();
+            part.addBytes(written);
+
+            if (part.isCompleted() || (end >= 0 && part.getWritePos() >= end + 1)) {
+                ctx.close();
+                downloader.onComplete();
+                return;
+            }
+
+            if (!ctx.channel().isWritable()) {
+                ctx.channel().config().setAutoRead(false);
+            }
+
+            if (content instanceof LastHttpContent) {
+                ctx.close();
+                downloader.onComplete();
+            }
         }
     }
 
@@ -78,7 +82,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        downloader.onFailure(cause);
+        downloader.onFailure((Exception) cause);
         ctx.close();
     }
 }
