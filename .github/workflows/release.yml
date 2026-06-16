@@ -1,10 +1,10 @@
-name: Release Native Builds
+name: Release JVDM-UI Native
 
 on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -35,7 +35,7 @@ jobs:
             runner: macos-13
             artifact: JVDM-macos-x86_64
 
-          # macOS ARM64 (Apple Silicon)
+          # macOS Apple Silicon
           - os: macos
             arch: aarch64
             runner: macos-latest
@@ -50,11 +50,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup GraalVM JDK 25
+      - name: Setup GraalVM JDK 21 (with JavaFX support where possible)
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
-          distribution: 'graalvm'          # Oracle GraalVM (best for Java 25)
+          java-version: '21'                    # JavaFX 21 works best on 21
+          distribution: 'graalvm'               # Oracle GraalVM
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image: true
           cache: gradle
@@ -63,16 +63,15 @@ jobs:
         run: chmod +x gradlew
         if: matrix.os != 'windows'
 
-      - name: Build Shadow JAR (common)
-        run: ./gradlew shadowJar --no-daemon
+      - name: Build Shadow JAR
+        run: ./gradlew :UI:shadowJar --no-daemon   # Adjust if your UI module name is different
 
       - name: Build Native Image
-        run: ./gradlew nativeCompile --no-daemon
+        run: ./gradlew :UI:nativeCompile --no-daemon
         env:
-          # Optional: Increase memory if build is heavy
           GRADLE_OPTS: "-Xmx8g"
 
-      - name: Rename artifact
+      - name: Prepare Artifact
         run: |
           mkdir -p artifacts
           if [[ "${{ matrix.os }}" == "windows" ]]; then
@@ -81,6 +80,7 @@ jobs:
             cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
         shell: bash
+        working-directory: UI   # Important: run from UI module if it's a subproject
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -95,5 +95,3 @@ jobs:
         with:
           files: artifacts/${{ matrix.artifact }}
           generate_release_notes: true
-          draft: false
-          prerelease: false
