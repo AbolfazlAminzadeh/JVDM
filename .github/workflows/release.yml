@@ -49,11 +49,6 @@ jobs:
       - name: Build Shadow JAR
         run: ./gradlew :UI:shadowJar --no-daemon
 
-      - name: Build Native Image
-        run: ./gradlew :UI:nativeCompile --no-daemon
-        env:
-          GRADLE_OPTS: "-Xmx8g"
-
       - name: Prepare Artifact
         run: |
           mkdir -p artifacts
@@ -64,9 +59,14 @@ jobs:
             cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
           
-          cp build/libs/*.jar "artifacts/JVDM-all.jar"
+          cp build/libs/*.jar "artifacts/"
         shell: bash
         working-directory: UI
+
+      - name: Build Native Image
+        run: ./gradlew :UI:nativeCompile --no-daemon
+        env:
+          GRADLE_OPTS: "-Xmx8g"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
