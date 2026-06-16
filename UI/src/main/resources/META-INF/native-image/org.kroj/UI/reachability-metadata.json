@@ -310,8 +310,6 @@
     { "glob": "UI/MainLayout.fxml" },
     { "glob": "atlantafx/base/theme/*.bss" },
     { "glob": "libSocBind.so" },
-    { "glob": "libSocBind.dylib" },
-    { "glob": "SocBind.dll" },
     { "module": "java.base", "glob": "jdk/internal/icu/impl/data/icudt76b/*.icu" },
     { "module": "java.base", "glob": "sun/net/idn/uidna.spp" },
     { "module": "java.logging", "glob": "sun/util/logging/resources/*.properties" },

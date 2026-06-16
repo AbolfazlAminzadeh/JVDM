@@ -35,7 +35,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup GraalVM JDK 21 (with JavaFX support where possible)
+      - name: Setup GraalVM JDK 25
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '25'
@@ -64,7 +64,7 @@ jobs:
             cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
           
-          cp build/libs/*-all.jar "artifacts/JVDM-all.jar"
+          cp build/libs/*.jar "artifacts/JVDM-all.jar"
         shell: bash
         working-directory: UI
 
