@@ -1,9 +1,13 @@
-name: Production Release Build
+name: Build Native Releases
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-natives:
@@ -19,10 +23,10 @@ jobs:
           - os: windows-latest
             artifact_name: JVDM-windows-x86_64.exe
             binary_path: build/native/nativeCompile/JVDM.exe
-          - os: macos-13 # Intel x86_64 Mac
+          - os: macos-13
             artifact_name: JVDM-macos-x86_64
             binary_path: build/native/nativeCompile/JVDM
-          - os: macos-latest # Apple Silicon M1/M2/M3 ARM64 Mac
+          - os: macos-latest
             artifact_name: JVDM-macos-aarch64
             binary_path: build/native/nativeCompile/JVDM
 
@@ -85,4 +89,3 @@ jobs:
           prerelease: false
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
