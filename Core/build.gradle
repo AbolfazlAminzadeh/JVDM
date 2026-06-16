@@ -1,6 +1,8 @@
 plugins {
     id 'java'
+    id 'application'
     id 'org.graalvm.buildtools.native'
+    id 'com.gradleup.shadow'
 }
 
 java {
@@ -30,17 +32,13 @@ dependencies {
     implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" // Vulnerable
 }
 
-tasks.register("fatJar", Jar) {
-    archiveFileName = "JVDM-Core-CLI.jar"
-    manifest {
-        attributes "Main-Class": "org.Kroj.Core.Network.Download.Manager"
-    }
-    archiveClassifier = "all"
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
+application {
+    mainClass = "org.Kroj.Core.Network.Download.Manager";
+}
+
+shadowJar {
+    archiveFileName = "JVDM-UI.jar"
+    mergeServiceFiles()
 }
 
 graalvmNative {
@@ -50,7 +48,7 @@ graalvmNative {
     binaries {
         main {
             imageName = 'JVDM'
-            mainClass = "org.Kroj.Core.Network.Download.Manager"
+            mainClass = application.mainClass.get()
             debug = false
             verbose = true
             fallback = false

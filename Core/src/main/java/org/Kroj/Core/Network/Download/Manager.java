@@ -4,6 +4,9 @@ import io.netty.channel.IoEventLoopGroup;
 import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Statics.Initializer;
+import org.Kroj.Core.Tools.Logger.Logger;
+import org.Kroj.Core.Tools.NI.NetworkInterfaces;
+import org.Kroj.Core.Tools.String.SizeManager;
 import org.Kroj.Core.Tools.URL.URL;
 
 import java.net.URI;
@@ -49,5 +52,42 @@ public class Manager {
         io.shutdownGracefully();
     }
 
+
+    public static void main(String[] args) {
+        if (args.length == 0) return;
+        Manager.getInstance().makeDownload(args[args.length - 1], Initializer.DOWNLOAD_FOLDER, new DownloadListener() {
+            @Override
+            public void onReady(String fileName, long size) {
+                Logger.logger.append("Head Received:").nextLine()
+                        .append(fileName).nextLine()
+                        .append(size).nextLine();
+            }
+
+            @Override
+            public void onProgress(long current, long total, double speed) {
+                Logger.logger.append('\r').append("Progress: ").append(
+                        String.format("%.2f%%",(double) current / total)).append('\t')
+                        .append(", Speed: ").append(SizeManager.formatSpeed(speed))
+                        .flush();
+            }
+
+            @Override
+            public void onPaused(long lastByte, long total) {
+                Logger.logger.append("Paused").nextLine();
+            }
+
+            @Override
+            public void onCompleted() {
+                Logger.logger.append("Complete!").nextLine();
+                System.exit(0);
+            }
+
+            @Override
+            public void onFailed(Throwable onFailure) {
+                Logger.logger.append("Failed").nextLine();
+                System.exit(0);
+            }
+        }, NetworkInterfaces.getDevices().toArray(String[]::new)).start();
+    }
 
 }
