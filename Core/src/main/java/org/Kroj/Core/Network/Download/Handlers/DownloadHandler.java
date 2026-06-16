@@ -39,12 +39,11 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
                 return;
             }
 
-            int bytesToWrite = readableBytes;
             if (end >= 0 && (pos + readableBytes) > (end + 1)) {
-                bytesToWrite = (int) ((end + 1) - pos);
+                readableBytes = (int) ((end + 1) - pos);
             }
 
-            ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), bytesToWrite);
+            ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), readableBytes);
             int written = 0;
 
             for (ByteBuffer buf : nioBuffers) {
