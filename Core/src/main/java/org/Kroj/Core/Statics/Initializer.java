@@ -20,6 +20,8 @@ public final class Initializer {
 
     public final static int JVDM_THREADS = CPU_THREADS * 2;
 
+    public final static int FILE_WRITER_THREADS = CPU_THREADS / 2;
+
     public final static int SINGLE_THREAD_MAX_LENGTH = 1 << 19;
 
     public final static String DOWNLOAD_FOLDER = System.getProperty("user.home")+ File.separator + "Downloads";
@@ -36,10 +38,18 @@ public final class Initializer {
 
     public final static int DOWNLOADER_THREADS = JVDM_THREADS;
 
+    public static final int MAX_RETRIES = 5;
+
+    public static final int RETRY_DELAY = 1000;
+
     // Suggest User H2 Is Always better for download - MUX boosts speed
     public final static boolean H2_PREFER = true;
 
     public final static int MAX_REDIRECTIONS = 10;
+
+    public final static int SPLIT_PART_INTERVAL = 2500;
+
+    public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 22;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //            UI
