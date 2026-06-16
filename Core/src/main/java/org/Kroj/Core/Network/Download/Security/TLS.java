@@ -3,9 +3,11 @@ package org.Kroj.Core.Network.Download.Security;
 import io.netty.handler.codec.quic.Quic;
 import io.netty.handler.codec.quic.QuicSslContext;
 import io.netty.handler.codec.quic.QuicSslContextBuilder;
-import io.netty.handler.ssl.*;
+import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.internal.tcnative.SSL;
 
 import javax.net.ssl.SSLException;
 
@@ -24,9 +26,9 @@ public class TLS {
                             OpenSsl.isAvailable() ? SslProvider.OPENSSL :
                             SslProvider.JDK
                     )
-                    .protocols("TLSv1.3","TLSv1.2")
-//                  I should fix this later to works on android
+                    // Android Uncompatible
 /*
+                    .protocols("TLSv1.3","TLSv1.2","TLSv1.1")
                     .applicationProtocolConfig(
                             new ApplicationProtocolConfig(
                             ApplicationProtocolConfig.Protocol.ALPN,
