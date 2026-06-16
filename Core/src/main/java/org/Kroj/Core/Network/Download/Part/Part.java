@@ -1,65 +1,64 @@
 package org.Kroj.Core.Network.Download.Part;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
-public class Part implements Progress {
-
-    private URI uri;
+public class Part {
+    private final int id;
     private final String device;
     private final long start;
+    private final AtomicLong end;
+    private final LongAdder downloaded = new LongAdder();
+    private volatile URI uri;
 
-    private volatile long end;
-    private volatile long downloaded;
-    private volatile boolean paused;
-
-    public Part(URI uri, String device, long start, long end) {
+    public Part(int id, URI uri, String device, long start, long end) {
+        this.id = id;
         this.uri = uri;
         this.device = device;
         this.start = start;
-        this.end = end;
+        this.end = new AtomicLong(end);
     }
 
-    public void addBytes(long bytes) {
-        downloaded += bytes;
+    public int getId() { return id; }
+    public URI getUri() { return uri; }
+    public String getDevice() { return device; }
+    public long getStart() { return start; }
+
+    public long getEnd() {
+        return end.get();
+    }
+
+    public void setEnd(long end) {
+        this.end.set(end);
     }
 
     public void setURI(URI uri) {
         this.uri = uri;
     }
 
-    public void resize(long end) {
-        this.end = end;
+    public void addBytes(long bytes) {
+        downloaded.add(bytes);
     }
 
-    @Override
-    public long getTotalBytes() {
-        return end - start + 1;
-    }
-
-    @Override
     public long getCurrentBytes() {
-        return downloaded;
+        return downloaded.sum();
     }
 
-    public void pause() {
-        paused = true;
+    public long getWritePos() {
+        return start + getCurrentBytes();
     }
 
-    public void resume() {
-        paused = false;
+    public long getRemainingBytes() {
+        long end = getEnd();
+        if (end < 0) return Long.MAX_VALUE;
+        long remaining = (end - getWritePos()) + 1;
+        return Math.max(0, remaining);
     }
 
-    public boolean isPaused() {
-        return paused;
-    }
-
-    public URI getUri() { return uri; }
-    public long getStart() { return start; }
-    public long getEnd() { return end; }
-    public String getDevice() { return device; }
-
-    @Override
-    public String toString() {
-        return "D="+downloaded+",S="+start+",E="+end;
+    public boolean isCompleted() {
+        long end = getEnd();
+        if (end < 0) return false;
+        return getWritePos() > end;
     }
 }

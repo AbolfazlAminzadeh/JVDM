@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download;
+package org.Kroj.Core.Network.Download.Part;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -8,14 +8,13 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.NetUtil;
 import org.Kroj.Core.Network.DNS.DNS;
+import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Handlers.DownloadHandler;
 import org.Kroj.Core.Network.Download.Handlers.HeaderHandler;
-import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Security.TLS;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
 import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 import org.Kroj.Core.Tools.URL.URL;
 
 import java.net.InetAddress;
@@ -25,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.Kroj.Core.Tools.Logger.Logger.logger;
-import static org.Kroj.Core.Network.Download.Downloader.State.*;
+import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
 
 public class Downloader {
 
@@ -209,7 +208,7 @@ public class Downloader {
             io.schedule(this::connect, Initializer.RETRY_DELAY, TimeUnit.MILLISECONDS);
         } else {
             if (state.compareAndSet(DOWNLOADING, FAILED)) {
-                download.onFailure(this, e);
+                download.onFailure(e);
             }
         }
     }
