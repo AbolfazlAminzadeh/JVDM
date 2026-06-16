@@ -43,7 +43,7 @@ bin/
 .DS_Store
 
 ### Extension Compiled ###
-Extensions/Browser/
+./Extensions/Browser/
 
 ### Build Outputs ###
 UI/build/
