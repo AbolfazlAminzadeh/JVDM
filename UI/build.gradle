@@ -43,14 +43,21 @@ gluonfx {
     target = "host"
 
     compilerArgs = [
-        "--no-fallback",
-        "--enable-native-access=ALL-UNNAMED",
-        "-H:+UnlockExperimentalVMOptions",
-        "-H:IncludeResources=.*",
-        "--enable-url-protocols=http,https",
-        "--gc=serial",
-        "-O0",
-        "--initialize-at-run-time=io.netty"
-    ]
+            "--no-fallback",
+            "-H:+UnlockExperimentalVMOptions",
+            "-H:IncludeResources=.*",
+            "--enable-url-protocols=http,https",
+            "--gc=serial",
+            "-O0",
 
+            "--initialize-at-run-time=io.netty.handler.ssl.OpenSsl",
+            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslAsyncPrivateKeyMethod",
+            "--initialize-at-run-time=io.netty.handler.ssl.JdkDelegatingPrivateKeyMethod",
+            "--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine",
+            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslContext",
+            "--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslContext",
+            "--initialize-at-run-time=io.netty.handler.ssl.OpenSslPrivateKeyMethod",
+            "--initialize-at-run-time=io.netty.util.AbstractReferenceCounted",
+            "--initialize-at-run-time=io.netty.internal.tcnative"
+    ]
 }
