@@ -1,10 +1,9 @@
 package org.Kroj.Core.Tools.Logger;
 
 import org.Kroj.Core.Tools.ObjectManagement.ObjectsPool;
-import io.netty.buffer.ByteBuf;
+
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,11 +93,6 @@ public class Logger {
 
     public Logger append(byte[] bytes) {
         builders.get().append(new LowString(bytes));
-        return this;
-    }
-
-    public Logger append(ByteBuf buf) {
-        builders.get().append(buf.getCharSequence(0,buf.capacity(), Charset.defaultCharset()));
         return this;
     }
 

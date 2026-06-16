@@ -1,4 +1,6 @@
 package org.Kroj.Core.Tools.CompletableCombiner;
 
-public interface ThreeFunction {
+@FunctionalInterface
+public interface ThreeFuture<A, B, C, R> {
+    R apply(A a, B b, C c);
 }

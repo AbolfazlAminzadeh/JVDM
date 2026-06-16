@@ -3,11 +3,10 @@ package org.Kroj.Core.Tools.NI;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // Problem, Streams are not available anymore in android
 public class NetworkInterfaces {

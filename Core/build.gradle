@@ -6,34 +6,79 @@ plugins {
 java {
     sourceCompatibility = 25
     targetCompatibility = 25
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25);
+        vendor = JvmVendorSpec.ORACLE;
+    }
 }
 
 group = 'org.kroj'
 version = '1.0.0'
 
 dependencies {
-    implementation "io.netty:netty-all:4.2.15.Final";
-    String[] natives = ['windows-x86_64', 'linux-x86_64', 'linux-aarch_64', 'osx-x86_64', 'osx-aarch_64'];
+    implementation "io.netty:netty-all:4.2.15.Final"
+    String[] natives = ['windows-x86_64', 'linux-x86_64', 'linux-aarch_64', 'osx-x86_64', 'osx-aarch_64']
 
-    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final";
-    implementation("$boringSSL");
+    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final"
+    implementation("$boringSSL")
 
     for (String nat : natives) {
-        implementation("$boringSSL:$nat");
+        implementation("$boringSSL:$nat")
     }
 
     implementation "org.msgpack:msgpack-core:0.9.12"
-    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12"
+    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" // Vulnerable
 }
 
 tasks.register("fatJar", Jar) {
+    archiveFileName = "JVDM-Core-CLI.jar"
     manifest {
-        attributes "Main-Class": application.mainClass.get();
+        attributes "Main-Class": "org.Kroj.Core.Network.Download.Manager"
     }
-    archiveClassifier = "all";
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
+    archiveClassifier = "all"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    with jar;
+    with jar
+}
+
+graalvmNative {
+    toolchainDetection = false
+    binaries {
+        main {
+            // Core
+            {
+                imageName = "jvdm-core"
+                buildArgs.add("--no-fallback")
+                buildArgs.add('--enable-native-access=ALL-UNNAMED')
+                buildArgs.add('-H:+UnlockExperimentalVMOptions')
+                buildArgs.add('-H:IncludeResources=.*')
+                buildArgs.add('-H:+OptimizeVectorAPI')
+                buildArgs.add('--enable-url-protocols=http,https')
+                buildArgs.add("--gc=serial")
+                buildArgs.add('-O3')
+            }
+
+            // BoringSSL Initialization
+            {
+                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSsl')
+                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslContext')
+                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslContext')
+                buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.OpenSslPrivateKeyMethod')
+                buildArgs.add('--initialize-at-run-time=io.netty.util.AbstractReferenceCounted')
+                buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative')
+            }
+        }
+    }
+    agent {
+        defaultMode = "standard"
+
+        metadataCopy {
+            trackReflectionMetadata.set(true)
+            inputTaskNames.add("run")
+            outputDirectories.add("src/main/resources/META-INF/native-image")
+            mergeWithExisting = true
+        }
+    }
 }

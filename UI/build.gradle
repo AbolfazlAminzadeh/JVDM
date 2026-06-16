@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '9.3.2'
+    id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.23'
 }
 
 group = 'org.kroj'
@@ -9,39 +11,46 @@ version = '1.0.0'
 
 dependencies {
     implementation project(":Core")
-
     implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
 
-    String javaFXVersion = "25-ea+29"
-    String[] platforms = ['win', 'linux', 'mac']
-    String[] javaFXModules = ['graphics', 'controls', 'base', 'fxml']
+    def jfx = javafx.version
+    def OSes = ['win', 'mac', 'mac-aarch64', 'linux'];
 
-    for (String platform : platforms) {
-        for (String module : javaFXModules) {
-            runtimeOnly "org.openjfx:javafx-$module:$javaFXVersion:$platform"
-        }
+    OSes.forEach { os ->
+        runtimeOnly "org.openjfx:javafx-base:$jfx:$os"
+        runtimeOnly "org.openjfx:javafx-graphics:$jfx:$os"
+        runtimeOnly "org.openjfx:javafx-controls:$jfx:$os"
+        runtimeOnly "org.openjfx:javafx-fxml:$jfx:$os"
     }
 
-    implementation "io.netty:netty-all:4.2.15.Final"
-    String[] natives = ['windows-x86_64', 'linux-x86_64', 'linux-aarch_64', 'osx-x86_64', 'osx-aarch_64']
-
-    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final"
-
-    implementation("$boringSSL")
-
-    for (String nat : natives) {
-        implementation("$boringSSL:$nat")
-    }
-
-    implementation "org.msgpack:msgpack-core:0.9.12"
-    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" //Vulnerable
 }
 
 javafx {
-    version = "25-ea+29"
+    version = "21.0.2"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.base' ]
 }
 
 application {
-    mainClass = "org.Kroj.Main"
+    mainClass = "org.Kroj.UI.Main"
+}
+
+shadowJar {
+    archiveFileName = "JVDM-UI.jar"
+    mergeServiceFiles()
+}
+
+gluonfx {
+    target = "host"
+
+    compilerArgs = [
+        "--no-fallback",
+        "--enable-native-access=ALL-UNNAMED",
+        "-H:+UnlockExperimentalVMOptions",
+        "-H:IncludeResources=.*",
+        "--enable-url-protocols=http,https",
+        "--gc=serial",
+        "-O0",
+        "--initialize-at-run-time=io.netty"
+    ]
+
 }
