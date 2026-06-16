@@ -25,7 +25,7 @@ jobs:
       - name: Setup GraalVM (JDK 21 LTS)
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'gradle'
@@ -46,10 +46,6 @@ jobs:
 
       - name: Compile and Link Native Image
         run: ./gradlew UI:nativeCompile UI:nativeLink --no-daemon
-
-      # ==========================================
-      # UPLOAD THE COMPILED BINARIES
-      # ==========================================
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
