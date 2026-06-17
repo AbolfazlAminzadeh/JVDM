@@ -1,0 +1,25 @@
+.table-progress .bar {
+    -fx-background-color: linear-gradient(to right, #3498db, #2cbd61);
+    -fx-background-radius: 4px;
+}
+.table-progress .track {
+    -fx-background-color: #2c2b2b;
+    -fx-background-radius: 4px;
+}
+
+.pauseButton {
+    -fx-background-color: #e6a83c;
+    -fx-text-fill: white;
+}
+
+.resumeButton {
+    -fx-background-color: #2cbd61;
+    -fx-text-fill: white;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #34495e;
+}
+.table-row-cell:selected .text {
+    -fx-fill: white;
+}
