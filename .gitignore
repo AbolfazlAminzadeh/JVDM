@@ -43,7 +43,7 @@ bin/
 .DS_Store
 
 ### Extension Compiled ###
-Extensions/Browser/
+Extensions/Browser/background.bundle.js
 
 ### Build Outputs ###
 UI/build/
