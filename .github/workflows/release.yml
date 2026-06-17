@@ -67,7 +67,7 @@ jobs:
             cp build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
           fi
           
-          cp build/libs/*-all.jar "artifacts/JVDM-all.jar"
+          cp build/libs/*.jar "artifacts/"
         shell: bash
         working-directory: UI
 
@@ -84,5 +84,5 @@ jobs:
         with:
           files: |
             artifacts/${{ matrix.artifact }}
-            artifacts/JVDM-all.jar
+            artifacts/*.jar
           generate_release_notes: true
