@@ -37,10 +37,10 @@ public class Download {
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     private final Speed speed = new Speed(2500);
 
-    private SafeFileChannel channel;
+    private volatile SafeFileChannel channel;
+    private volatile Path targetFile;
     private ScheduledFuture<?> progressScheduler;
     private ScheduledFuture<?> partSplitterScheduler;
-    private Path targetFile;
 
     private volatile long totalSize = -1;
     private long lastBytesSaved = 0;
@@ -147,21 +147,24 @@ public class Download {
         }
 
         if (target != null) {
-            Part part = target.getPart();
-            long pos = part.getWritePos();
+            final Part part = target.getPart();
+            final long pos = part.getWritePos();
+            final long oldEnd = part.getEnd();
 
-            long half = pos + (maxRemaining/2);
+            long remaining = oldEnd - pos + 1;
 
+            if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
+                final long half = pos + (maxRemaining/2);
+                part.setEnd(half - 1);
 
-            long oldEnd = part.getEnd();
-            part.setEnd(half - 1);
+                int id = parts.size();
+                String device = devices.get(id % devices.size());
 
-            int id = parts.size();
-            String device = devices.get(id % devices.size());
+                Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
+                parts.add(newPart);
+                addDownloader(newPart);
+            }
 
-            Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
-            parts.add(newPart);
-            addDownloader(newPart);
         }
 
     }
@@ -181,7 +184,7 @@ public class Download {
         downloaders.clear();
         downloadings.set(0);
         speed.reset();
-        if (headersReceived.get() && channel == null || !channel.getChannel().isOpen()) {
+        if (headersReceived.get() && (channel == null || !channel.getChannel().isOpen())) {
             channel = new SafeFileChannel(targetFile);
         }
 
@@ -233,7 +236,7 @@ public class Download {
         if (partSplitterScheduler != null) partSplitterScheduler.cancel(false);
     }
 
-    public void onFailure(Exception e) {
+    public void onFailure(Throwable e) {
         failAll(e);
     }
 
