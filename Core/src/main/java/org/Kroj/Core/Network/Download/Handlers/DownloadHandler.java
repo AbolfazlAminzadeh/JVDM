@@ -9,10 +9,11 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
+import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
 import java.nio.ByteBuffer;
 
-public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
+public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     private final Part part;
     private final Downloader downloader;
     private final Download download;
@@ -24,11 +25,16 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-        if (msg instanceof HttpContent content) {
-            ByteBuf data = content.content();
-            int readableBytes = data.readableBytes();
-            if (readableBytes == 0) return;
+    protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) throws Exception {
+        SafeFileChannel fileChannel = download.getChannel();
+        if (fileChannel == null) {
+            return;
+        }
+
+        ByteBuf data = msg.content();
+        int readableBytes = data.readableBytes();
+
+        if (readableBytes > 0) {
 
             long pos = part.getWritePos();
             long end = part.getEnd();
@@ -48,7 +54,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
 
             for (ByteBuffer buf : nioBuffers) {
                 while (buf.hasRemaining()) {
-                    written += download.getChannel().write(buf, pos + written);
+                    written += fileChannel.write(buf, pos + written);
                 }
             }
 
@@ -63,11 +69,11 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
             if (!ctx.channel().isWritable()) {
                 ctx.channel().config().setAutoRead(false);
             }
+        }
 
-            if (content instanceof LastHttpContent) {
-                ctx.close();
-                downloader.onComplete();
-            }
+        if (msg instanceof LastHttpContent) {
+            ctx.close();
+            downloader.onComplete();
         }
     }
 
@@ -81,7 +87,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        downloader.onFailure((Exception) cause);
+        downloader.onFailure(cause);
         ctx.close();
     }
 }
