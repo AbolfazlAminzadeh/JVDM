@@ -96,6 +96,20 @@ public class Logger {
         return this;
     }
 
+    public Logger append(Throwable throwable) {
+        StringBuilder builder = builders.get();
+        builder.append(throwable.getClass());
+        if (throwable.getMessage() != null) {
+            builder.append(throwable.getMessage());
+        }
+        if (throwable.getStackTrace() != null) {
+            for (StackTraceElement element : throwable.getStackTrace()) {
+                builder.append(element).append(System.lineSeparator());
+            }
+        }
+        return this;
+    }
+
     public Logger append(Object[] objs) {
         append('[');
         for (int i = 0; i < objs.length-1; i++) {
@@ -112,18 +126,11 @@ public class Logger {
 
     public Logger nextLine() {
         StringBuilder sb = builders.get();
-        sb.append('\n');
+        sb.append(System.lineSeparator());
         logs.offer(sb.toString());
         sb.setLength(0);
         checkPrefix();
         return this;
-    }
-
-    public void log(String... message) {
-        for (String m : message) {
-            append(m);
-            nextLine();
-        }
     }
 
     public void flush() {
