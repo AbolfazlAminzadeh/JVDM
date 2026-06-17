@@ -49,7 +49,7 @@ public final class Initializer {
 
     public final static int SPLIT_PART_INTERVAL = 2500;
 
-    public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 22;
+    public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 20;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //            UI
