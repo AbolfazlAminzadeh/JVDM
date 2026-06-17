@@ -251,7 +251,7 @@
     { "type": "javafx.scene.Group" },
     { "type": "javafx.scene.Node", "allDeclaredMethods": true },
     { "type": "javafx.scene.ParallelCamera" },
-    { "type": "javafx.scene.Parent" },
+    { "type": "javafx.scene.Parent", "methods": [ { "name": "getStylesheets", "parameterTypes": [] } ] },
     { "type": "javafx.scene.Scene" },
     { "type": "javafx.scene.control.BorderPane" },
     { "type": "javafx.scene.control.Button", "allDeclaredConstructors": true, "allDeclaredMethods": true },
