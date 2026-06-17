@@ -33,6 +33,6 @@ public class ResolverHandler extends SimpleChannelInboundHandler<DatagramDnsResp
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error().append(cause.getMessage()).nextLine().log();
+        logger.error().append(cause).nextLine();
     }
 }

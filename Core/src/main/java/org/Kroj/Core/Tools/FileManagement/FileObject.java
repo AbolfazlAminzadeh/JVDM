@@ -52,7 +52,7 @@ public abstract class FileObject {
             ObjectsPool.stringBuilders.back(sb);
             fc.close();
         } catch (IOException e) {
-            logger.error().append("I dont have access, or there is an error about IO, please check it: ").nextLine().append(e.getMessage()).nextLine().log();
+            logger.error().append("I dont have access, or there is an error about IO, please check it: ").nextLine().append(e.getMessage()).nextLine();
         }
     }
 

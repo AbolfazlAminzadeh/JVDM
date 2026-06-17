@@ -36,7 +36,7 @@ public class ObjectPool<T> {
         } catch (InterruptedException e) {
             logger.error().append("Pool borrow interrupted, Trying Again").nextLine();
             if (i.getAndIncrement() > 10) {
-                logger.error().append("Failed Even with 10 tries, Please Check The Code").nextLine().log();
+                logger.error().append("Failed Even with 10 tries, Please Check The Code").nextLine();
                 System.exit(Initializer.OBJECTPOOL_FAILED);
                 return null;
             }

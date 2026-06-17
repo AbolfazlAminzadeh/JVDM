@@ -60,9 +60,9 @@ public class Resolver {
                     });
             channel = bootstrap.bind(0).sync().channel();
         } catch (InterruptedException e) {
-            logger.error().append(e.getMessage()).nextLine();
+            logger.error().append(e);
         } finally {
-            logger.log();
+            logger.nextLine();
         }
     }
 

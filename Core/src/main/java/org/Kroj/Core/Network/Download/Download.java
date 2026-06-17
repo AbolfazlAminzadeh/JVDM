@@ -217,6 +217,8 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
+        downloadings.set(0);
+        downloaders.clear();
         try {
             if (channel != null && channel.getChannel().isOpen()) channel.close();
         } catch (Exception _) {}

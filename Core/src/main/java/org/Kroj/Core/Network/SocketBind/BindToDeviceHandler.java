@@ -77,7 +77,7 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error().append(cause.getMessage()).nextLine().log();
+        logger.error().append(cause.getMessage()).nextLine();
         ctx.close();
     }
 

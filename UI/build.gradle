@@ -59,7 +59,6 @@ graalvmNative {
 //            buildArgs.add()
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:IncludeResources=.*')
-//            buildArgs.add('--enable-native-access=ALL-UNNAMED')
             buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier')
@@ -69,9 +68,19 @@ graalvmNative {
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSL')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLContext')
             buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
+//            buildArgs.add('--pgo') //later
+            buildArgs.add('-O3')
+            buildArgs.add('-march=native')
+            jvmArgs.add('--enable-native-access=ALL-UNNAMED')
+            jvmArgs.add('-XX:MaxDirectMemorySize=2G')
+            jvmArgs.add('-Dio.netty.tryReflectionSetAccessible=true')
+            jvmArgs.add('-Dio.netty.allocator.type=pooled')
+            jvmArgs.add('-Dprism.order=d3d,es2,sw')
+            jvmArgs.add('-Dprism.vsync=true')
+
+
 
             // For Optimizations and more
-//            jvmArgs.add()
 //            runtimeArgs.add()
             // buildArgs.add('--pgo-instrument')
             // buildArgs.add('--pgo=default.iprof')
