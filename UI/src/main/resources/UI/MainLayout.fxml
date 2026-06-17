@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane prefHeight="609.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Kroj.UI.Controllers.MainController">
+<BorderPane stylesheets="@style.css" prefHeight="609.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Kroj.UI.Controllers.MainController" >
     <left>
         <VBox prefWidth="200" spacing="10" style="-fx-background-color:#2c3e50; -fx-padding:10;" BorderPane.alignment="CENTER">
             <Label style="-fx-text-fill: #F0F8FF; -fx-font-size: 16;" text="Downloads" />
@@ -42,9 +42,9 @@
                 <Label fx:id="detailSpeed" text="Speed: -" />
 
                 <HBox spacing="10">
-                    <Button onAction="#onStart" style="-fx-background-color: #2cbd61; -fx-text-fill: white;" text="Start" />
-                    <Button onAction="#onPause" style="-fx-background-color: #e6a83c; -fx-text-fill: white;" text="Pause" />
-                    <Button onAction="#onDelete" style="-fx-background-color: #fb3333; -fx-text-fill: white;" text="Delete" />
+                    <Button fx:id="startButton" onAction="#onStart" style="-fx-background-color: #2cbd61; -fx-text-fill: white;" text="Start" />
+                    <Button fx:id="pauseButton" onAction="#onPause" style="-fx-background-color: #e6a83c; -fx-text-fill: white;" text="Pause" />
+                    <Button fx:id="deleteButton" onAction="#onDelete" style="-fx-background-color: #fb3333; -fx-text-fill: white;" text="Delete" />
                 </HBox>
 
             </VBox>
