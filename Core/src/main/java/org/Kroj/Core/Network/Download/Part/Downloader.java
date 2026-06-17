@@ -193,14 +193,14 @@ public class Downloader {
         }
     }
 
-    public void onFailure(Exception e) {
+    public void onFailure(Throwable e) {
         if (state.get() == COMPLETE || state.get() == PAUSED) return;
         if (e instanceof java.nio.channels.ClosedChannelException) return;
         logger.append(e.getClass()).append(":").append(e.getMessage()).nextLine();
         onNetworkFailed(e);
     }
 
-    private void onNetworkFailed(Exception e) {
+    private void onNetworkFailed(Throwable e) {
         if (state.get() == PAUSED || state.get() == COMPLETE) return;
         logger.append("Retrying Part (").append(part).append("), Because of:").append(e).nextLine();
         int tries = retryCount.incrementAndGet();
