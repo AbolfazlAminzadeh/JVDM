@@ -110,6 +110,11 @@ public class Logger {
         return this;
     }
 
+    public Logger append(Exception exception) {
+        append(exception.getCause());
+        return this;
+    }
+
     public Logger append(Object[] objs) {
         append('[');
         for (int i = 0; i < objs.length-1; i++) {
