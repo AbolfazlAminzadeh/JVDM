@@ -7,7 +7,6 @@ import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
-import org.Kroj.Core.Tools.Logger.Logger;
 import org.Kroj.Core.Tools.String.FileName;
 
 import java.net.URI;
@@ -44,8 +43,6 @@ public class Download {
     private ScheduledFuture<?> partSplitterScheduler;
 
     private volatile long totalSize = -1;
-    private long lastBytesSaved = 0;
-    private long lastSavedTime = System.nanoTime();
 
     public Download(URI uri, Path targetDir, int concurrency, List<String> devices, EventLoopGroup io, DownloadListener listener) {
 
@@ -177,6 +174,7 @@ public class Download {
             d.pause();
         }
         if (listener != null) {
+            long lastBytesSaved = 0;
             listener.onPaused(lastBytesSaved, totalSize);
         }
     }
