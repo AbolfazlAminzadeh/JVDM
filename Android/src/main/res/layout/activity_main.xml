@@ -2,53 +2,84 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#F8F9FA"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/jvdm"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
-
-    <EditText
-        android:id="@+id/urlInput"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_marginBottom="16dp"
-        android:autofillHints=""
-        android:hint="@string/enter_download_link"
-        android:inputType="textUri" />
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"
+        android:text="@string/jvdm"
+        android:textColor="#1F1F1F"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <LinearLayout
-        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_marginBottom="16dp">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:background="#FFFFFF"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-        <Button
-            android:id="@+id/btnPaste"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/urlInput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/paste" />
+            android:autofillHints=""
+            android:background="@null"
+            android:hint="@string/enter_download_link"
+            android:inputType="textUri"
+            android:minHeight="48dp"
+            android:padding="8dp"
+            android:textColor="#1F1F1F"
+            android:textColorHint="#9AA0A6"
+            android:textSize="15sp" />
 
-        <Button
-            android:id="@+id/btnStart"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="8dp"
+            android:background="#E8EAED" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/start_download"/>
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnPaste"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/paste"
+                android:textColor="#1A73E8"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#1A73E8"
+                android:text="@string/start_download"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <ListView
         android:id="@+id/downloadListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:paddingVertical="8dp" />
 </LinearLayout>

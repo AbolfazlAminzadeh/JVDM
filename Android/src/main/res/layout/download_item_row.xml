@@ -1,31 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp"
+    android:descendantFocusability="blocksDescendants">
 
-    <TextView
-        android:id="@+id/txtName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#222222"/>
+    <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:padding="16dp"
+    android:clickable="false"
+    android:focusable="false" tools:ignore="UselessParent">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:max="100"/>
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/txtProgressPercent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#1F1F1F"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/txtStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="#666666"/>
+        <TextView
+            android:id="@+id/txtProgressPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBaseline="@id/txtName"
+            android:textColor="#5F6368"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_below="@id/txtName"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar"
+            android:layout_toStartOf="@id/txtStateLabel"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#70757A"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/txtStateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar"
+            android:layout_alignParentEnd="true"
+            android:textColor="#1A73E8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 </LinearLayout>

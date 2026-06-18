@@ -4,35 +4,27 @@ import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
-
-import androidx.annotation.NonNull;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.Kroj.Core.Network.Download.DownloadListener;
 import org.Kroj.Core.Network.Download.Manager;
 import org.Kroj.Core.Tools.NI.NetworkInterfaces;
 import org.Kroj.Core.Tools.String.FileName;
+import org.Kroj.Core.Tools.String.SizeManager;
 import org.Kroj.Core.Tools.URL.URL;
-import org.Kroj.Network.AndroidSocketBinder;
 import org.kroj.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DownloadManager.DownloadInteractionListener {
 
     private EditText urlInput;
-    private ListView downloadListView;
-    private DownloadAdapter adapter;
-    private List<DownloadItem> downloadList = new ArrayList<>();
-    private static final String TAG = "AndroidSocketBinder";
+    private DownloadManager adapter;
+    private final List<DownloadItem> downloadList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +32,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         urlInput = findViewById(R.id.urlInput);
-        downloadListView = findViewById(R.id.downloadListView);
-        Button btnPaste = findViewById(R.id.btnPaste);
+        ListView downloadListView = findViewById(R.id.downloadListView);
         Button btnStart = findViewById(R.id.btnStart);
 
-        adapter = new DownloadAdapter(this, downloadList);
+        adapter = new DownloadManager(this, downloadList, this);
         downloadListView.setAdapter(adapter);
 
-        btnPaste.setOnClickListener(v -> {
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            if (clipboard != null && clipboard.hasPrimaryClip()) {
-                CharSequence text = clipboard.getPrimaryClip().getItemAt(0).getText();
-                if (text != null) {
-                    urlInput.setText(text.toString());
+        downloadListView.setOnItemClickListener((parent, view, position, id) -> {
+            DownloadItem item = adapter.getItem(position);
+            if (item != null && item.getProgress() < 100) {
+                if (item.isPaused()) {
+                    onResumeRequested(item);
+                } else {
+                    onPauseRequested(item);
                 }
             }
         });
@@ -60,117 +52,91 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(v -> {
             String url = urlInput.getText().toString().trim();
             if (!url.isEmpty()) {
-                String fileName = FileName.getFileName(URL.getSafeURI(url),null);
-                DownloadItem item = new DownloadItem(fileName, 0, "Idle");
+                String fileName = FileName.getFileName(URL.getSafeURI(url), null);
+                DownloadItem item = new DownloadItem(url, fileName, 0, "Idle");
                 downloadList.add(0, item);
                 adapter.notifyDataSetChanged();
 
-                startAndroidDownload(url, fileName, item);
+                startDownload(item);
                 urlInput.setText("");
             }
         });
     }
 
-    private void startAndroidDownload(String url, String fileName, DownloadItem item) {
-        String targetDir = getExternalFilesDir(null).getAbsolutePath();
-//        AndroidSocketBinder binder = new AndroidSocketBinder(this);
-        logger.append(targetDir).nextLine();
-        new Thread(() -> {
-            try {
-                Manager.getInstance().makeDownload(url, targetDir + "/" + fileName, new DownloadListener() {
-                    @Override
-                    public void onReady(String resolvedFileName, long totalSizeBytes) {
-                        runOnUiThread(() -> {
-                            item.setName(resolvedFileName);
-                            item.setStatus("Connecting... " + (totalSizeBytes / (1024 * 1024)) + " MB");
-                            adapter.notifyDataSetChanged();
-                            NetworkInterfaces.getDevices().forEach(e -> Log.i(TAG, e));
-                        });
-                    }
+    private void startDownload(DownloadItem item) {
+        String targetDir = Objects.requireNonNull(getExternalFilesDir(null)).getAbsolutePath();
 
-                    @SuppressLint("DefaultLocale")
-                    @Override
-                    public void onProgress(long current, long total, double speed) {
-                        runOnUiThread(() -> {
-                            double progressPercent = ((double)current/total)*100;
-                            item.setProgress((int)progressPercent);
-                            item.setStatus(String.format("Downloading... %.2f%%", progressPercent));
-                            adapter.notifyDataSetChanged();
-                        });
-                    }
+        if (item.getDownload() == null) {
+            item.setDownload(Manager.getInstance().makeDownload(item.getUrl(), targetDir + "/" + item.getName(), new org.Kroj.Core.Network.Download.Handlers.DownloadListener() {
+                @Override
+                public void onReady(String resolvedFileName, long totalSizeBytes) {
+                    runOnUiThread(() -> {
+                        item.setName(resolvedFileName);
+                        item.setStatus("Connecting... " + SizeManager.formatSize(totalSizeBytes));
+                        adapter.notifyDataSetChanged();
+                    });
+                }
 
-                    @Override
-                    public void onPaused(long lastByte, long total) {
+                @SuppressLint("DefaultLocale")
+                @Override
+                public void onProgress(long current, long total, double speed) {
+                    runOnUiThread(() -> {
+                        double progressPercent = total > 0 ? ((double) current / total) * 100 : 0;
+                        item.setProgress((int) progressPercent);
+                        item.setStatus(String.format("Downloading... %.2f%%", progressPercent));
+                        adapter.notifyDataSetChanged();
+                    });
+                }
 
-                    }
+                @Override
+                public void onPaused(long lastByte, long total) {
+                    runOnUiThread(() -> {
+                        item.setPaused(true);
+                        item.setStatus("Paused");
+                        adapter.notifyDataSetChanged();
+                    });
+                }
 
-                    @Override
-                    public void onCompleted() {
-                        runOnUiThread(() -> {
-                            item.setProgress(100);
-                            item.setStatus("Completed");
-                            adapter.notifyDataSetChanged();
-                        });
-                    }
+                @Override
+                public void onCompleted() {
+                    runOnUiThread(() -> {
+                        item.setProgress(100);
+                        item.setStatus("Completed");
+                        adapter.notifyDataSetChanged();
+                    });
+                }
 
-                    @Override
-                    public void onFailed(Throwable onFailure) {
-                        runOnUiThread(() -> {
-                            item.setProgress(0);
-                            item.setStatus("Failed: " + onFailure.getMessage());
-                            adapter.notifyDataSetChanged();
-                        });
-                    }
-                }, NetworkInterfaces.getDevices().toArray(new String[0])).start();
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    item.setStatus("Error: " + e.getMessage());
-                    adapter.notifyDataSetChanged();
-                });
-            }
-        }).start();
+                @Override
+                public void onFailed(Throwable onFailure) {
+                    runOnUiThread(() -> {
+                        item.setStatus("Failed: " + onFailure.getMessage());
+                        adapter.notifyDataSetChanged();
+                    });
+                }
+            }, NetworkInterfaces.getDevices().toArray(new String[0])));
+
+            item.getDownload().start();
+        } else {
+            item.getDownload().resume();
+        }
+
+        item.setPaused(false);
     }
 
-    public static class DownloadItem {
-        private String name;
-        private int progress;
-        private String status;
-
-        public DownloadItem(String name, int progress, String status) {
-            this.name = name;
-            this.progress = progress;
-            this.status = status;
-        }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public int getProgress() { return progress; }
-        public void setProgress(int progress) { this.progress = progress; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
+    @Override
+    public void onPauseRequested(DownloadItem item) {
+        if (item.isPaused() || item.getDownload() == null) return;
+        item.setStatus("Pausing...");
+        item.getDownload().pause();
+        item.setPaused(true);
+        adapter.notifyDataSetChanged();
     }
 
-    private static class DownloadAdapter extends ArrayAdapter<DownloadItem> {
-        public DownloadAdapter(Context context, List<DownloadItem> items) {
-            super(context, 0, items);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            DownloadItem item = getItem(position);
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.download_item_row, parent, false);
-            }
-            TextView txtName = convertView.findViewById(R.id.txtName);
-            ProgressBar progressBar = convertView.findViewById(R.id.progressBar);
-            TextView txtStatus = convertView.findViewById(R.id.txtStatus);
-
-            txtName.setText(item.getName());
-            progressBar.setProgress(item.getProgress());
-            txtStatus.setText(item.getStatus());
-
-            return convertView;
-        }
+    @Override
+    public void onResumeRequested(DownloadItem item) {
+        if (!item.isPaused() || item.getDownload() == null) return;
+        item.setStatus("Resuming...");
+        startDownload(item);
+        adapter.notifyDataSetChanged();
     }
 }
