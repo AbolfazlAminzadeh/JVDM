@@ -9,7 +9,7 @@ import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 public class FileName {
     public static String getFileName(final URI uri, final String cd) {
-        logger.info();
+        URI result;
         if (uri == null) return "";
         if (cd != null && !cd.isEmpty()) {
             int index = cd.toLowerCase().indexOf("filename=");
@@ -18,7 +18,7 @@ public class FileName {
                 if (name.startsWith("\"") && name.endsWith("\"") && name.length() > 2) {
                     name = name.substring(1, name.length() - 1);
                 }
-                return URLDecoder.decode(name, StandardCharsets.UTF_8);
+                if (!name.isEmpty()) return URLDecoder.decode(name, StandardCharsets.UTF_8);
             }
         }
         String p = uri.getPath();

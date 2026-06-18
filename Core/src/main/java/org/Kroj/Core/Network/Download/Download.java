@@ -7,6 +7,7 @@ import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
+import org.Kroj.Core.Tools.Logger.Logger;
 import org.Kroj.Core.Tools.String.FileName;
 
 import java.net.URI;
