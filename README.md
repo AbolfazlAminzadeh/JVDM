@@ -16,6 +16,7 @@ Traditional download managers often introduce significant overhead due to heavy 
 * **GraalVM Native:** Compiled directly to a single standalone binary with zero reliance on a pre-installed Java Runtime Environment (JRE).
 * **Zero-Copy Optimization:** Utilizes optimized byte buffers to minimize CPU cycles during high-speed data transfers.
 * **Cross-Platform Compilation:** Native binaries targeting Windows, Linux, and macOS.
+* **Multi Internet Adaptor Support:** High Compatibility with binding networks to sockets, speed boost, no device waste. 
 
 ---
 
@@ -34,7 +35,7 @@ JVDM achieves high-efficiency data saturation through structured channel pipelin
 ### Prerequisites
 
 * **Native Version:** Completely standalone. No dependencies or Java installation required.
-* **JAR Version:** Requires **Java 21** or later.
+* **JAR Version:** Requires **Java 25** or later.
 
 ### Command Line Interface (CLI) Basic Usage
 
@@ -50,7 +51,7 @@ java -jar JVDM.jar --url "https://example.com/video.mp4"
 
 ```
 
-### Key Flags
+### Key Flags (CLI Version)
 
 * `-u`, `--url`: **(Required)** The direct video streaming or file URL.
 * `-o`, `--output`: Define the destination path and filename.
@@ -61,8 +62,9 @@ java -jar JVDM.jar --url "https://example.com/video.mp4"
 
 * [x] **Zero JRE Dependency:** Package natively for effortless deployment on client environments.
 * [x] **Maximized Throughput:** Fully saturate high-bandwidth network pipelines using an asynchronous architecture.
-* [ ] **Advanced Adaptive Streaming (DASH/HLS):** On-the-fly parsing and stitching of separated audio/video manifests.
-* [ ] **Pipeline Fine-Tuning:** Provide a highly configurable network buffer layer for advanced deployments.
+* [ ] **HTTP V3 Support:** Insane Speed, Quic Download Support, Best for high throughput and low latency.
+* [ ] **HTTP V2 Support:** Multiplexing to increase download speed, even more.
+* [ ] **FTP And Other Protocols:** For a good multi network interface download manager, we need this.
 
 ---
 
