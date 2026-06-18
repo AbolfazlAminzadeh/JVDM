@@ -36,34 +36,34 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
         if (readableBytes > 0) {
 
-            long pos = part.getWritePos();
-            long end = part.getEnd();
-
-            if (end >= 0 && pos >= end + 1) {
-                ctx.close();
-                downloader.onComplete();
-                return;
-            }
-
-            if (end >= 0 && (pos + readableBytes) > (end + 1)) {
-                readableBytes = (int) ((end + 1) - pos);
-            }
-
-            ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), readableBytes);
             int written = 0;
 
-            for (ByteBuffer buf : nioBuffers) {
-                while (buf.hasRemaining()) {
-                    written += fileChannel.write(buf, pos + written);
+            synchronized (part) {
+
+                long pos = part.getWritePos();
+                long end = part.getEnd();
+
+                if (end >= 0 && pos >= end + 1) {
+                    ctx.close();
+                    downloader.onComplete();
+                    return;
                 }
-            }
 
-            part.addBytes(written);
+                ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), readableBytes);
 
-            if (part.isCompleted() || (end >= 0 && part.getWritePos() >= end + 1)) {
-                ctx.close();
-                downloader.onComplete();
-                return;
+                for (ByteBuffer buf : nioBuffers) {
+                    while (buf.hasRemaining()) {
+                        written += fileChannel.write(buf, pos + written);
+                    }
+                }
+
+                part.addBytes(written);
+
+                if (part.isCompleted() || (end >= 0 && part.getWritePos() >= end + 1)) {
+                    ctx.close();
+                    downloader.onComplete();
+                    return;
+                }
             }
 
             if (!ctx.channel().isWritable()) {

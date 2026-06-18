@@ -11,7 +11,9 @@ import java.nio.file.StandardOpenOption;
 public class SafeFileChannel implements AutoCloseable{
 
     private final Path path;
-    private FileChannel channel;
+    private volatile FileChannel channel;
+
+    private final byte[] empty = new byte[]{0};
 
     public SafeFileChannel(Path path) {
         this.path = path;
@@ -30,7 +32,9 @@ public class SafeFileChannel implements AutoCloseable{
         );
 
         if (size > 0) {
-            channel.truncate(size);
+            channel.position(size - 1);
+            channel.write(ByteBuffer.wrap(empty));
+            channel.position(0);
         }
     }
 
@@ -40,7 +44,7 @@ public class SafeFileChannel implements AutoCloseable{
 
     public void flush() throws IOException {
         if (channel != null && channel.isOpen()) {
-            channel.force(true);
+            channel.force(false);
         }
     }
 

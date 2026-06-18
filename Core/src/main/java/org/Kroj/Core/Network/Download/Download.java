@@ -146,21 +146,22 @@ public class Download {
 
         if (target != null) {
             final Part part = target.getPart();
-            final long pos = part.getWritePos();
-            final long oldEnd = part.getEnd();
+            synchronized (part) {
+                final long pos = part.getWritePos();
+                final long oldEnd = part.getEnd();
+                long remaining = oldEnd - pos + 1;
 
-            long remaining = oldEnd - pos + 1;
+                if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
+                    final long half = pos + (maxRemaining/2);
+                    part.setEnd(half - 1);
 
-            if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
-                final long half = pos + (maxRemaining/2);
-                part.setEnd(half - 1);
+                    int id = parts.size();
+                    String device = devices.get(id % devices.size());
 
-                int id = parts.size();
-                String device = devices.get(id % devices.size());
-
-                Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
-                parts.add(newPart);
-                addDownloader(newPart);
+                    Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
+                    parts.add(newPart);
+                    addDownloader(newPart);
+                }
             }
 
         }
