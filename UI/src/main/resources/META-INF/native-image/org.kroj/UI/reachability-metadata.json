@@ -302,7 +302,13 @@
     { "type": "com.sun.xml.internal.stream.XMLInputFactoryImpl", "allDeclaredConstructors": true },
     { "type": "sun.text.resources.cldr.FormatData" },
     { "type": "sun.text.resources.cldr.FormatData_en" },
-    { "type": "sun.text.resources.cldr.FormatData_en_US" }
+    { "type": "sun.text.resources.cldr.FormatData_en_US" },
+
+    { "type": "com.sun.prism.shader.Texture_LinearGradient_PAD_Loader", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true },
+    { "type": "com.sun.prism.shader.Texture_LinearGradient_REPEAT_Loader", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true },
+    { "type": "com.sun.prism.shader.Texture_LinearGradient_MIRROR_Loader", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true },
+    { "type": "com.sun.prism.shader.Texture_RadialGradient_PAD_Loader", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true }
+
   ],
   "resources": [
     { "glob": "META-INF/native/*" },
