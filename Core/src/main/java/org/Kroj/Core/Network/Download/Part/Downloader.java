@@ -76,7 +76,7 @@ public class Downloader {
                 .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(1 << 16, 1 << 17, 1 << 20))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipe = ch.pipeline();
                         pipe.addFirst(new BindToDeviceHandler(part.getDevice()));
                         pipe.addLast(new ReadTimeoutHandler(Initializer.RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -85,7 +85,6 @@ public class Downloader {
                             pipe.addLast(TLS.ssl.newHandler(ch.alloc(), uri.getHost(), port));
                         }
                         pipe.addLast(new HttpClientCodec());
-
                         pipe.addLast(new HeaderHandler(Downloader.this));
                         pipe.addLast(new DownloadHandler(part, Downloader.this, download));
                     }
@@ -99,7 +98,7 @@ public class Downloader {
                     sendRequest(ch);
                     retryCount.set(0);
                 } else {
-                    onNetworkFailed((Exception) future.cause());
+                    onNetworkFailed(future.cause());
                 }
             });
         } catch (Exception e) {
