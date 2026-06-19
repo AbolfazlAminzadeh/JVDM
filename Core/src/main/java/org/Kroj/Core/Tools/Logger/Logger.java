@@ -98,9 +98,12 @@ public class Logger {
 
     public Logger append(Throwable throwable) {
         StringBuilder builder = builders.get();
+        builder.append(System.lineSeparator());
         builder.append(throwable.getClass());
+        builder.append(System.lineSeparator());
         if (throwable.getMessage() != null) {
             builder.append(throwable.getMessage());
+            builder.append(System.lineSeparator());
         }
         if (throwable.getStackTrace() != null) {
             for (StackTraceElement element : throwable.getStackTrace()) {
