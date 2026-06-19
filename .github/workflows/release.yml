@@ -112,11 +112,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '21'
           cache: gradle
 
       - name: Create local.properties for Android module
-        # ubuntu-latest already has the Android SDK pre-installed.
         run: |
           mkdir -p Android
           echo "sdk.dir=$ANDROID_HOME" > Android/local.properties
