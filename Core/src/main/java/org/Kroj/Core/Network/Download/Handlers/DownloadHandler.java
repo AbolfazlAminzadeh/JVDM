@@ -34,55 +34,37 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
         int readableBytes = data.readableBytes();
 
         if (readableBytes > 0) {
-            long pos;
-            int length;
-            boolean partComplete = false;
-
             synchronized (part) {
-
-                pos = part.getWritePos();
+                long pos = part.getWritePos();
                 long end = part.getEnd();
 
                 if (end >= 0 && pos >= end + 1) {
-                    data.release();
                     ctx.close();
                     downloader.onComplete();
                     return;
                 }
 
-                long remaining = end >= 0 ? end-pos+1 : readableBytes;
-                length = (int) Math.min(readableBytes, remaining);
+                long remaining = end >= 0 ? end - pos + 1 : readableBytes;
+                int length = (int) Math.min(readableBytes, remaining);
 
-                part.addBytes(length);
+                ByteBuf slice = data.slice(data.readerIndex(), length);
+                ByteBuffer[] buffers = slice.nioBuffers();
 
-                if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
-                    partComplete = true;
+                int written = 0;
+                for (ByteBuffer buf : buffers) {
+                    if (buf.hasRemaining()) {
+                        int rem = buf.remaining();
+                        fileChannel.write(buf, written + pos);
+                        written += rem;
+                    }
                 }
+                part.addBytes(written);
 
                 if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
                     ctx.close();
                     downloader.onComplete();
                     return;
                 }
-            }
-
-            ByteBuf slice = data.slice(data.readerIndex(), length);
-            ByteBuffer[] buffers = slice.nioBuffers();
-
-            int written = 0;
-
-            for (ByteBuffer buf : buffers) {
-                if (buf.hasRemaining()) {
-                    int remaining = buf.remaining();
-                    fileChannel.write(buf, written + pos);
-                    written += remaining;
-                }
-            }
-
-            if (partComplete) {
-                ctx.close();
-                downloader.onComplete();
-                return;
             }
 
             if (!ctx.channel().isWritable()) {

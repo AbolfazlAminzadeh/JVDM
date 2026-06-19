@@ -1,6 +1,8 @@
 package org.Kroj.Core.Tools.FileManagement;
 
 
+import static org.Kroj.Core.Tools.Logger.Logger.logger;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -25,53 +27,40 @@ public class SafeFileChannel implements AutoCloseable {
 
         this.channel = FileChannel.open(path,
                 StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.READ,
                 StandardOpenOption.WRITE,
                 StandardOpenOption.SPARSE
         );
 
         if (size > 0) {
-            channel.truncate(size);
+            ByteBuffer buf = ByteBuffer.allocate(1);
+            buf.put((byte) 0);
+            buf.flip();
+            channel.write(buf, size - 1);
         }
     }
 
-    private void ensureOpen() throws IOException {
-        if (channel == null || !channel.isOpen()) {
-            synchronized (this) {
-                if (channel == null || !channel.isOpen()) {
-                    this.channel = FileChannel.open(path,
-                            StandardOpenOption.CREATE,
-                            StandardOpenOption.READ,
-                            StandardOpenOption.WRITE,
-                            StandardOpenOption.SPARSE
-                    );
-                }
-            }
-        }
+    public boolean isClosed() {
+        return channel == null || !channel.isOpen();
     }
 
     public void write(ByteBuffer buf, long pos) {
+        if (isClosed()) return;
         try {
-            ensureOpen();
-
             while (buf.hasRemaining()) {
                 pos += channel.write(buf, pos);
             }
-
         } catch (IOException e) {
-            throw new RuntimeException("I/O Error at pos: " + pos, e);
+            logger.append("Error while writing data at pos").append(pos).append(e).nextLine();
         }
     }
 
-    public void flush() throws IOException {
-        if (channel != null && channel.isOpen()) {
-            channel.force(false);
-        }
-    }
 
     @Override
     public void close() throws Exception {
         if (channel != null && channel.isOpen()) {
+            channel.force(false);
             channel.close();
         }
     }

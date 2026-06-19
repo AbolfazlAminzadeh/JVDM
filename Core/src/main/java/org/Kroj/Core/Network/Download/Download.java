@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
-
 public class Download {
 
     private final URI uri;
@@ -45,7 +43,6 @@ public class Download {
     private volatile long totalSize = -1;
 
     public Download(URI uri, Path targetDir, int concurrency, List<String> devices, EventLoopGroup io, DownloadListener listener) {
-
         this.uri = uri;
         this.targetDir = targetDir;
         this.concurrency = concurrency;
@@ -55,18 +52,19 @@ public class Download {
     }
 
     public void start() {
-        Part firstPart = new Part(0,uri, devices.getFirst(), 0, -1);
-        Downloader head = new Downloader(firstPart,this, io);
+        Part firstPart = new Part(0, uri, devices.getFirst(), 0, -1);
+        Downloader head = new Downloader(firstPart, this, io);
         downloaders.add(head);
+
+        downloadings.incrementAndGet();
 
         head.start();
     }
 
     public void onHeadersReceive(Downloader head, long size, boolean supportRange, String rawFileName, String etag) {
-        if (!headersReceived.compareAndSet(false,true)) return;
+        if (!headersReceived.compareAndSet(false, true)) return;
 
-        String fileName = FileName.getFileName(uri,rawFileName);
-
+        String fileName = FileName.getFileName(uri, rawFileName);
         totalSize = size;
 
         channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
@@ -81,27 +79,26 @@ public class Download {
             listener.onReady(fileName, totalSize);
         }
 
+        Part headPart = head.getPart();
+        parts.add(headPart);
+
         if (supportRange && size > 0 && concurrency > 1) {
             long partSize = totalSize / concurrency;
-
-            Part headPart = head.getPart();
-            headPart.setEnd(partSize-1);
-            parts.add(headPart);
+            headPart.setEnd(partSize - 1);
 
             URI finalURI = headPart.getUri();
 
-            for (int i = 1; i < concurrency;i++) {
+            for (int i = 1; i < concurrency; i++) {
                 long start = (long) i * partSize;
-                long end = i == concurrency - 1 ? size-1 : start + partSize - 1;
+                long end = i == concurrency - 1 ? size - 1 : start + partSize - 1;
 
-                Part part = new Part(i,finalURI,devices.get(i % devices.size()),start,end);
+                Part part = new Part(i, finalURI, devices.get(i % devices.size()), start, end);
                 parts.add(part);
                 addDownloader(part);
             }
         }
 
         startSchedulers();
-
     }
 
     public void addDownloader(Part part) {
@@ -112,10 +109,8 @@ public class Download {
     }
 
     private void startSchedulers() {
-
         progressScheduler = io.scheduleWithFixedDelay(this::calcProgress, Initializer.PROGRESS_INTERVAL, Initializer.PROGRESS_INTERVAL, TimeUnit.MILLISECONDS);
         partSplitterScheduler = io.scheduleWithFixedDelay(this::splitParts, Initializer.SPLIT_PART_INTERVAL, Initializer.SPLIT_PART_INTERVAL, TimeUnit.MILLISECONDS);
-
     }
 
     private void calcProgress() {
@@ -131,11 +126,10 @@ public class Download {
         if (downloadings.get() >= concurrency) return;
 
         Downloader target = null;
-
         long maxRemaining = Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE;
 
         for (Downloader d : downloaders) {
-            if (d.getState() == DOWNLOADING) {
+            if (d.getState() == Downloader.State.DOWNLOADING) {
                 long remaining = d.getPart().getRemainingBytes();
                 if (maxRemaining < remaining) {
                     maxRemaining = remaining;
@@ -149,7 +143,7 @@ public class Download {
             synchronized (part) {
                 final long pos = part.getWritePos();
                 final long oldEnd = part.getEnd();
-                long remaining = oldEnd - pos + 1;
+                final long remaining = oldEnd - pos + 1;
 
                 if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
                     final long half = pos + (remaining / 2);
@@ -163,9 +157,7 @@ public class Download {
                     addDownloader(newPart);
                 }
             }
-
         }
-
     }
 
     public synchronized void pause() {
@@ -175,8 +167,8 @@ public class Download {
             d.pause();
         }
         if (listener != null) {
-            long lastBytesSaved = 0;
-            listener.onPaused(lastBytesSaved, totalSize);
+            long current = parts.stream().mapToLong(Part::getCurrentBytes).sum();
+            listener.onPaused(current, totalSize);
         }
     }
 
@@ -184,7 +176,7 @@ public class Download {
         downloaders.clear();
         downloadings.set(0);
         speed.reset();
-        if (headersReceived.get() && (channel == null || !channel.getChannel().isOpen())) {
+        if (headersReceived.get() && (channel == null || channel.isClosed())) {
             channel = new SafeFileChannel(targetFile);
         }
 
@@ -196,7 +188,7 @@ public class Download {
 
     public void onComplete() {
         if (downloadings.decrementAndGet() == 0) {
-            if (isFinished.compareAndSet(false,true)) completeDownload();
+            if (isFinished.compareAndSet(false, true)) completeDownload();
         } else {
             io.execute(this::splitParts);
         }
@@ -222,7 +214,7 @@ public class Download {
         downloadings.set(0);
         downloaders.clear();
         try {
-            if (channel != null && channel.getChannel().isOpen()) channel.close();
+            if (channel != null && !channel.isClosed()) channel.close();
         } catch (Exception _) {}
 
         if (listener != null) {
@@ -242,5 +234,4 @@ public class Download {
     public SafeFileChannel getChannel() {
         return channel;
     }
-
 }
