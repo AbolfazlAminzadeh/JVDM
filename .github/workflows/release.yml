@@ -64,13 +64,17 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx8g"
 
-      - name: Compress executable with UPX (JUST LINUX)
+      - name: Strip Debug Symbols (Linux & macOS)
+        if: matrix.os == 'linux' || matrix.os == 'macos'
+        run: strip UI/build/native/nativeCompile/JVDM || true
+        shell: bash
+
+      - name: Compress executable with UPX (Linux Only)
         if: matrix.os == 'linux'
-        uses: svenstaro/upx-action@v2
+        uses: svenstaro/upx-action@v3
         with:
-          files: UI/build/native/nativeCompile/JVDM*
-          args: --best --lzma
           file: UI/build/native/nativeCompile/JVDM
+          args: --best --lzma
 
       - name: Zip Artifacts (Maximum Compression)
         run: |
@@ -110,31 +114,23 @@ jobs:
           java-version: '25'
           cache: gradle
 
+      - name: Create local.properties for Android module
+        # ubuntu-latest already has the Android SDK pre-installed.
+        run: |
+          mkdir -p Android
+          echo "sdk.dir=$ANDROID_HOME" > Android/local.properties
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Set up Android SDK
-        uses: r0adkll/setup-android@v2
-        with:
-          api-levels: 33
-          build-tools: 33.0.2
-          platform-tools: true
-
-      - name: Create local.properties for Android module
-        run: |
-          # Adjust path if your Android module folder is different
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > Android/local.properties
-
-      - name: Accept Android SDK licenses
-        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build Android Release APK
         run: ./gradlew :Android:assembleRelease --no-daemon
 
-#      - name: Zip APK (Maximum Compression)
-#        run: |
-#          mkdir -p artifacts
-#          find UI/build/outputs/apk/release -name "*.apk" -exec 7z a -tzip -mx=9 "artifacts/JVDM-android-apk.zip" {} +
+      - name: Zip APK (Maximum Compression)
+        run: |
+          mkdir -p artifacts
+          # Fixed path: Since you built ':Android:assembleRelease', the output is in the Android module folder!
+          find Android/build/outputs/apk/release -name "*.apk" -exec 7z a -tzip -mx=9 "artifacts/JVDM-android-apk.zip" {} +
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
