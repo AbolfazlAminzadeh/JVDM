@@ -4,12 +4,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
+import org.Kroj.Core.Tools.FileManagement.MultiByteMapChannel;
 
 import java.nio.ByteBuffer;
 
@@ -26,7 +25,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) throws Exception {
-        SafeFileChannel fileChannel = download.getChannel();
+        MultiByteMapChannel fileChannel = download.getChannel();
         if (fileChannel == null) {
             return;
         }
@@ -35,35 +34,54 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
         int readableBytes = data.readableBytes();
 
         if (readableBytes > 0) {
-
-            int written = 0;
+            long pos;
+            int length;
+            boolean partComplete = false;
 
             synchronized (part) {
 
-                long pos = part.getWritePos();
+                pos = part.getWritePos();
                 long end = part.getEnd();
 
                 if (end >= 0 && pos >= end + 1) {
+                    data.release();
                     ctx.close();
                     downloader.onComplete();
                     return;
                 }
 
-                ByteBuffer[] nioBuffers = data.nioBuffers(data.readerIndex(), readableBytes);
+                long remaining = end >= 0 ? end-pos+1 : readableBytes;
+                length = (int) Math.min(readableBytes, remaining);
 
-                for (ByteBuffer buf : nioBuffers) {
-                    while (buf.hasRemaining()) {
-                        written += fileChannel.write(buf, pos + written);
-                    }
-                }
+                part.addBytes(length);
 
-                part.addBytes(written);
+                if (end >= 0 && part.getWritePos() >= end) partComplete = true;
+                else if (part.isCompleted()) partComplete = true;
 
-                if (part.isCompleted() || (end >= 0 && part.getWritePos() >= end + 1)) {
+                if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
                     ctx.close();
                     downloader.onComplete();
                     return;
                 }
+            }
+
+            ByteBuf slice = data.slice(data.readerIndex(), length);
+            ByteBuffer[] buffers = slice.nioBuffers();
+
+            int written = 0;
+
+            for (ByteBuffer buf : buffers) {
+                if (buf.hasRemaining()) {
+                    int remaining = buf.remaining();
+                    fileChannel.write(buf, written + pos);
+                    written += remaining;
+                }
+            }
+
+            if (partComplete) {
+                ctx.close();
+                downloader.onComplete();
+                return;
             }
 
             if (!ctx.channel().isWritable()) {
