@@ -6,7 +6,7 @@ import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
 import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
+import org.Kroj.Core.Tools.FileManagement.MultiByteMapChannel;
 import org.Kroj.Core.Tools.String.FileName;
 
 import java.net.URI;
@@ -37,7 +37,7 @@ public class Download {
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     private final Speed speed = new Speed(2500);
 
-    private volatile SafeFileChannel channel;
+    private volatile MultiByteMapChannel channel;
     private volatile Path targetFile;
     private ScheduledFuture<?> progressScheduler;
     private ScheduledFuture<?> partSplitterScheduler;
@@ -69,7 +69,7 @@ public class Download {
 
         totalSize = size;
 
-        channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
+        channel = new MultiByteMapChannel(targetFile = targetDir.resolve(fileName));
         try {
             if (totalSize > 0) channel.allocate(totalSize);
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public class Download {
         downloadings.set(0);
         speed.reset();
         if (headersReceived.get() && (channel == null || !channel.getChannel().isOpen())) {
-            channel = new SafeFileChannel(targetFile);
+            channel = new MultiByteMapChannel(targetFile);
         }
 
         for (Part part : parts) {
@@ -206,7 +206,6 @@ public class Download {
         stopSchedulers();
         try {
             if (channel != null) {
-                channel.flush();
                 channel.close();
             }
             if (listener != null) listener.onCompleted();
@@ -240,7 +239,7 @@ public class Download {
         failAll(e);
     }
 
-    public SafeFileChannel getChannel() {
+    public MultiByteMapChannel getChannel() {
         return channel;
     }
 
