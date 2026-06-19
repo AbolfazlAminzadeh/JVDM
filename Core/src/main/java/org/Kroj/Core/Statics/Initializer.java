@@ -100,6 +100,7 @@ public final class Initializer {
     // -=-=-=-=-=-=-=-=-=-=-=-
 
     public static final ThreadFactory daemonFactory = new DefaultThreadFactory("JVDM-Thread-Factory",true);
+
     public static final ThreadFactory importantFactory = new DefaultThreadFactory("JVDM-Thread-Factory",false);
 
     // -=-=-=-=-=-=-=-=-=-=-=-
@@ -112,7 +113,12 @@ public final class Initializer {
     //          Info
     // -=-=-=-=-=-=-=-=-=-=-=-
 
-    public static final int totalThreads = JVDM_THREADS+schedulerThread;
+    public static final long FILE_WRITER_CHUNK_SIZE = 1 << 30;
 
+    // -=-=-=-=-=-=-=-=-=-=-=-
+    //          Info
+    // -=-=-=-=-=-=-=-=-=-=-=-
+
+    public static final int totalThreads = JVDM_THREADS+schedulerThread;
 
 }
