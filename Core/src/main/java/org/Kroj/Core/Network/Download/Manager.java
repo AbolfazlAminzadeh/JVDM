@@ -66,7 +66,7 @@ public class Manager {
             @Override
             public void onProgress(long current, long total, double speed) {
                 Logger.logger.append('\r').append("Progress: ").append(
-                        String.format("%.2f%%",(double) current / total)).append('\t')
+                        String.format("%.2f%%",(double) current / total * 100)).append('\t')
                         .append(", Speed: ").append(SizeManager.formatSpeed(speed))
                         .flush();
             }
