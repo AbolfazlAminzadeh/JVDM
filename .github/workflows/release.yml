@@ -113,6 +113,21 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Set up Android SDK
+        uses: r0adkll/setup-android@v2
+        with:
+          api-levels: 33
+          build-tools: 33.0.2
+          platform-tools: true
+
+      - name: Create local.properties for Android module
+        run: |
+          # Adjust path if your Android module folder is different
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > Android/local.properties
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Build Android Release APK
         run: ./gradlew :Android:assembleRelease --no-daemon
 
