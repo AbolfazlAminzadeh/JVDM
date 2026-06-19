@@ -10,7 +10,10 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  # ---------------------------------------------------------
+  # JOB 1: Build Desktop Native Images (Linux, macOS, Windows)
+  # ---------------------------------------------------------
+  build_desktop:
     name: Build ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -30,7 +33,7 @@ jobs:
           - os: windows
             arch: x86_64
             runner: windows-2022
-            artifact: JVDM-windows-x86_64.exe
+            artifact: JVDM-windows-x86_64
 
     steps:
       - name: Checkout
@@ -61,15 +64,26 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx8g"
 
-      - name: Prepare Artifacts
+      - name: Compress executable with UPX
+        if: matrix.os == 'linux' || matrix.os == 'windows'
+        uses: svenstaro/upx-action@v2
+        with:
+          files: UI/build/native/nativeCompile/JVDM
+          args: --best --lzma
+          file: '';
+
+      - name: Zip Artifacts (Maximum Compression)
         run: |
           mkdir -p artifacts
+          cd UI/build/native/nativeCompile
+          
+          cp ../../libs/*.jar . 2>/dev/null || true
+          
           if [[ "${{ matrix.os }}" == "windows" ]]; then
-            cp UI/build/native/nativeCompile/JVDM.exe "artifacts/${{ matrix.artifact }}"
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe *.jar
           else
-            cp UI/build/native/nativeCompile/JVDM "artifacts/${{ matrix.artifact }}"
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM *.jar
           fi
-          cp UI/build/libs/*.jar artifacts/ 2>/dev/null || true
         shell: bash
 
       - name: Upload Artifact
@@ -77,12 +91,66 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: artifacts/*
-          retention-days: 30
+          retention-days: 1
 
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+  # ---------------------------------------------------------
+  # JOB 2: Build Android APK
+  # ---------------------------------------------------------
+  build_android:
+    name: Build Android (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java for Android
+        uses: actions/setup-java@v4
         with:
-          files: |
-            artifacts/*
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Android Release APK
+        run: ./gradlew :UI:assembleRelease --no-daemon
+
+#      - name: Zip APK (Maximum Compression)
+#        run: |
+#          mkdir -p artifacts
+#          find UI/build/outputs/apk/release -name "*.apk" -exec 7z a -tzip -mx=9 "artifacts/JVDM-android-apk.zip" {} +
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JVDM-android
+          path: artifacts/*
+          retention-days: 1
+
+  # ---------------------------------------------------------
+  # JOB 3: Publish GitHub Release
+  # ---------------------------------------------------------
+  publish_release:
+    name: Publish Release
+    needs: [build_desktop, build_android]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Generate Checksums
+        run: |
+          cd release-artifacts
+          sha256sum * > SHA256-Checksums.txt
+          cat SHA256-Checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/*
           generate_release_notes: true
