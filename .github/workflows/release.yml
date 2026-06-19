@@ -107,6 +107,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Java for Core
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: gradle
+
       - name: Setup Java for Android
         uses: actions/setup-java@v4
         with:
