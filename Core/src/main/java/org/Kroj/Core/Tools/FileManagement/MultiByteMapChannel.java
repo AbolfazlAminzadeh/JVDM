@@ -50,12 +50,23 @@ public class MultiByteMapChannel implements AutoCloseable {
 
 
     public void write(ByteBuffer buf, long pos) {
-        int bufIndex = (int) (pos / FILE_WRITER_CHUNK_SIZE);
-        int position = (int) (pos % FILE_WRITER_CHUNK_SIZE);
+        while (buf.hasRemaining()) {
+            int bufIndex = (int) (pos / FILE_WRITER_CHUNK_SIZE);
+            int position = (int) (pos % FILE_WRITER_CHUNK_SIZE);
 
-        MappedByteBuffer buffer = buffers[bufIndex];
-        buffer.position(position);
-        buffer.put(buf);
+            MappedByteBuffer buffer = buffers[bufIndex].duplicate();
+            int bufferRemaining = Math.min(buf.remaining(),(int) (FILE_WRITER_CHUNK_SIZE - position));
+            buffer.position(position);
+            if (bufferRemaining == buf.remaining()) {
+                buffer.put(buf);
+            } else {
+                int limit = buf.limit();
+                buf.limit(buf.position() + bufferRemaining);
+                buffer.put(buf);
+                buf.limit(limit);
+            }
+            pos += bufferRemaining;
+        }
     }
 
     public void flush() {
