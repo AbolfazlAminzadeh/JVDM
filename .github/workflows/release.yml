@@ -114,13 +114,6 @@ jobs:
           java-version: '25'
           cache: gradle
 
-      - name: Setup Java for Android
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: gradle
-
       - name: Create local.properties
         run: |
           mkdir -p Android
