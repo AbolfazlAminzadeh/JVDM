@@ -24,7 +24,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) {
         MultiByteMapChannel fileChannel = download.getChannel();
         if (fileChannel == null) {
             return;
