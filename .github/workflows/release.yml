@@ -64,8 +64,8 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx8g"
 
-      - name: Compress executable with UPX
-        if: matrix.os == 'linux' || matrix.os == 'windows'
+      - name: Compress executable with UPX (JUST LINUX)
+        if: matrix.os == 'linux'
         uses: svenstaro/upx-action@v2
         with:
           files: UI/build/native/nativeCompile/JVDM*
@@ -114,7 +114,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Android Release APK
-        run: ./gradlew :UI:assembleRelease --no-daemon
+        run: ./gradlew :Android:assembleRelease --no-daemon
 
 #      - name: Zip APK (Maximum Compression)
 #        run: |
