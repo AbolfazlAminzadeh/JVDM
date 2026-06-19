@@ -66,9 +66,9 @@ jobs:
 
       - name: Compress executable with UPX
         if: matrix.os == 'linux' || matrix.os == 'windows'
-        uses: svenstaro/upx-action@v2
+        uses: svenstaro/upx-action@v6
         with:
-          files: UI/build/native/nativeCompile/JVDM
+          files: UI/build/native/nativeCompile/JVDM*
           args: --best --lzma
 
       - name: Zip Artifacts (Maximum Compression)
