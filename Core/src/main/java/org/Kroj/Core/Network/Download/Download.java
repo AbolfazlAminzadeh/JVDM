@@ -6,7 +6,7 @@ import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
 import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.MultiByteMapChannel;
+import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 import org.Kroj.Core.Tools.String.FileName;
 
 import java.net.URI;
@@ -37,7 +37,7 @@ public class Download {
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     private final Speed speed = new Speed(2500);
 
-    private volatile MultiByteMapChannel channel;
+    private volatile SafeFileChannel channel;
     private volatile Path targetFile;
     private ScheduledFuture<?> progressScheduler;
     private ScheduledFuture<?> partSplitterScheduler;
@@ -69,7 +69,7 @@ public class Download {
 
         totalSize = size;
 
-        channel = new MultiByteMapChannel(targetFile = targetDir.resolve(fileName));
+        channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
         try {
             if (totalSize > 0) channel.allocate(totalSize);
         } catch (Exception e) {
@@ -152,7 +152,7 @@ public class Download {
                 long remaining = oldEnd - pos + 1;
 
                 if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
-                    final long half = pos + (maxRemaining/2);
+                    final long half = pos + (remaining / 2);
                     part.setEnd(half - 1);
 
                     int id = parts.size();
@@ -185,7 +185,7 @@ public class Download {
         downloadings.set(0);
         speed.reset();
         if (headersReceived.get() && (channel == null || !channel.getChannel().isOpen())) {
-            channel = new MultiByteMapChannel(targetFile);
+            channel = new SafeFileChannel(targetFile);
         }
 
         for (Part part : parts) {
@@ -239,7 +239,7 @@ public class Download {
         failAll(e);
     }
 
-    public MultiByteMapChannel getChannel() {
+    public SafeFileChannel getChannel() {
         return channel;
     }
 

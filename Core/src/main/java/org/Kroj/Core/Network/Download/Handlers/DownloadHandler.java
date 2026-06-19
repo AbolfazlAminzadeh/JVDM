@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.FileManagement.MultiByteMapChannel;
+import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
 import java.nio.ByteBuffer;
 
@@ -25,7 +25,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) {
-        MultiByteMapChannel fileChannel = download.getChannel();
+        SafeFileChannel fileChannel = download.getChannel();
         if (fileChannel == null) {
             return;
         }
@@ -55,8 +55,9 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
                 part.addBytes(length);
 
-                if (end >= 0 && part.getWritePos() >= end) partComplete = true;
-                else if (part.isCompleted()) partComplete = true;
+                if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
+                    partComplete = true;
+                }
 
                 if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
                     ctx.close();
