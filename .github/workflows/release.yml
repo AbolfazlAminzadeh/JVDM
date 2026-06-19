@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------
-  # JOB 1: Build Desktop Native Images (Linux, macOS, Windows)
+  # JOB 1: Build Desktop Native Images
   # ---------------------------------------------------------
   build_desktop:
     name: Build ${{ matrix.os }} (${{ matrix.arch }})
@@ -75,13 +75,12 @@ jobs:
         with:
           file: UI/build/native/nativeCompile/JVDM
           args: --best --lzma
-          files: ''
+          files: UI/build/native/nativeCompile/JVDM
 
-      - name: Zip Artifacts (Maximum Compression)
+      - name: Zip Artifacts
         run: |
           mkdir -p artifacts
           cd UI/build/native/nativeCompile
-          
           cp ../../libs/*.jar . 2>/dev/null || true
           
           if [[ "${{ matrix.os }}" == "windows" ]]; then
@@ -112,24 +111,23 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: gradle
 
-      - name: Create local.properties for Android module
+      - name: Create local.properties
         run: |
           mkdir -p Android
           echo "sdk.dir=$ANDROID_HOME" > Android/local.properties
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x gradlew
 
       - name: Build Android Release APK
-        run: ./gradlew :Android:assembleRelease --no-daemon
+        run: ./gradlew :Android:assembleRelease --no-daemon --stacktrace
 
-      - name: Zip APK (Maximum Compression)
+      - name: Zip APK
         run: |
           mkdir -p artifacts
-          # Fixed path: Since you built ':Android:assembleRelease', the output is in the Android module folder!
           find Android/build/outputs/apk/release -name "*.apk" -exec 7z a -tzip -mx=9 "artifacts/JVDM-android-apk.zip" {} +
 
       - name: Upload Artifact
@@ -158,7 +156,6 @@ jobs:
         run: |
           cd release-artifacts
           sha256sum * > SHA256-Checksums.txt
-          cat SHA256-Checksums.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
