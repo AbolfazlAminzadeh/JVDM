@@ -70,6 +70,7 @@ jobs:
         with:
           files: UI/build/native/nativeCompile/JVDM*
           args: --best --lzma
+          file: UI/build/native/nativeCompile/JVDM
 
       - name: Zip Artifacts (Maximum Compression)
         run: |
