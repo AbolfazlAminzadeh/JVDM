@@ -1,17 +1,20 @@
 package org.Kroj.Core.Network.Download;
 
 import io.netty.channel.EventLoopGroup;
+import org.Kroj.Core.Network.Disk.DiskWriter;
 import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
 import org.Kroj.Core.Statics.Initializer;
+import org.Kroj.Core.Tools.Exceptions.DownloadCompletionException;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 import org.Kroj.Core.Tools.String.FileName;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +38,9 @@ public class Download {
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     private final Speed speed = new Speed(2500);
 
+    private final DiskWriter writer;
+    private final AtomicInteger pendings = new AtomicInteger(0);
+
     private volatile SafeFileChannel channel;
     private volatile Path targetFile;
     private ScheduledFuture<?> progressScheduler;
@@ -49,9 +55,13 @@ public class Download {
         this.devices = devices;
         this.io = io;
         this.listener = listener;
+        this.writer = new DiskWriter(this);
     }
 
     public void start() {
+
+        writer.start();
+
         Part firstPart = new Part(0, uri, devices.getFirst(), 0, -1);
         Downloader head = new Downloader(firstPart, this, io);
         downloaders.add(head);
@@ -67,38 +77,44 @@ public class Download {
         String fileName = FileName.getFileName(uri, rawFileName);
         totalSize = size;
 
-        channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
-        try {
-            if (totalSize > 0) channel.allocate(totalSize);
-        } catch (Exception e) {
-            head.onFailure(e);
-            return;
-        }
-
-        if (listener != null) {
-            listener.onReady(fileName, totalSize);
-        }
-
-        Part headPart = head.getPart();
-        parts.add(headPart);
-
-        if (supportRange && size > 0 && concurrency > 1) {
-            long partSize = totalSize / concurrency;
-            headPart.setEnd(partSize - 1);
-
-            URI finalURI = headPart.getUri();
-
-            for (int i = 1; i < concurrency; i++) {
-                long start = (long) i * partSize;
-                long end = i == concurrency - 1 ? size - 1 : start + partSize - 1;
-
-                Part part = new Part(i, finalURI, devices.get(i % devices.size()), start, end);
-                parts.add(part);
-                addDownloader(part);
+        CompletableFuture.runAsync(() -> {
+            channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
+            try {
+                if (totalSize > 0) channel.allocate(totalSize);
+            } catch (Exception e) {
+                throw new DownloadCompletionException(e);
             }
-        }
+        }).whenCompleteAsync((unused, throwable) -> {
+            if (throwable != null) {
+                head.onFailure(throwable.getCause() != null ? throwable.getCause() : throwable);
+                return;
+            }
 
-        startSchedulers();
+            if (listener != null) {
+                listener.onReady(fileName, totalSize);
+            }
+
+            Part headPart = head.getPart();
+            parts.add(headPart);
+
+            if (supportRange && size > 0 && concurrency > 1) {
+                long partSize = totalSize / concurrency;
+                headPart.setEnd(partSize - 1);
+
+                URI finalURI = headPart.getUri();
+
+                for (int i = 1; i < concurrency; i++) {
+                    long start = (long) i * partSize;
+                    long end = i == concurrency - 1 ? size - 1 : start + partSize - 1;
+
+                    Part part = new Part(i, finalURI, devices.get(i % devices.size()), start, end);
+                    parts.add(part);
+                    addDownloader(part);
+                }
+            }
+
+            startSchedulers();
+        },io);
     }
 
     public void addDownloader(Part part) {
@@ -166,6 +182,7 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
+        writer.stop();
         if (listener != null) {
             long current = parts.stream().mapToLong(Part::getCurrentBytes).sum();
             listener.onPaused(current, totalSize);
@@ -179,7 +196,7 @@ public class Download {
         if (headersReceived.get() && (channel == null || channel.isClosed())) {
             channel = new SafeFileChannel(targetFile);
         }
-
+        writer.start();
         for (Part part : parts) {
             if (!part.isCompleted()) addDownloader(part);
         }
@@ -188,7 +205,7 @@ public class Download {
 
     public void onComplete() {
         if (downloadings.decrementAndGet() == 0) {
-            if (isFinished.compareAndSet(false, true)) completeDownload();
+            checkComplete();
         } else {
             io.execute(this::splitParts);
         }
@@ -233,5 +250,24 @@ public class Download {
 
     public SafeFileChannel getChannel() {
         return channel;
+    }
+
+    public void decreasePendingWrite() {
+        pendings.decrementAndGet();
+    }
+    public void increasePendingWrite() {
+        pendings.decrementAndGet();
+    }
+
+    public void checkComplete() {
+        if (downloadings.get() == 0 && pendings.get() == 0) {
+            if (isFinished.compareAndSet(false,true)) {
+                completeDownload();
+            }
+        }
+    }
+
+    public DiskWriter getWriter() {
+        return writer;
     }
 }

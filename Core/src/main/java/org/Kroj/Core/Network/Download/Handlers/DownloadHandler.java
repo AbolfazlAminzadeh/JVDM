@@ -48,17 +48,10 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
                 int length = (int) Math.min(readableBytes, remaining);
 
                 ByteBuf slice = data.slice(data.readerIndex(), length);
-                ByteBuffer[] buffers = slice.nioBuffers();
+                slice.retain();
 
-                int written = 0;
-                for (ByteBuffer buf : buffers) {
-                    if (buf.hasRemaining()) {
-                        int rem = buf.remaining();
-                        fileChannel.write(buf, written + pos);
-                        written += rem;
-                    }
-                }
-                part.addBytes(written);
+                download.getWriter().addToQueue(slice, pos, ctx.channel());
+                part.addBytes(length);
 
                 if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
                     ctx.close();

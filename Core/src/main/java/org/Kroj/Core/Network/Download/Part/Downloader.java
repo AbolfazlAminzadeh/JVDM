@@ -19,6 +19,9 @@ import org.Kroj.Core.Tools.URL.URL;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -90,20 +93,27 @@ public class Downloader {
                     }
                 });
 
-        try {
-            InetAddress addr = isIP ? InetAddress.ofLiteral(uri.getHost()) : DNS.getInstance().resolve(uri.getHost());
-            b.connect(addr, port).addListener((ChannelFutureListener) future -> {
-                if (future.isSuccess()) {
-                    ch = future.channel();
-                    sendRequest(ch);
-                    retryCount.set(0);
-                } else {
-                    onNetworkFailed(future.cause());
-                }
-            });
-        } catch (Exception e) {
-            onFailure(e);
-        }
+        CompletableFuture.supplyAsync(() -> DNS.getInstance().resolve(uri.getHost()))
+                .whenCompleteAsync(((inetAddress, throwable) -> {
+                    if (throwable != null) {
+                        onFailure(throwable);
+                        return;
+                    }
+                    try {
+                        b.connect(inetAddress, port).addListener((ChannelFutureListener) future -> {
+                            if (future.isSuccess()) {
+                                ch = future.channel();
+                                sendRequest(ch);
+                                retryCount.set(0);
+                            } else {
+                                onNetworkFailed(future.cause());
+                            }
+                        });
+                    } catch (Exception e) {
+                        onFailure(e);
+                    }
+                }),io);
+
     }
 
     private void sendRequest(Channel ch) {
