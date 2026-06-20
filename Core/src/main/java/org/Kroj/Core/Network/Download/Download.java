@@ -182,7 +182,7 @@ public class Download {
         }
         writer.stop();
         for (Part part : parts) {
-            part.queuedToWritten(); // Roll back any unwritten chunks
+            part.queuedToWritten();
         }
         if (listener != null) {
             long current = parts.stream().mapToLong(Part::getCurrentBytes).sum();
@@ -192,6 +192,7 @@ public class Download {
 
     public synchronized void resume() {
         downloaders.clear();
+        pendings.set(0);
         downloadings.set(0);
         speed.reset();
         if (headersReceived.get() && (channel == null || channel.isClosed())) {
@@ -230,6 +231,7 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
+        pendings.set(0);
         downloadings.set(0);
         downloaders.clear();
         try {
@@ -259,7 +261,7 @@ public class Download {
     }
 
     public void increasePendingWrite() {
-        pendings.incrementAndGet(); // Fixed: increment instead of decrement
+        pendings.incrementAndGet();
     }
 
     public void checkComplete() {

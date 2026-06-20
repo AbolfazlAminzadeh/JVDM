@@ -1,5 +1,7 @@
 package org.Kroj.Core.Network.Download.Part;
 
+import org.Kroj.Core.Tools.String.SizeManager;
+
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
@@ -78,5 +80,14 @@ public class Part {
         long endValue = getEnd();
         if (endValue < 0) return false;
         return (start + getWrittenBytes()) > endValue;
+    }
+
+    @Override
+    public String toString() {
+        return "[21: Start: "+ SizeManager.formatSize(start) +", End: "+
+                SizeManager.formatSize(end.get())+
+                ", Queued: "+
+                SizeManager.formatSize(queued.sum())+
+                ", Written: "+SizeManager.formatSize(written.sum())+']';
     }
 }

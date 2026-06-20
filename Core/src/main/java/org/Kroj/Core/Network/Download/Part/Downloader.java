@@ -227,7 +227,7 @@ public class Downloader {
 
     private void onNetworkFailed(Throwable e) {
         if (state.get() == PAUSED || state.get() == COMPLETE) return;
-        logger.append("Retrying Part (").append(part.getId()).append("), Because of:").append(e.getMessage()).nextLine();
+        logger.append("Retrying Part (").append(part).append("), Because of:").append(e.getMessage()).nextLine();
         int tries = retryCount.incrementAndGet();
         if (tries <= Initializer.MAX_RETRIES) {
             io.schedule(this::connect, Initializer.RETRY_DELAY, TimeUnit.MILLISECONDS);
