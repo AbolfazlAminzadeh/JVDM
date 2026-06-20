@@ -110,6 +110,18 @@ public final class Initializer {
     public static final byte schedulerThread = 2;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
+    //       DiskWriter
+    // -=-=-=-=-=-=-=-=-=-=-=-
+
+    public static final int DISK_QUEUE_CAPACITY = 1 << 12;
+
+    public static final int DISK_QUEUE_PAUSE_READ = 1 << 10;
+
+    public static final int DISK_QUEUE_RESUME_READ = DISK_QUEUE_PAUSE_READ * 2 / 3; // Will change later
+
+    public static final CharSequence DISK_QUEUE_THREAD_PREFIX = "JVDM-Disk-Queue-";
+
+    // -=-=-=-=-=-=-=-=-=-=-=-
     //          Info
     // -=-=-=-=-=-=-=-=-=-=-=-
 

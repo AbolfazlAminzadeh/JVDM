@@ -14,7 +14,7 @@ public class SafeFileChannel implements AutoCloseable {
 
     private final Path path;
     private volatile FileChannel channel;
-
+    private final ByteBuffer empty = ByteBuffer.wrap(new byte[]{0});
     public SafeFileChannel(Path path) {
         this.path = path;
     }
@@ -34,10 +34,7 @@ public class SafeFileChannel implements AutoCloseable {
         );
 
         if (size > 0) {
-            ByteBuffer buf = ByteBuffer.allocate(1);
-            buf.put((byte) 0);
-            buf.flip();
-            channel.write(buf, size - 1);
+            channel.write(empty,size-1);
         }
     }
 
