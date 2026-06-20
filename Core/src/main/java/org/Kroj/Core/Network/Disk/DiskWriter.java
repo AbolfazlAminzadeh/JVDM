@@ -3,6 +3,7 @@ package org.Kroj.Core.Network.Disk;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.Kroj.Core.Network.Download.Download;
+import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
 import java.nio.ByteBuffer;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.Kroj.Core.Statics.Initializer.*;
 
-public class DiskWriter implements Runnable{
+public class DiskWriter implements Runnable {
 
     private final Download download;
     private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DISK_QUEUE_CAPACITY);
@@ -27,8 +28,8 @@ public class DiskWriter implements Runnable{
     }
 
     public void start() {
-        if (running.compareAndSet(false,true)) {
-            thread = new Thread(this, DISK_QUEUE_THREAD_PREFIX+String.valueOf(download.hashCode()));
+        if (running.compareAndSet(false, true)) {
+            thread = new Thread(this, DISK_QUEUE_THREAD_PREFIX + String.valueOf(download.hashCode()));
             thread.setDaemon(true);
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
@@ -36,7 +37,7 @@ public class DiskWriter implements Runnable{
     }
 
     public void stop() {
-        if (running.compareAndSet(false,true)) {
+        if (running.compareAndSet(true, false)) { // Fixed comparison check
             if (thread != null) {
                 thread.interrupt();
             }
@@ -61,7 +62,7 @@ public class DiskWriter implements Runnable{
         }
     }
 
-    public void addToQueue(ByteBuf buf, long pos, Channel channel) {
+    public void addToQueue(ByteBuf buf, long pos, Channel channel, Part part) {
         if (!running.get()) {
             buf.release();
             return;
@@ -74,7 +75,7 @@ public class DiskWriter implements Runnable{
             }
         }
 
-        Task task = new Task(buf, pos, channel);
+        Task task = new Task(buf, pos, channel, part);
         download.increasePendingWrite();
 
         try {
@@ -92,13 +93,16 @@ public class DiskWriter implements Runnable{
             if (channel != null && !channel.isClosed()) {
                 ByteBuffer[] buffers = task.buffer().nioBuffers();
                 long pos = task.pos();
+                int totalWritten = 0;
                 for (ByteBuffer buf : buffers) {
                     if (buf.hasRemaining()) {
                         int remaining = buf.remaining();
-                        channel.write(buf,pos);
+                        channel.write(buf, pos);
                         pos += remaining;
+                        totalWritten += remaining;
                     }
                 }
+                task.part().addWrittenBytes(totalWritten);
             }
         } catch (Exception e) {
             download.onFailure(e);

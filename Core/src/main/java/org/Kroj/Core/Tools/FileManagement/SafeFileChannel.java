@@ -1,14 +1,14 @@
 package org.Kroj.Core.Tools.FileManagement;
 
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+
+import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 public class SafeFileChannel implements AutoCloseable {
 
@@ -29,8 +29,7 @@ public class SafeFileChannel implements AutoCloseable {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.READ,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.SPARSE
+                StandardOpenOption.WRITE
         );
 
         if (size > 0) {

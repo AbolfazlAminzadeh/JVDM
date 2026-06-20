@@ -10,8 +10,6 @@ import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
-import java.nio.ByteBuffer;
-
 public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     private final Part part;
     private final Downloader downloader;
@@ -50,7 +48,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
                 ByteBuf slice = data.slice(data.readerIndex(), length);
                 slice.retain();
 
-                download.getWriter().addToQueue(slice, pos, ctx.channel());
+                download.getWriter().addToQueue(slice, pos, ctx.channel(), part);
                 part.addBytes(length);
 
                 if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {

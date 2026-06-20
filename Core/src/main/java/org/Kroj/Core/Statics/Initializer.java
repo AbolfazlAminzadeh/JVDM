@@ -51,6 +51,10 @@ public final class Initializer {
 
     public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 20;
 
+    public final static int RECEIVE_BUFFER_SIZE = 1 << 22;
+    public final static int SEND_BUFFER_SIZE = 1 << 20;
+
+
     // -=-=-=-=-=-=-=-=-=-=-=-
     //            UI
     // -=-=-=-=-=-=-=-=-=-=-=-

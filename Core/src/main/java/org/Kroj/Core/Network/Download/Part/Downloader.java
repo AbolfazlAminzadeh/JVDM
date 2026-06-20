@@ -1,12 +1,12 @@
 package org.Kroj.Core.Network.Download.Part;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.util.NetUtil;
 import org.Kroj.Core.Network.DNS.DNS;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Handlers.DownloadHandler;
@@ -17,17 +17,15 @@ import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.URL.URL;
 
-import java.net.InetAddress;
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
 import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
+import static org.Kroj.Core.Tools.Logger.Logger.logger;
 
 public class Downloader {
 
@@ -67,15 +65,15 @@ public class Downloader {
         boolean secure = "https".equalsIgnoreCase(uri.getScheme());
         int port = uri.getPort() == -1 ? (secure ? 443 : 80) : uri.getPort();
 
-        boolean isIP = NetUtil.isValidIpV4Address(uri.getHost())
-                || NetUtil.isValidIpV6Address(uri.getHost());
-
         Bootstrap b = new Bootstrap()
                 .group(io)
                 .channel(NettyUtil.getTCPClass())
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Initializer.CONNECTION_TIMEOUT)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .option(ChannelOption.SO_RCVBUF, Initializer.RECEIVE_BUFFER_SIZE)
+                .option(ChannelOption.SO_SNDBUF, Initializer.SEND_BUFFER_SIZE)
                 .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(1 << 16, 1 << 17, 1 << 20))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -112,8 +110,7 @@ public class Downloader {
                     } catch (Exception e) {
                         onFailure(e);
                     }
-                }),io);
-
+                }), io);
     }
 
     private void sendRequest(Channel ch) {
@@ -150,7 +147,26 @@ public class Downloader {
             return;
         }
 
-        boolean supportsRange = (code == 206) || "bytes".equalsIgnoreCase(response.headers().get(HttpHeaderNames.ACCEPT_RANGES));
+        if (code < 200 || code >= 300) {
+            if (ch != null && ch.isOpen()) {
+                ch.close();
+            }
+            onFailure(new IOException("Server responded with HTTP error: " + code));
+            return;
+        }
+
+        long start = part.getWritePos();
+        long end = part.getEnd();
+        boolean hasRange = (end >= 0 || start > 0);
+        if (hasRange && code != 206) {
+            if (ch != null && ch.isOpen()) {
+                ch.close();
+            }
+            onFailure(new IOException("Server ignored requested range (Status: " + code + ")"));
+            return;
+        }
+
+        boolean rangeSupport = (code == 206) || "bytes".equalsIgnoreCase(response.headers().get(HttpHeaderNames.ACCEPT_RANGES));
         long length = -1;
 
         if (code == 206) {
@@ -158,7 +174,7 @@ public class Downloader {
             if (contentRange != null) {
                 try {
                     length = Long.parseLong(contentRange.substring(contentRange.lastIndexOf("/") + 1));
-                } catch (Exception ignored) {}
+                } catch (Exception _) {}
             }
         } else {
             String contentLength = response.headers().get(HttpHeaderNames.CONTENT_LENGTH);
@@ -172,7 +188,7 @@ public class Downloader {
         String disposition = response.headers().get(HttpHeaderNames.CONTENT_DISPOSITION);
         String etag = response.headers().get(HttpHeaderNames.ETAG);
 
-        download.onHeadersReceive(this, length, supportsRange, disposition, etag);
+        download.onHeadersReceive(this, length, rangeSupport, disposition, etag);
     }
 
     public synchronized void pause() {
@@ -211,7 +227,7 @@ public class Downloader {
 
     private void onNetworkFailed(Throwable e) {
         if (state.get() == PAUSED || state.get() == COMPLETE) return;
-        logger.append("Retrying Part (").append(part).append("), Because of:").append(e).nextLine();
+        logger.append("Retrying Part (").append(part.getId()).append("), Because of:").append(e.getMessage()).nextLine();
         int tries = retryCount.incrementAndGet();
         if (tries <= Initializer.MAX_RETRIES) {
             io.schedule(this::connect, Initializer.RETRY_DELAY, TimeUnit.MILLISECONDS);

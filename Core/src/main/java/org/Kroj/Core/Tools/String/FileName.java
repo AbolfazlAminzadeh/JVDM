@@ -5,8 +5,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
-
 public class FileName {
     public static String getFileName(final URI uri, final String cd) {
         URI result;

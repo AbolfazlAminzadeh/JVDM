@@ -1,7 +1,5 @@
 package org.Kroj.Core.Tools.CompletableCombiner;
 
-import java.util.concurrent.CompletableFuture;
-
 public class Combiner {
 /*
     public static <A, B, C, R> CompletableFuture<R> combine3Future(

@@ -9,7 +9,8 @@ public class Part {
     private final String device;
     private final long start;
     private final AtomicLong end;
-    private final LongAdder downloaded = new LongAdder();
+    private final LongAdder queued = new LongAdder();
+    private final LongAdder written = new LongAdder();
     private volatile URI uri;
 
     public Part(int id, URI uri, String device, long start, long end) {
@@ -38,27 +39,44 @@ public class Part {
     }
 
     public void addBytes(long bytes) {
-        downloaded.add(bytes);
+        queued.add(bytes);
+    }
+
+    public void addWrittenBytes(long bytes) {
+        written.add(bytes);
+    }
+
+    public long getInQueueBytes() {
+        return queued.sum();
+    }
+
+    public long getWrittenBytes() {
+        return written.sum();
+    }
+
+    public void queuedToWritten() {
+        queued.reset();
+        queued.add(getWrittenBytes());
     }
 
     public long getCurrentBytes() {
-        return downloaded.sum();
+        return getWrittenBytes();
     }
 
     public long getWritePos() {
-        return start + getCurrentBytes();
+        return start + getInQueueBytes();
     }
 
     public long getRemainingBytes() {
-        long end = getEnd();
-        if (end < 0) return Long.MAX_VALUE;
-        long remaining = (end - getWritePos()) + 1;
+        long endValue = getEnd();
+        if (endValue < 0) return Long.MAX_VALUE;
+        long remaining = (endValue - (start + getInQueueBytes())) + 1;
         return Math.max(0, remaining);
     }
 
     public boolean isCompleted() {
-        long end = getEnd();
-        if (end < 0) return false;
-        return getWritePos() > end;
+        long endValue = getEnd();
+        if (endValue < 0) return false;
+        return (start + getWrittenBytes()) > endValue;
     }
 }

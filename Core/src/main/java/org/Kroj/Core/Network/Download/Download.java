@@ -59,7 +59,6 @@ public class Download {
     }
 
     public void start() {
-
         writer.start();
 
         Part firstPart = new Part(0, uri, devices.getFirst(), 0, -1);
@@ -67,7 +66,6 @@ public class Download {
         downloaders.add(head);
 
         downloadings.incrementAndGet();
-
         head.start();
     }
 
@@ -114,7 +112,7 @@ public class Download {
             }
 
             startSchedulers();
-        },io);
+        }, io);
     }
 
     public void addDownloader(Part part) {
@@ -183,6 +181,9 @@ public class Download {
             d.pause();
         }
         writer.stop();
+        for (Part part : parts) {
+            part.queuedToWritten(); // Roll back any unwritten chunks
+        }
         if (listener != null) {
             long current = parts.stream().mapToLong(Part::getCurrentBytes).sum();
             listener.onPaused(current, totalSize);
@@ -198,6 +199,7 @@ public class Download {
         }
         writer.start();
         for (Part part : parts) {
+            part.queuedToWritten();
             if (!part.isCompleted()) addDownloader(part);
         }
         startSchedulers();
@@ -255,13 +257,14 @@ public class Download {
     public void decreasePendingWrite() {
         pendings.decrementAndGet();
     }
+
     public void increasePendingWrite() {
-        pendings.decrementAndGet();
+        pendings.incrementAndGet(); // Fixed: increment instead of decrement
     }
 
     public void checkComplete() {
         if (downloadings.get() == 0 && pendings.get() == 0) {
-            if (isFinished.compareAndSet(false,true)) {
+            if (isFinished.compareAndSet(false, true)) {
                 completeDownload();
             }
         }
