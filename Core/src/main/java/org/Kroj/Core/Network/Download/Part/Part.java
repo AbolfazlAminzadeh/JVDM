@@ -23,7 +23,6 @@ public class Part {
         this.end = new AtomicLong(end);
     }
 
-    public int getId() { return id; }
     public URI getUri() { return uri; }
     public String getDevice() { return device; }
     public long getStart() { return start; }

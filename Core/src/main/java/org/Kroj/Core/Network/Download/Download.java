@@ -82,7 +82,7 @@ public class Download {
             } catch (Exception e) {
                 throw new DownloadCompletionException(e);
             }
-        }).whenCompleteAsync((unused, throwable) -> {
+        }).whenCompleteAsync((_, throwable) -> {
             if (throwable != null) {
                 head.onFailure(throwable.getCause() != null ? throwable.getCause() : throwable);
                 return;

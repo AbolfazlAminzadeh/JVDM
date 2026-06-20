@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public class FileName {
     public static String getFileName(final URI uri, final String cd) {
-        URI result;
         if (uri == null) return "";
         if (cd != null && !cd.isEmpty()) {
             int index = cd.toLowerCase().indexOf("filename=");
