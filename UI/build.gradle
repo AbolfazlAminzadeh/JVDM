@@ -87,7 +87,7 @@ graalvmNative {
             jvmArgs.add('-Dio.netty.allocator.type=pooled')
 
             jvmArgs.add('-Dglass.gtk.disableGtk3=true')
-            jvmArgs.add('-Dprism.order=d3d,es2,sw')
+            jvmArgs.add('-Dprism.order=sw')
             jvmArgs.add('-Dprism.vsync=true')
 
             jvmArgs.add('-XX:MaxDirectMemorySize=2G')
