@@ -3,12 +3,12 @@ package org.Kroj.Core.Tools.FileManagement;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import java.util.Arrays;
 
 public class SafeFileChannel implements AutoCloseable {
 
@@ -20,35 +20,40 @@ public class SafeFileChannel implements AutoCloseable {
     }
 
     public void allocate(long size) throws IOException {
+        open(true);
+        if (size > 0) {
+            channel.write(empty,size-1);
+        }
+    }
+
+    public void open() throws IOException{
+        this.open(false);
+    }
+
+    private void open(boolean truncate) throws IOException{
         Path folder = path.getParent();
         if (folder != null) {
             Files.createDirectories(folder);
         }
 
-        this.channel = FileChannel.open(path,
+        StandardOpenOption[] options = new StandardOpenOption[] {
                 StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.READ,
-                StandardOpenOption.WRITE
-        );
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        };
 
-        if (size > 0) {
-            channel.write(empty,size-1);
-        }
+        this.channel = FileChannel.open(path, truncate ? options : Arrays.copyOfRange(options,0,2));
     }
 
     public boolean isClosed() {
         return channel == null || !channel.isOpen();
     }
 
-    public void write(ByteBuffer buf, long pos) {
-        if (isClosed()) return;
-        try {
-            while (buf.hasRemaining()) {
-                pos += channel.write(buf, pos);
-            }
-        } catch (IOException e) {
-            logger.append("Error while writing data at pos").append(pos).append(e).nextLine();
+    public void write(ByteBuffer buf, long pos) throws IOException{
+        if (isClosed()) throw new ClosedChannelException();
+        while (buf.hasRemaining()) {
+            pos += channel.write(buf, pos);
         }
     }
 
