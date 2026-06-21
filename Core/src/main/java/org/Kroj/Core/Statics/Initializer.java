@@ -75,7 +75,6 @@ public final class Initializer {
 
     public final static int PROGRESS_INTERVAL = 100;
 
-    public final static double SPEED_ALPHA = 1.523412352;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //        Extension
@@ -91,9 +90,6 @@ public final class Initializer {
     public final static CharSequence DNS_CACHE_NAME = "JVDM_DNS_CACHE";
     public final static int DNS_TIMEOUT = 10000;
 
-    public static void refreshDnsServer(CharSequence ip, short port) {
-        Resolver.instance = new Resolver(new InetSocketAddress((String) ip, port));
-    }
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //  CRITICAL ERROR CODES

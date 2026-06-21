@@ -40,7 +40,7 @@ public class DiskWriter implements Runnable {
     }
 
     public void stop() {
-        if (running.compareAndSet(true, false)) { // Fixed comparison check
+        if (running.compareAndSet(true, false)) {
             if (thread != null) {
                 thread.interrupt();
             }
@@ -93,9 +93,7 @@ public class DiskWriter implements Runnable {
             SafeFileChannel channel = null;
 
             while ((channel = download.getChannel()) == null) {
-                if (!running.get()) {
-                    return;
-                }
+                if (!running.get()) return;
                 Thread.sleep(DISK_QUEUE_WAIT_TIME);
             }
 
