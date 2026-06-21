@@ -77,6 +77,34 @@ jobs:
           args: --best --lzma
           files: UI/build/native/nativeCompile/JVDM
 
+      - name: Code Sign Windows Executable
+        if: matrix.os == 'windows'
+        env:
+          SIGNING_CERT_BASE64: ${{ secrets.WIN_SIGNING_CERT_BASE64 }}
+          SIGNING_CERT_PASS: ${{ secrets.WIN_SIGNING_CERT_PASS }}
+        run: |
+          # Only attempt signing if the repository secret exists
+          if [ -z "$SIGNING_CERT_BASE64" ]; then
+            echo "::warning ::WIN_SIGNING_CERT_BASE64 is missing. Skipping code-signing. Output binary will trigger SmartScreen alerts."
+          else
+            echo "Decoding certificate..."
+            echo "$SIGNING_CERT_BASE64" | base64 --decode > cert.pfx
+          
+            echo "Signing JVDM.exe..."
+            # Uses standard Windows SDK SignTool pre-installed on windows-2022 runners
+            /c/Program\ Files\ \(x86\)/Windows\ Kits/10/bin/10.0.22621.0/x64/signtool.exe sign \
+              /f cert.pfx \
+              /p "$SIGNING_CERT_PASS" \
+              /tr http://timestamp.digicert.com \
+              /td sha256 \
+              /fd sha256 \
+              UI/build/native/nativeCompile/JVDM.exe
+          
+            rm cert.pfx
+            echo "Successfully code-signed JVDM.exe!"
+          fi
+        shell: bash
+
       - name: Zip Artifacts
         run: |
           mkdir -p artifacts
