@@ -11,6 +11,7 @@ import org.Kroj.Core.Tools.Exceptions.DownloadCompletionException;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 import org.Kroj.Core.Tools.String.FileName;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
@@ -76,18 +77,20 @@ public class Download {
         totalSize = size;
 
         CompletableFuture.runAsync(() -> {
-            channel = new SafeFileChannel(targetFile = targetDir.resolve(fileName));
+            SafeFileChannel temp = new SafeFileChannel(targetDir.resolve(fileName));
             try {
-                if (totalSize > 0) channel.allocate(totalSize);
+                temp.allocate(totalSize);
+                this.channel = temp;
+                targetFile = targetDir.resolve(fileName);
             } catch (Exception e) {
                 throw new DownloadCompletionException(e);
             }
         }).whenCompleteAsync((_, throwable) -> {
             if (throwable != null) {
+                headersReceived.set(false);
                 head.onFailure(throwable.getCause() != null ? throwable.getCause() : throwable);
                 return;
             }
-
             if (listener != null) {
                 listener.onReady(fileName, totalSize);
             }
@@ -136,6 +139,10 @@ public class Download {
     }
 
     private synchronized void splitParts() {
+        splitParts("");
+    }
+
+    private synchronized void splitParts(String preferedDevice) {
         if (isFinished.get()) return;
         if (downloadings.get() >= concurrency) return;
 
@@ -164,7 +171,7 @@ public class Download {
                     part.setEnd(half - 1);
 
                     int id = parts.size();
-                    String device = devices.get(id % devices.size());
+                    String device = preferedDevice.isEmpty() ? devices.get(id % devices.size()) : preferedDevice;
 
                     Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
                     parts.add(newPart);
@@ -195,22 +202,32 @@ public class Download {
         pendings.set(0);
         downloadings.set(0);
         speed.reset();
-        if (headersReceived.get() && (channel == null || channel.isClosed())) {
-            channel = new SafeFileChannel(targetFile);
+        if (headersReceived.get()) {
+            if (channel == null || channel.isClosed()) {
+                channel = new SafeFileChannel(targetFile);
+                try {
+                    channel.open();
+                } catch (IOException e) {
+                    onFailure(e);
+                    return;
+                }
+            }
+            writer.start();
+            for (Part part : parts) {
+                part.queuedToWritten();
+                if (!part.isCompleted()) addDownloader(part);
+            }
+            startSchedulers();
+        } else {
+            start();
         }
-        writer.start();
-        for (Part part : parts) {
-            part.queuedToWritten();
-            if (!part.isCompleted()) addDownloader(part);
-        }
-        startSchedulers();
     }
 
-    public void onComplete() {
+    public void onComplete(Part part) {
         if (downloadings.decrementAndGet() == 0) {
             checkComplete();
         } else {
-            io.execute(this::splitParts);
+            io.execute(() -> splitParts(part.getDevice()));
         }
     }
 

@@ -5,7 +5,6 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.Kroj.Core.Network.DNS.DNS;
 import org.Kroj.Core.Network.Download.Download;
@@ -14,7 +13,8 @@ import org.Kroj.Core.Network.Download.Handlers.HeaderHandler;
 import org.Kroj.Core.Network.Download.Security.TLS;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
-import org.Kroj.Core.Statics.Initializer;
+import org.Kroj.Core.Tools.Exceptions.DiskQueueFailedException;
+import org.Kroj.Core.Tools.Exceptions.TooMuchRedirections;
 import org.Kroj.Core.Tools.URL.URL;
 
 import java.io.IOException;
@@ -24,8 +24,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+
 import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
 import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static org.Kroj.Core.Statics.Initializer.*;
 
 public class Downloader {
 
@@ -43,6 +45,7 @@ public class Downloader {
 
     private final AtomicReference<State> state = new AtomicReference<>(IDLE);
     private final AtomicInteger retryCount = new AtomicInteger(0);
+    private final AtomicInteger redirectCount = new AtomicInteger(0);
     private volatile Channel ch;
 
     public Downloader(Part part, Download download, EventLoopGroup io) {
@@ -68,19 +71,19 @@ public class Downloader {
         Bootstrap b = new Bootstrap()
                 .group(io)
                 .channel(NettyUtil.getTCPClass())
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Initializer.CONNECTION_TIMEOUT)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .option(ChannelOption.SO_RCVBUF, Initializer.RECEIVE_BUFFER_SIZE)
-                .option(ChannelOption.SO_SNDBUF, Initializer.SEND_BUFFER_SIZE)
-                .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(1 << 16, 1 << 17, 1 << 20))
+                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
+                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
+                .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipe = ch.pipeline();
                         pipe.addFirst(new BindToDeviceHandler(part.getDevice()));
-                        pipe.addLast(new ReadTimeoutHandler(Initializer.RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS));
+                        pipe.addLast(new ReadTimeoutHandler(RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS));
 
                         if (secure) {
                             pipe.addLast(TLS.ssl.newHandler(ch.alloc(), uri.getHost(), port));
@@ -124,7 +127,7 @@ public class Downloader {
                 reqTarget
         );
         req.headers().set(HttpHeaderNames.HOST, uri.getHost());
-        req.headers().set(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), uri.getScheme());
+        req.headers().set(HttpHeaderNames.USER_AGENT, USER_AGENT);
 
         long start = part.getWritePos();
         long end = part.getEnd();
@@ -201,12 +204,14 @@ public class Downloader {
 
     public void onComplete() {
         if (state.compareAndSet(DOWNLOADING, COMPLETE)) {
-            download.onComplete();
+            download.onComplete(part);
         }
     }
 
     public void onRedirect(String targetLocation) {
         try {
+            if (redirectCount.incrementAndGet() >= MAX_REDIRECTIONS)
+                throw new TooMuchRedirections("More than "+MAX_REDIRECTIONS+" Redirections");
             URI url = URL.getSafeURI(targetLocation);
             this.part.setURI(url);
             if (ch != null && ch.isOpen()) {
@@ -220,17 +225,21 @@ public class Downloader {
 
     public void onFailure(Throwable e) {
         if (state.get() == COMPLETE || state.get() == PAUSED) return;
-        if (e instanceof java.nio.channels.ClosedChannelException) return;
-        logger.append(e.getClass()).append(":").append(e.getMessage()).nextLine();
-        onNetworkFailed(e);
-    }
+        if (e instanceof DiskQueueFailedException) {
+            logger.append(e.getClass()).append(":").append(e).nextLine();
+            if (state.compareAndSet(DOWNLOADING, FAILED)) {
+                download.onFailure(e);
+            }
+        } else if (e instanceof TooMuchRedirections) download.onFailure(e);
+        else onNetworkFailed(e);
 
+    }
     private void onNetworkFailed(Throwable e) {
         if (state.get() == PAUSED || state.get() == COMPLETE) return;
-        logger.append("Retrying Part (").append(part).append("), Because of:").append(e.getMessage()).nextLine();
+        logger.append("Retrying Part (").append(part).append("), Because of:").append(e).nextLine();
         int tries = retryCount.incrementAndGet();
-        if (tries <= Initializer.MAX_RETRIES) {
-            io.schedule(this::connect, Initializer.RETRY_DELAY, TimeUnit.MILLISECONDS);
+        if (tries <= MAX_RETRIES) {
+            io.schedule(this::connect, RETRY_DELAY, TimeUnit.MILLISECONDS);
         } else {
             if (state.compareAndSet(DOWNLOADING, FAILED)) {
                 download.onFailure(e);

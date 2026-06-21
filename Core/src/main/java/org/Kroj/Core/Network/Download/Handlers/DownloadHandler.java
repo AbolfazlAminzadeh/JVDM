@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
+import org.Kroj.Core.Tools.Exceptions.DiskQueueFailedException;
 
 public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     private final Part part;
@@ -23,13 +23,8 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) {
-        SafeFileChannel fileChannel = download.getChannel();
-        if (fileChannel == null) {
-            return;
-        }
-
-        ByteBuf data = msg.content();
-        int readableBytes = data.readableBytes();
+        ByteBuf content = msg.content();
+        int readableBytes = content.readableBytes();
 
         if (readableBytes > 0) {
             synchronized (part) {
@@ -45,11 +40,15 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
                 long remaining = end >= 0 ? end - pos + 1 : readableBytes;
                 int length = (int) Math.min(readableBytes, remaining);
 
-                ByteBuf slice = data.slice(data.readerIndex(), length);
+                ByteBuf slice = content.slice(content.readerIndex(), length);
                 slice.retain();
 
-                download.getWriter().addToQueue(slice, pos, ctx.channel(), part);
-                part.addBytes(length);
+                if (download.getWriter().addToQueue(slice, pos, ctx.channel(), part)) {
+                    part.addBytes(length);
+                } else {
+                    ctx.close();
+                    downloader.onFailure(new DiskQueueFailedException("Failed To Queue Disk Task"));
+                }
 
                 if (part.isCompleted() || (part.getEnd() >= 0 && part.getWritePos() >= part.getEnd() + 1)) {
                     ctx.close();
@@ -57,24 +56,17 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
                     return;
                 }
             }
-
-            if (!ctx.channel().isWritable()) {
-                ctx.channel().config().setAutoRead(false);
-            }
         }
 
         if (msg instanceof LastHttpContent) {
-            ctx.close();
-            downloader.onComplete();
+            if (part.getEnd() >= 0 && part.getWritePos() <= part.getEnd()) {
+                ctx.close();
+                downloader.onFailure(new java.io.IOException("Premature end of stream. Missing bytes."));
+            } else {
+                ctx.close();
+                downloader.onComplete();
+            }
         }
-    }
-
-    @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-        if (ctx.channel().isWritable()) {
-            ctx.channel().config().setAutoRead(true);
-        }
-        super.channelWritabilityChanged(ctx);
     }
 
     @Override

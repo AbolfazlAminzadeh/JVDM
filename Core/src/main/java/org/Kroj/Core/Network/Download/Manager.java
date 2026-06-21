@@ -53,7 +53,7 @@ public class Manager {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         if (args.length == 0) return;
         Manager.getInstance().makeDownload(args[args.length - 1], Initializer.DOWNLOAD_FOLDER, new DownloadListener() {
             @Override
@@ -79,13 +79,13 @@ public class Manager {
             @Override
             public void onCompleted() {
                 Logger.logger.append("Complete!").nextLine();
-                System.exit(0);
+//                System.exit(0);
             }
 
             @Override
             public void onFailed(Throwable onFailure) {
                 Logger.logger.append("Failed").nextLine();
-                System.exit(0);
+//                System.exit(0);
             }
         }, NetworkInterfaces.getDevices().toArray(String[]::new)).start();
     }

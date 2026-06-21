@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Part;
+import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
 import java.nio.ByteBuffer;
@@ -15,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.Kroj.Core.Statics.Initializer.*;
 
+
+//TODO Batching tasks
 public class DiskWriter implements Runnable {
 
     private final Download download;
@@ -62,10 +65,10 @@ public class DiskWriter implements Runnable {
         }
     }
 
-    public void addToQueue(ByteBuf buf, long pos, Channel channel, Part part) {
+    public boolean addToQueue(ByteBuf buf, long pos, Channel channel, Part part) {
         if (!running.get()) {
             buf.release();
-            return;
+            return false;
         }
 
         if (queue.size() >= DISK_QUEUE_PAUSE_READ) {
@@ -78,19 +81,25 @@ public class DiskWriter implements Runnable {
         Task task = new Task(buf, pos, channel, part);
         download.increasePendingWrite();
 
-        try {
-            queue.put(task);
-        } catch (InterruptedException e) {
+        if (queue.offer(task)) return true; else {
             buf.release();
             download.decreasePendingWrite();
-            Thread.currentThread().interrupt();
+            return false;
         }
     }
 
     private void write(Task task) {
         try {
-            SafeFileChannel channel = download.getChannel();
-            if (channel != null && !channel.isClosed()) {
+            SafeFileChannel channel = null;
+
+            while ((channel = download.getChannel()) == null) {
+                if (!running.get()) {
+                    return;
+                }
+                Thread.sleep(DISK_QUEUE_WAIT_TIME);
+            }
+
+            if (!channel.isClosed()) {
                 ByteBuffer[] buffers = task.buffer().nioBuffers();
                 long pos = task.pos();
                 int totalWritten = 0;
@@ -104,6 +113,8 @@ public class DiskWriter implements Runnable {
                 }
                 task.part().addWrittenBytes(totalWritten);
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             download.onFailure(e);
         } finally {
