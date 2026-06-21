@@ -20,10 +20,6 @@ public final class Initializer {
 
     public final static int JVDM_THREADS = CPU_THREADS * 2;
 
-    public final static int FILE_WRITER_THREADS = CPU_THREADS / 2;
-
-    public final static int SINGLE_THREAD_MAX_LENGTH = 1 << 19;
-
     public final static String DOWNLOAD_FOLDER = System.getProperty("user.home")+ File.separator + "Downloads";
 
     // -=-=-=-=-=-=-=-=-=-=-=-
@@ -52,8 +48,14 @@ public final class Initializer {
     public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 20;
 
     public final static int RECEIVE_BUFFER_SIZE = 1 << 22;
+
     public final static int SEND_BUFFER_SIZE = 1 << 20;
 
+    public final static int MINIMUM_BUFFER_SIZE = 1 << 16;
+
+    public final static int INITIAL_BUFFER_SIZE = 1 << 20;
+
+    public final static int MAXIMUM_BUFFER_SIZE = 1 << 23;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //            UI
@@ -124,6 +126,8 @@ public final class Initializer {
     public static final int DISK_QUEUE_RESUME_READ = DISK_QUEUE_PAUSE_READ * 2 / 3; // Will change later
 
     public static final CharSequence DISK_QUEUE_THREAD_PREFIX = "JVDM-Disk-Queue-";
+
+    public static final int DISK_QUEUE_WAIT_TIME = 15;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //          Info
