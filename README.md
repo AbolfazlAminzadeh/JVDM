@@ -1,7 +1,5 @@
 # JVDM (Java Vortex Download Manager)
 
----
-
 ## 📖 About the Project
 
 ### Core Abilities
