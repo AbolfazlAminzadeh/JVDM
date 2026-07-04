@@ -6,9 +6,9 @@ group = 'org.kroj'
 version = '1.0-SNAPSHOT'
 
 android {
-    namespace 'org.kroj'
+    namespace = 'org.kroj'
 
-    compileSdk 36
+    compileSdk = 36
 
     defaultConfig {
         applicationId "org.kroj"

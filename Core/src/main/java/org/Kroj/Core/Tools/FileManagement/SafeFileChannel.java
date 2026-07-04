@@ -1,6 +1,8 @@
 package org.Kroj.Core.Tools.FileManagement;
 
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -8,7 +10,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 
 public class SafeFileChannel implements AutoCloseable {
 
@@ -30,33 +31,37 @@ public class SafeFileChannel implements AutoCloseable {
         this.open(false);
     }
 
-    private void open(boolean truncate) throws IOException{
+    private void open(boolean truncate) throws IOException {
         Path folder = path.getParent();
         if (folder != null) {
             Files.createDirectories(folder);
         }
+        if (truncate) this.channel = FileChannel.open(path,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.READ,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        else this.channel = FileChannel.open(path,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.READ,
+                    StandardOpenOption.WRITE);
 
-        StandardOpenOption[] options = new StandardOpenOption[] {
-                StandardOpenOption.CREATE,
-                StandardOpenOption.READ,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING
-        };
-
-        this.channel = FileChannel.open(path, truncate ? options : Arrays.copyOfRange(options,0,2));
     }
 
     public boolean isClosed() {
         return channel == null || !channel.isOpen();
     }
 
-    public void write(ByteBuffer buf, long pos) throws IOException{
+    public void write(ByteBuf buf, long pos) throws IOException{
         if (isClosed()) throw new ClosedChannelException();
-        while (buf.hasRemaining()) {
-            pos += channel.write(buf, pos);
+        ByteBuffer[] nioBuffers = buf.nioBuffers();
+
+        for (ByteBuffer buffer : nioBuffers) {
+            while (buffer.hasRemaining()) {
+                pos += channel.write(buffer, pos);
+            }
         }
     }
-
 
     @Override
     public void close() throws Exception {

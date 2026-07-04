@@ -9,26 +9,37 @@ public class Speed {
 
     private final Queue<Moment> buffer = new LinkedList<>();
     private final long bufferLength;
-
+    private long last = -1;
     public Speed(long bufferLength) {
         this.bufferLength = bufferLength;
     }
 
     public synchronized double updateAndGetSpeed(long current) {
         long now = System.currentTimeMillis();
-        buffer.add(new Moment(now, current));
+
+        if (last == -1) {
+            last = current;
+            return 0;
+        }
+
+        long distance = current - last;
+        last = current;
+
+        buffer.add(new Moment(now, distance));
 
         while (!buffer.isEmpty() && (now - buffer.peek().time) > bufferLength) {
             buffer.poll();
         }
 
-        if (buffer.size() < 2) {
-            return 0.0;
+        long bytes = 0;
+        for (Moment m : buffer) {
+            bytes += m.bytes();
         }
 
-        Moment oldest = buffer.peek();
-        long elapsed = now-oldest.time;
-        long bytes = current-oldest.bytes;
+        if (buffer.isEmpty()) return 0;
+
+        long lastestTime = buffer.peek().time();
+        long elapsed = now - lastestTime;
 
         if (elapsed == 0) return 0.0;
 

@@ -1,10 +1,7 @@
-package org.Kroj.Core.Network.Download.Handlers;
+package org.Kroj.Core.Network.Download.Handlers.H1;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Tools.URL.ResponseCodes;
@@ -24,12 +21,9 @@ public class HeaderHandler extends ChannelInboundHandlerAdapter {
                 if (ctx.pipeline().get(DownloadHandler.class) != null) {
                     ctx.pipeline().remove(DownloadHandler.class);
                 }
-                downloader.onHeadersReceived(response);
                 ctx.close();
                 return;
             }
-
-            downloader.onHeadersReceived(response);
             ctx.pipeline().remove(this);
         }
         ctx.fireChannelRead(msg);

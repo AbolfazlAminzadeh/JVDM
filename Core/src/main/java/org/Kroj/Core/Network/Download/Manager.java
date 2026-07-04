@@ -1,7 +1,6 @@
 package org.Kroj.Core.Network.Download;
 
 import io.netty.channel.IoEventLoopGroup;
-import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.Logger.Logger;
@@ -14,6 +13,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO Virtual Worker Pool + Task Routing (This will helps at Http3 and Http2)
 public class Manager {
 
     private static final Manager instance = new Manager(Initializer.DOWNLOADER_THREADS);

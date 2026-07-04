@@ -4,23 +4,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Tester {
 
-    public static void speedTest(final int count, final Runnable... r) {
-        final int finalCount = Math.max(count, 100);
+    private static final AtomicLong currentNano = new AtomicLong(0);
+    public static void speedTest(int count, Runnable r) {
+        final int finalCount = Math.max(count, 2);
 
         try {
-            AtomicLong[] res = new AtomicLong[r.length];
-            for (int i = 0; i < r.length; i++) {
-                res[i] = new AtomicLong();
-            }
-
             new Thread(() -> {
                 try {
                     while (true) {
-                        int ct = 0;
-                        for (AtomicLong rs : res) {
-                            double nanos = rs.get()/1000000D;
-                            System.out.printf("SpeedTest Result %d: %.8fn\r",++ct, nanos);
-                        }
+                        int currentCount = 0;
+                        double nano = currentNano.get()/1000000D;
+                        System.out.printf("SpeedTest Result %d: %.8fn\r",++currentCount, nano);
                         Thread.sleep(1000);
                         System.out.print("\033[H\033[2J");
                     }
@@ -30,18 +24,16 @@ public class Tester {
             }).start();
 
             while (true) {
-                for (int i = 0; i < r.length; i++) {
-                    long last = System.nanoTime();
+                long last = System.nanoTime();
 
-                    for (int k = 0; k < finalCount; k++) {
-                        r[i].run();
-                    }
-
-                    long now = System.nanoTime();
-                    long nanosPerRun = (long) ((double) (now - last) / finalCount * 1000000);
-
-                    res[i].set(nanosPerRun);
+                for (int k = 0; k < finalCount; k++) {
+                    r.run();
                 }
+
+                long now = System.nanoTime();
+                long nanosPerRun = (long) ((double) (now - last) / finalCount * 1000000);
+
+                currentNano.set(nanosPerRun);
             }
 
         } catch (Exception e) {

@@ -2,7 +2,6 @@ package org.Kroj.Core.Network.Download;
 
 import io.netty.channel.EventLoopGroup;
 import org.Kroj.Core.Network.Disk.DiskWriter;
-import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Download.Part.Downloader;
 import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Progress.Speed;
@@ -32,14 +31,13 @@ public class Download {
 
     private final EventLoopGroup io;
 
-    private final List<Part> parts = new CopyOnWriteArrayList<>();
-    private final List<Downloader> downloaders = new CopyOnWriteArrayList<>();
-    private final AtomicInteger downloadings = new AtomicInteger(0);
-    private final AtomicBoolean headersReceived = new AtomicBoolean(false);
+    public  final AtomicBoolean headersReceived = new AtomicBoolean(false);
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
+    private final AtomicInteger downloadings = new AtomicInteger(0);
+    private final List<Downloader> downloaders = new CopyOnWriteArrayList<>();
+    private final List<Part> parts = new CopyOnWriteArrayList<>();
     private final Speed speed = new Speed(2500);
 
-    private final DiskWriter writer;
     private final AtomicInteger pendings = new AtomicInteger(0);
 
     private volatile SafeFileChannel channel;
@@ -56,13 +54,10 @@ public class Download {
         this.devices = devices;
         this.io = io;
         this.listener = listener;
-        this.writer = new DiskWriter(this);
     }
 
     public void start() {
-        writer.start();
-
-        Part firstPart = new Part(0, uri, devices.getFirst(), 0, -1);
+        Part firstPart = new Part(uri, devices.getFirst(), 0, -1);
         Downloader head = new Downloader(firstPart, this, io);
         downloaders.add(head);
 
@@ -75,7 +70,6 @@ public class Download {
 
         String fileName = FileName.getFileName(uri, rawFileName);
         totalSize = size;
-
         CompletableFuture.runAsync(() -> {
             SafeFileChannel temp = new SafeFileChannel(targetDir.resolve(fileName));
             try {
@@ -108,7 +102,7 @@ public class Download {
                     long start = (long) i * partSize;
                     long end = i == concurrency - 1 ? size - 1 : start + partSize - 1;
 
-                    Part part = new Part(i, finalURI, devices.get(i % devices.size()), start, end);
+                    Part part = new Part(finalURI, devices.get(i % devices.size()), start, end);
                     parts.add(part);
                     addDownloader(part);
                 }
@@ -173,7 +167,7 @@ public class Download {
                     int id = parts.size();
                     String device = preferedDevice.isEmpty() ? devices.get(id % devices.size()) : preferedDevice;
 
-                    Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
+                    Part newPart = new Part(part.getUri(), device, half, oldEnd);
                     parts.add(newPart);
                     addDownloader(newPart);
                 }
@@ -187,7 +181,6 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
-        writer.stop();
         for (Part part : parts) {
             part.queuedToWritten();
         }
@@ -212,7 +205,6 @@ public class Download {
                     return;
                 }
             }
-            writer.start();
             for (Part part : parts) {
                 part.queuedToWritten();
                 if (!part.isCompleted()) addDownloader(part);
@@ -289,7 +281,7 @@ public class Download {
         }
     }
 
-    public DiskWriter getWriter() {
-        return writer;
+    public Part nextPart() {
+        return null;
     }
 }

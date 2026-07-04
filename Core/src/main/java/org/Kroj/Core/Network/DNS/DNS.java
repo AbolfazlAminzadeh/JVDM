@@ -168,7 +168,6 @@ public class DNS {
         edited = true;
     }
 
-    // 5MB Data Per Second
     public void saveAndFlush() {
         if (db.isEmpty()) {
             logger.debug().append("Dns Cache was Empty").nextLine();

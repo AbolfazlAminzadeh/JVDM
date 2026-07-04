@@ -1,40 +1,49 @@
 
-
+Core:
 Linux-Router-Bypass: Complete
-
 Logger: Complete
-
 DNS Cache: Complete
-
 NIO-Download: Complete
-MultiThreading-Download: Very Soon
-
-Extension: Need url finder
-Extension-Server: Complete
-Extension-Server-H3: Soon
-Extension-Download-Sync: Not Reached Yet
+MultiThreading-Download: Complete
+MultiInterface-Download: Complete
+DeviceBinder Interface (For Android Support): Near
+JSON Setting: Near
 
 UI:
-// Going To Start
+Settings Panel: Very Soon
+Download Status Filter: Very Very Soon
+
+Android:
+Core-Sync: Complete
+MultiInterface-Download: Soon
+
+Extension:
+Browser Version: Near - Need Update
+Extension-Server: Complete
+Extension-Download-Sync: Not Reached Yet
+
+Download List: Complete
+Download List Import/Export: Soon
+Download List Share Between Devices: Soon
 
 -- For Far Future --
 HTTP/1.1: Complete
 HTTP/2: Near
 HTTP/3: Near
-FTP: Near
-SFTP:
-FTPS:
-BitTorrent:
-M (uTorrent):
-Gnutella:
-eDonkey2000:
-Magnet links:
-WebDAV:
-Rsync:
-SCP:
-SMB/CIFS:
-NFS:
-IPFS:
-ARPANET FTP:
-NNTP:
-MMS:
+FTP: Too Far
+SFTP: Too Far
+FTPS: Too Far
+BitTorrent: Fat
+M (uTorrent): Far
+Gnutella: Very Very Far
+eDonkey2000: Very Very Far
+Magnet links: Very Very Far
+WebDAV: Very Very Far
+Rsync: Very Very Far
+SCP: Very Very Far
+SMB/CIFS: Very Very Far
+NFS: Very Very Far
+IPFS: Very Very Far
+ARPANET FTP: Very Very Far
+NNTP: Very Very Far
+MMS: Very Very Far

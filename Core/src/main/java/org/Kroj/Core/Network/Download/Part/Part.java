@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 public class Part {
-    private final int id;
     private final String device;
     private final long start;
     private final AtomicLong end;
@@ -15,8 +14,7 @@ public class Part {
     private final LongAdder written = new LongAdder();
     private volatile URI uri;
 
-    public Part(int id, URI uri, String device, long start, long end) {
-        this.id = id;
+    public Part(URI uri, String device, long start, long end) {
         this.uri = uri;
         this.device = device;
         this.start = start;

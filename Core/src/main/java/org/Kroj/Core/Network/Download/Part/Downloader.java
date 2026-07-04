@@ -1,28 +1,38 @@
 package org.Kroj.Core.Network.Download.Part;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.handler.codec.http3.Http3Headers;
+import io.netty.handler.codec.http3.Http3HeadersFrame;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.AsciiString;
 import org.Kroj.Core.Network.DNS.DNS;
 import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.Handlers.DownloadHandler;
-import org.Kroj.Core.Network.Download.Handlers.HeaderHandler;
+import org.Kroj.Core.Network.Download.Handlers.H1.DownloadHandler;
+import org.Kroj.Core.Network.Download.Handlers.H1.HeaderHandler;
+import org.Kroj.Core.Network.Download.Handlers.HttpVersionSwitch;
 import org.Kroj.Core.Network.Download.Security.TLS;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
+import org.Kroj.Core.Tools.Exceptions.AlreadyConnectedException;
 import org.Kroj.Core.Tools.Exceptions.DiskQueueFailedException;
 import org.Kroj.Core.Tools.Exceptions.TooMuchRedirections;
 import org.Kroj.Core.Tools.URL.URL;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 
 import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
@@ -36,18 +46,18 @@ public class Downloader {
         DOWNLOADING,
         PAUSED,
         COMPLETE,
-        FAILED
-    }
+        FAILED;
 
+    }
     private final Part part;
+
     private final Download download;
     private final EventLoopGroup io;
-
     private final AtomicReference<State> state = new AtomicReference<>(IDLE);
+
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private final AtomicInteger redirectCount = new AtomicInteger(0);
     private volatile Channel ch;
-
     public Downloader(Part part, Download download, EventLoopGroup io) {
         this.part = part;
         this.download = download;
@@ -61,8 +71,11 @@ public class Downloader {
         connect();
     }
 
-    private void connect() {
-        if (state.get() != DOWNLOADING) return;
+    private boolean connect() throws AlreadyConnectedException {
+        if (state.get() != DOWNLOADING) {
+            throw new AlreadyConnectedException("The Downloader is already connected, Issi");
+        }
+        ;
 
         URI uri = part.getUri();
         boolean secure = "https".equalsIgnoreCase(uri.getScheme());
@@ -75,8 +88,6 @@ public class Downloader {
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
-                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
                 .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -84,7 +95,6 @@ public class Downloader {
                         ChannelPipeline pipe = ch.pipeline();
                         pipe.addFirst(new BindToDeviceHandler(part.getDevice()));
                         pipe.addLast(new ReadTimeoutHandler(RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS));
-
                         if (secure) {
                             pipe.addLast(TLS.ssl.newHandler(ch.alloc(), uri.getHost(), port));
                         }
@@ -104,7 +114,8 @@ public class Downloader {
                         b.connect(inetAddress, port).addListener((ChannelFutureListener) future -> {
                             if (future.isSuccess()) {
                                 ch = future.channel();
-                                sendRequest(ch);
+//                                sendHTTP1Request(ch);
+                                logger.append("Req Sent!").nextLine();
                                 retryCount.set(0);
                             } else {
                                 onNetworkFailed(future.cause());
@@ -114,9 +125,11 @@ public class Downloader {
                         onFailure(e);
                     }
                 }), io);
+
+        return secure;
     }
 
-    private void sendRequest(Channel ch) {
+    private void startDownload(Channel ch) {
         URI uri = part.getUri();
         String path = uri.getRawPath() == null || uri.getRawPath().isEmpty() ? "/" : uri.getRawPath();
         String reqTarget = uri.getRawQuery() != null ? path + "?" + uri.getRawQuery() : path;
@@ -137,61 +150,13 @@ public class Downloader {
         } else if (start > 0) {
             req.headers().set(HttpHeaderNames.RANGE, "bytes=" + start + '-');
         }
-
+        logger.append("Req Sending!").nextLine();
         ch.writeAndFlush(req);
     }
 
-    public void onHeadersReceived(HttpResponse response) {
-        int code = response.status().code();
 
-        if (code >= 300 && code < 400) {
-            String location = response.headers().get(HttpHeaderNames.LOCATION);
-            onRedirect(location);
-            return;
-        }
-
-        if (code < 200 || code >= 300) {
-            if (ch != null && ch.isOpen()) {
-                ch.close();
-            }
-            onFailure(new IOException("Server responded with HTTP error: " + code));
-            return;
-        }
-
-        long start = part.getWritePos();
-        long end = part.getEnd();
-        boolean hasRange = (end >= 0 || start > 0);
-        if (hasRange && code != 206) {
-            if (ch != null && ch.isOpen()) {
-                ch.close();
-            }
-            onFailure(new IOException("Server ignored requested range (Status: " + code + ")"));
-            return;
-        }
-
-        boolean rangeSupport = (code == 206) || "bytes".equalsIgnoreCase(response.headers().get(HttpHeaderNames.ACCEPT_RANGES));
-        long length = -1;
-
-        if (code == 206) {
-            String contentRange = response.headers().get(HttpHeaderNames.CONTENT_RANGE);
-            if (contentRange != null) {
-                try {
-                    length = Long.parseLong(contentRange.substring(contentRange.lastIndexOf("/") + 1));
-                } catch (Exception _) {}
-            }
-        } else {
-            String contentLength = response.headers().get(HttpHeaderNames.CONTENT_LENGTH);
-            if (contentLength != null) {
-                try {
-                    length = Long.parseLong(contentLength);
-                } catch (Exception _) {}
-            }
-        }
-
-        String disposition = response.headers().get(HttpHeaderNames.CONTENT_DISPOSITION);
-        String etag = response.headers().get(HttpHeaderNames.ETAG);
-
-        download.onHeadersReceive(this, length, rangeSupport, disposition, etag);
+    private String extractSalam(Supplier<Headers> headersSupplier) {
+        return "";
     }
 
     public synchronized void pause() {

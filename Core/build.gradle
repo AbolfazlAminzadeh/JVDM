@@ -79,7 +79,7 @@ graalvmNative {
 
         }
     }
-
+/*
     agent {
         defaultMode = "standard"
         enabled = true
@@ -92,4 +92,5 @@ graalvmNative {
             mergeWithExisting = true
         }
     }
+ */
 }

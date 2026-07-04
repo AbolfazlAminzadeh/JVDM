@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Handlers;
+package org.Kroj.Core.Network.Download.Handlers.H1;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,7 +25,6 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     protected void channelRead0(ChannelHandlerContext ctx, HttpContent msg) {
         ByteBuf content = msg.content();
         int readableBytes = content.readableBytes();
-
         if (readableBytes > 0) {
             synchronized (part) {
                 long pos = part.getWritePos();
@@ -43,7 +42,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
                 ByteBuf slice = content.slice(content.readerIndex(), length);
                 slice.retain();
 
-                if (download.getWriter().addToQueue(slice, pos, ctx.channel(), part)) {
+                if (true) { //FIX
                     part.addBytes(length);
                 } else {
                     ctx.close();

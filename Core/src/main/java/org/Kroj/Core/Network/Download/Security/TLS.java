@@ -1,12 +1,10 @@
 package org.Kroj.Core.Network.Download.Security;
 
+import io.netty.handler.codec.http3.Http3;
 import io.netty.handler.codec.quic.Quic;
 import io.netty.handler.codec.quic.QuicSslContext;
 import io.netty.handler.codec.quic.QuicSslContextBuilder;
-import io.netty.handler.ssl.OpenSsl;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.*;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import javax.net.ssl.SSLException;
@@ -27,7 +25,7 @@ public class TLS {
                             SslProvider.JDK
                     )
                     // Android Uncompatible
-/*
+
                     .protocols("TLSv1.3","TLSv1.2","TLSv1.1")
                     .applicationProtocolConfig(
                             new ApplicationProtocolConfig(
@@ -37,11 +35,12 @@ public class TLS {
                             ApplicationProtocolNames.HTTP_2,
                             ApplicationProtocolNames.HTTP_1_1
                     ))
- */
+
                     .build();
 
             quicSSL = Quic.isAvailable() ? QuicSslContextBuilder.forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .applicationProtocols(Http3.supportedApplicationProtocols())
                     .earlyData(true)
                     .build() : null;
         } catch (SSLException e) {

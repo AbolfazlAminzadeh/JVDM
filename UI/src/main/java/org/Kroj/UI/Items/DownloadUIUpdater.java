@@ -2,7 +2,7 @@ package org.Kroj.UI.Items;
 
 import javafx.application.Platform;
 import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
+import org.Kroj.Core.Network.Download.DownloadListener;
 import org.Kroj.Core.Network.Download.Manager;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.NI.NetworkInterfaces;
@@ -82,7 +82,7 @@ public class DownloadUIUpdater implements DownloadListener {
 
         Platform.runLater(() -> {
             dlItem.progressProperty().set(progress);
-            dlItem.speedProperty().set(SizeManager.formatSpeed(speed));
+            dlItem.speedProperty().set(SizeManager.formatSpeed(speed*8));
             dlItem.statusProperty().set("Downloading (" + SizeManager.formatSize(current) + " / " + SizeManager.formatSize(total) + ")");
         });
     }

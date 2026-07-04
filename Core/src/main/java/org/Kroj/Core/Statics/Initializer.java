@@ -47,10 +47,6 @@ public final class Initializer {
 
     public final static int SPLIT_PART_MIN_THRESHOLD_BYTE = 1 << 20;
 
-    public final static int RECEIVE_BUFFER_SIZE = 1 << 22;
-
-    public final static int SEND_BUFFER_SIZE = 1 << 20;
-
     public final static int MINIMUM_BUFFER_SIZE = 1 << 16;
 
     public final static int INITIAL_BUFFER_SIZE = 1 << 20;
@@ -112,18 +108,14 @@ public final class Initializer {
     public static final byte schedulerThread = 2;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
-    //       DiskWriter
+    //          Disk
     // -=-=-=-=-=-=-=-=-=-=-=-
 
     public static final int DISK_QUEUE_CAPACITY = 1 << 12;
 
     public static final int DISK_QUEUE_PAUSE_READ = 1 << 10;
 
-    public static final int DISK_QUEUE_RESUME_READ = DISK_QUEUE_PAUSE_READ * 2 / 3; // Will change later
-
-    public static final CharSequence DISK_QUEUE_THREAD_PREFIX = "JVDM-Disk-Queue-";
-
-    public static final int DISK_QUEUE_WAIT_TIME = 15;
+    public static final int DISK_QUEUE_RESUME_READ = DISK_QUEUE_PAUSE_READ << 1 / 3; // Will change later
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //          Info

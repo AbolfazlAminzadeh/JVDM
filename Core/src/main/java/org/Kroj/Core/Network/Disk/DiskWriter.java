@@ -2,131 +2,115 @@ package org.Kroj.Core.Network.Disk;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.Part.Part;
+import io.netty.channel.ChannelConfig;
 import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
 
-import java.nio.ByteBuffer;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.IOException;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.Kroj.Core.Statics.Initializer.*;
+import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 
+public class DiskWriter implements AutoCloseable {
+    private final LinkedTransferQueue<ByteBuf> queue = new LinkedTransferQueue<>();
+    private final AtomicLong pending = new AtomicLong(0);
+    private final AtomicReference<Throwable> error = new AtomicReference<>(null);
 
-//TODO Batching tasks
-public class DiskWriter implements Runnable {
+    private volatile Channel channel;
+    private volatile boolean isFinished = false;
 
-    private final Download download;
-    private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DISK_QUEUE_CAPACITY);
-    private final Set<Channel> paused = ConcurrentHashMap.newKeySet();
-    private final AtomicBoolean running = new AtomicBoolean(false);
-    private Thread thread;
-
-    public DiskWriter(Download download) {
-        this.download = download;
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
-    public void start() {
-        if (running.compareAndSet(false, true)) {
-            thread = new Thread(this, DISK_QUEUE_THREAD_PREFIX + String.valueOf(download.hashCode()));
-            thread.setDaemon(true);
-            thread.setPriority(Thread.MAX_PRIORITY);
-            thread.start();
+    public void put(ByteBuf buf) {
+        if (isFinished) {
+            buf.release(); // 10NS
+            return;
+        }
+
+        buf.retain(); // 7NS
+
+        int readableBytes = buf.readableBytes();
+        long totalPending = pending.addAndGet(readableBytes);
+
+        if (totalPending >= Initializer.DISK_QUEUE_PAUSE_READ && channel != null) {
+            ChannelConfig config = channel.config();
+            if (config.isAutoRead()) channel.config().setAutoRead(false);
+        }
+
+        queue.put(buf);
+    }
+
+    public void throwError(Throwable error) {
+        if (this.error.compareAndSet(null,error)) finish();
+    }
+
+    public ByteBuf take() throws InterruptedException, IOException {
+        final ByteBuf buf = queue.take();
+
+        final Throwable error = this.error.get();
+        if (error != null) {
+            if (buf != EMPTY_BUFFER) {
+                buf.release();
+            }
+            throw new IOException("Error while taking byte buffer: "+error.getMessage());
+        }
+
+        if (buf == EMPTY_BUFFER || !buf.isReadable()) return null;
+
+        final int readableBytes = buf.readableBytes();
+        final long totalPending = pending.addAndGet(-readableBytes);
+
+        if (totalPending <= Initializer.DISK_QUEUE_RESUME_READ && channel != null) {
+            final ChannelConfig config = channel.config();
+            if (!config.isAutoRead()) channel.config().setAutoRead(true);
+        }
+
+        return buf;
+    }
+
+    public void finish() {
+        isFinished = true;
+        queue.put(EMPTY_BUFFER);
+    }
+
+    public void close() {
+        finish();
+        if (channel != null && channel.isOpen()) channel.close();
+
+        ByteBuf buf;
+        while ((buf = queue.poll()) != null) {
+            if (buf != EMPTY_BUFFER) buf.release();
         }
     }
 
-    public void stop() {
-        if (running.compareAndSet(true, false)) {
-            if (thread != null) {
-                thread.interrupt();
-            }
-            Task task;
-            while ((task = queue.poll()) != null) {
-                task.buffer().release();
-            }
-            paused.clear();
-        }
-    }
+    public static void main(String[] args) throws InterruptedException {
+        DiskWriter writer = new DiskWriter();
 
-    @Override
-    public void run() {
-        while (running.get()) {
-            try {
-                Task task = queue.take();
-                write(task);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-    }
 
-    public boolean addToQueue(ByteBuf buf, long pos, Channel channel, Part part) {
-        if (!running.get()) {
-            buf.release();
-            return false;
+        for (int i = 0 ; i < 100 ; i ++) {
+            Thread.ofVirtual().start(() -> {
+//                writer.put(buf);
+            });
         }
 
-        if (queue.size() >= DISK_QUEUE_PAUSE_READ) {
-            if (channel.config().isAutoRead()) {
-                channel.config().setAutoRead(false);
-                paused.add(channel);
-            }
-        }
-
-        Task task = new Task(buf, pos, channel, part);
-        download.increasePendingWrite();
-
-        if (queue.offer(task)) return true; else {
-            buf.release();
-            download.decreasePendingWrite();
-            return false;
-        }
-    }
-
-    private void write(Task task) {
-        try {
-            SafeFileChannel channel = null;
-
-            while ((channel = download.getChannel()) == null) {
-                if (!running.get()) return;
-                Thread.sleep(DISK_QUEUE_WAIT_TIME);
-            }
-
-            if (!channel.isClosed()) {
-                ByteBuffer[] buffers = task.buffer().nioBuffers();
-                long pos = task.pos();
-                int totalWritten = 0;
-                for (ByteBuffer buf : buffers) {
-                    if (buf.hasRemaining()) {
-                        int remaining = buf.remaining();
-                        channel.write(buf, pos);
-                        pos += remaining;
-                        totalWritten += remaining;
-                    }
+        for (int i = 0; i < 500;i++) {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    writer.take();
+                } catch (InterruptedException | IOException e) {
+                    throw new RuntimeException(e);
                 }
-                task.part().addWrittenBytes(totalWritten);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (Exception e) {
-            download.onFailure(e);
-        } finally {
-            task.buffer().release();
-            download.decreasePendingWrite();
-
-            if (queue.size() <= DISK_QUEUE_RESUME_READ && !paused.isEmpty()) {
-                for (Channel ch : paused) {
-                    if (paused.remove(ch)) {
-                        ch.config().setAutoRead(true);
-                    }
-                }
-            }
-            download.checkComplete();
+            });
         }
+        for (int i = 0 ; i < 800 ; i ++) {
+            Thread.ofVirtual().start(() -> {
+//                writer.put(buf);
+            });
+        }
+        Thread.sleep(5000);
+        writer.close();
     }
 }
