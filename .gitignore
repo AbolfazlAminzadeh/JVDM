@@ -48,3 +48,6 @@ Extensions/Browser/background.bundle.js
 ### Build Outputs ###
 UI/build/
 Core/build/
+
+### DEV Saves ###
+/Core/src/main/java/org/Kroj/Core/TODO.odt
