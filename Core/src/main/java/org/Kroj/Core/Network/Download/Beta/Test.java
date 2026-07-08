@@ -6,6 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
 import org.Kroj.Core.Network.DNS.DNS;
+import org.Kroj.Core.Network.Download.Part.Part;
 import org.Kroj.Core.Network.Download.Security.TLS;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Tools.URL.URL;
@@ -49,7 +50,7 @@ public class Test {
                 bt.handler(new ChannelInitializer<Http2StreamChannel>() {
                     @Override
                     protected void initChannel(Http2StreamChannel ch) throws Exception {
-                        ch.pipeline().addLast(new ReceiveHandler(new Downloader()));
+                        ch.pipeline().addLast(new ReceiveHandler(new Downloader(new Part(url,"eno1",0,-1))));
                     }
                 });
                 for (int i = 0; i < 32; i ++)

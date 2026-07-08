@@ -5,43 +5,40 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http3.Http3HeadersFrame;
-import org.Kroj.Core.Tools.TestUnit.Tester;
+import org.Kroj.Core.Network.Download.Part.Part;
+import org.Kroj.Core.Tools.URL.URL;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.Kroj.Core.Network.Download.Beta.Status.*;
-
 public class Downloader {
-
-    private AtomicReference<Protocol> protocol;
-    private volatile Status status;
-
-
-    private static final VarHandle STATUS;
-
-    static {
-        try {
-            STATUS = MethodHandles.lookup()
-                    .findVarHandle(Downloader.class, "status", Status.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Downloader() throws NoSuchFieldException, IllegalAccessException {
-        this.protocol = new AtomicReference<Protocol>(Protocol.H2);
-    }
 
     private enum Protocol {
         H3,H2,H1_1
     }
 
+    private final AtomicReference<Protocol> protocol = new AtomicReference<>(Protocol.H2);
+    private final AtomicReference<Status> status = new AtomicReference<>(Status.Idle);
+    public final AtomicLong last = new AtomicLong(-1);
 
-    public void connect() {
+    private final DownloadListener listener;
+    private final Part part;
 
-    }
+    public Downloader(Part part) {
+        this.part = part;
+        listener = new DownloadListener() {
+            @Override
+            public void onHeadersReceived() {
+
+            }
+
+            @Override
+            public void onDownloadComplete() {
+
+            }
+        };
+    } 
 
     public void sendGet() {
 
@@ -66,19 +63,23 @@ public class Downloader {
         var contentLength = response.headers().get(HttpHeaderNames.CONTENT_LENGTH);
         var CONTENT_DISPOSITION = response.headers().get(HttpHeaderNames.CONTENT_DISPOSITION);
         System.out.println(contentLength+" "+CONTENT_DISPOSITION);
+        response.headers().forEach(System.out::println);
+        listener.onHeadersReceived();
     }
 
     public void onContent(ByteBuf buf) {
         buf.release();
-        System.out.println(protocol);
     }
 
-    public void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
-        Downloader d = new Downloader();
-        Tester.speedTest(100000,() -> {
-//            d.STATUS.compareAndSet(Downloader.this,Idle,Connected);
-//            d.STATUS.compareAndSet(Downloader.this,Connected,Idle);
-        });
+    public void finish(ByteBuf buf) {
+        onContent(buf);
+        listener.onDownloadComplete();
+    }
+
+    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
+        URI uri = URL.getSafeURI("https://dkstatics-public.digikala.com/digikala-products/af0103d79469c23779191b2d310192061bb2af40_1774359684.jpg?x-oss-process=image/resize,m_lfit,h_2400,w_2400/quality,q_100");
+        Downloader d = new Downloader(new Part(uri,"eno1",0,-1));
+        d.sendGet();
     }
 
 }

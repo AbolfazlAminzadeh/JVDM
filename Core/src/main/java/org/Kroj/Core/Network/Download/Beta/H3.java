@@ -58,11 +58,12 @@ public class H3 {
         String host = uri.getHost();
 
         String path = uri.getRawPath();
-        if (uri.getRawQuery() != null) {
-            path += "?" + uri.getRawQuery();
+        final String query;
+        if ((query = uri.getRawQuery()) != null) {
+            path += "?" + query;
         }
-
-        QuicStreamChannel stream = Http3.newRequestStream(quicChannel,new ReceiveHandler(new Downloader())).sync().getNow();
+        Downloader downloader = new Downloader(new Part(uri,"eno1",0,-1));
+        QuicStreamChannel stream = Http3.newRequestStream(quicChannel,new ReceiveHandler(downloader)).sync().getNow();
 
         Http3Headers headers = new DefaultHttp3Headers()
                 .method("GET")
@@ -71,7 +72,9 @@ public class H3 {
                 .authority(host);
 
         stream.writeAndFlush(new DefaultHttp3HeadersFrame(headers))
-                .addListener(QuicStreamChannel.SHUTDOWN_OUTPUT);
+                .addListener(l -> {
+                    downloader.last.set(System.nanoTime());
+                }).addListener(QuicStreamChannel.SHUTDOWN_OUTPUT);
 
         stream.closeFuture().sync();
     }
