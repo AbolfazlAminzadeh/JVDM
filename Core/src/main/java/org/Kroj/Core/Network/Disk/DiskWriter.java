@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
-
+//TODO, Project PANAMA, Batch Writing, Pre Allocation, Max throughput
 public class DiskWriter implements AutoCloseable {
     private final LinkedTransferQueue<ByteBuf> queue = new LinkedTransferQueue<>();
     private final AtomicLong pending = new AtomicLong(0);
