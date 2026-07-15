@@ -20,6 +20,7 @@ import static org.Kroj.Core.Tools.Logger.Logger.logger;
 public class BindToDeviceHandler extends ChannelDuplexHandler {
 
     private final String deviceName;
+    private final boolean isDisabled;
 
     static {
         if (Epoll.isAvailable()) {
@@ -30,12 +31,22 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
     }
 
     public BindToDeviceHandler(String device) {
-        this.deviceName = device;
+        if (device == null || device.isEmpty()) {
+            isDisabled = true;
+            deviceName = null;
+        } else {
+            deviceName = device;
+            isDisabled = false;
+        }
+
     }
 
     @Override
     public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-
+        if (isDisabled) {
+            ctx.connect(remoteAddress,localAddress,promise);
+            return;
+        }
         if (ctx.channel() instanceof EpollSocketChannel ch) {
             try {
                 int fd = ch.fd().intValue();
