@@ -5,7 +5,6 @@ import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.Logger.Logger;
-import org.Kroj.Core.Tools.NI.NetworkInterfaces;
 import org.Kroj.Core.Tools.String.SizeManager;
 import org.Kroj.Core.Tools.URL.URL;
 
@@ -33,14 +32,7 @@ public class Manager {
         Path path = Path.of(targetPath);
         List<String> deviceList = Arrays.asList(devices);
 
-        return new Download(
-                uri,
-                path,
-                concurrency,
-                deviceList,
-                io,
-                listener
-        );
+        return new Download(uri, path, concurrency, deviceList, io, listener);
     }
 
     public Download makeDownload(String link, String targetPath, DownloadListener listener, String... devices) {
@@ -52,10 +44,9 @@ public class Manager {
         io.shutdownGracefully();
     }
 
-
     public static void main(String[] args) throws InterruptedException {
         if (args.length == 0) return;
-        Manager.getInstance().makeDownload(args[args.length - 1], Initializer.DOWNLOAD_FOLDER, new DownloadListener() {
+        Download d = Manager.getInstance().makeDownload(args[args.length - 1], Initializer.DOWNLOAD_FOLDER, new DownloadListener() {
             @Override
             public void onReady(String fileName, long size) {
                 Logger.logger.append("Head Received:").nextLine()
@@ -79,15 +70,20 @@ public class Manager {
             @Override
             public void onCompleted() {
                 Logger.logger.append("Complete!").nextLine();
-//                System.exit(0);
+                System.exit(0);
             }
 
             @Override
             public void onFailed(Throwable onFailure) {
                 Logger.logger.append("Failed").nextLine();
-//                System.exit(0);
+                System.exit(0);
             }
-        }, NetworkInterfaces.getDevices().toArray(String[]::new)).start();
+        }, "");
+        d.start();
+        Thread.sleep(5000);
     }
 
 }
+
+//sudo sysctl -w net.core.default_qdisc=fq
+//sudo sysctl -w net.ipv4.tcp_congestion_control=bbr
