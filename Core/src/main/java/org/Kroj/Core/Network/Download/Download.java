@@ -131,7 +131,7 @@ public class Download {
     }
 
     private void calcProgress() {
-        long current = parts.stream().mapToLong(Part::getCurrentBytes).sum();
+        long current = parts.stream().mapToLong(Part::getInQueueBytes).sum();
         double currentSpeed = speed.updateAndGetSpeed(current);
         if (listener != null) {
             listener.onProgress(current, totalSize, currentSpeed);
@@ -142,7 +142,7 @@ public class Download {
         splitParts("");
     }
 
-    private synchronized void splitParts(String preferedDevice) {
+    private synchronized void splitParts(String preferredDevice) {
         if (isFinished.get()) return;
         if (downloadings.get() >= concurrency) return;
 
@@ -171,7 +171,7 @@ public class Download {
                     part.setEnd(half - 1);
 
                     int id = parts.size();
-                    String device = preferedDevice.isEmpty() ? devices.get(id % devices.size()) : preferedDevice;
+                    String device = preferredDevice.isEmpty() ? devices.get(id % devices.size()) : preferredDevice;
 
                     Part newPart = new Part(id, part.getUri(), device, half, oldEnd);
                     parts.add(newPart);
