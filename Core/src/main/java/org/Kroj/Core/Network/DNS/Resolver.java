@@ -46,8 +46,6 @@ public class Resolver {
             bootstrap.group(group).channel(NettyUtil.getUDPClass())
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .option(ChannelOption.SO_BROADCAST, true)
-                    .option(ChannelOption.SO_RCVBUF, 1 << 20)
-                    .option(ChannelOption.SO_SNDBUF, 1 << 20)
                     .handler(new ChannelInitializer<DatagramChannel>() {
                         @Override
                         public void initChannel(DatagramChannel ch) {
@@ -91,11 +89,7 @@ public class Resolver {
 
             channel.flush();
 
-            promise.await(Initializer.DNS_TIMEOUT, TimeUnit.MILLISECONDS);
-
             return promise;
-        } catch (InterruptedException e) {
-            logger.error().append(e.getMessage()).nextLine();
         } catch (NullPointerException _) {}
         return null;
     }
