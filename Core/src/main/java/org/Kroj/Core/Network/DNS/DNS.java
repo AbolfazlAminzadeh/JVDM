@@ -141,8 +141,6 @@ public class DNS {
             return null;
         } catch (TimeoutException e) {
             logger.error().append("Could Not Resolved Host Because DNS Timed Out").nextLine();
-            logger.info().append("Using Next DNS Server");
-            //TODO Next DNS Server
             return null;
         }
     }
@@ -218,10 +216,8 @@ public class DNS {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 1_000_000; i++) {
-            getInstance().forceCache(""+i, InetAddress.getLoopbackAddress());
-        }
-        Tester.speedTest(100,() -> getInstance().saveAndFlush());
+        DNS.getInstance().renew("ndl4.hollowofthealley.space");
+        System.out.println(DNS.getInstance().resolve("ndl4.hollowofthealley.space"));
         DNS.getInstance().finish();
     }
 }
