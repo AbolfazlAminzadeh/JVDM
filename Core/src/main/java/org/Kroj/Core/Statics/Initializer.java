@@ -53,9 +53,9 @@ public final class Initializer {
 
     public final static int MINIMUM_BUFFER_SIZE = 1 << 16;
 
-    public final static int INITIAL_BUFFER_SIZE = 1 << 20;
+    public final static int INITIAL_BUFFER_SIZE = 1 << 22;
 
-    public final static int MAXIMUM_BUFFER_SIZE = 1 << 23;
+    public final static int MAXIMUM_BUFFER_SIZE = 1 << 24;
 
     // -=-=-=-=-=-=-=-=-=-=-=-
     //            UI
@@ -115,9 +115,9 @@ public final class Initializer {
     //       DiskWriter
     // -=-=-=-=-=-=-=-=-=-=-=-
 
-    public static final int DISK_QUEUE_CAPACITY = 1 << 12;
+    public static final int DISK_QUEUE_CAPACITY = 1 << 14;
 
-    public static final int DISK_QUEUE_PAUSE_READ = 1 << 10;
+    public static final int DISK_QUEUE_PAUSE_READ = 1 << 13;
 
     public static final int DISK_QUEUE_RESUME_READ = DISK_QUEUE_PAUSE_READ * 2 / 3; // Will change later
 
