@@ -60,7 +60,7 @@ graalvmNative {
 //            buildArgs.add()
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:IncludeResources=.*')
-//            buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            buildArgs.add('--enable-native-access=ALL-UNNAMED')
             buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier')
@@ -79,7 +79,7 @@ graalvmNative {
 
         }
     }
-
+/*
     agent {
         defaultMode = "standard"
         enabled = true
@@ -92,4 +92,5 @@ graalvmNative {
             mergeWithExisting = true
         }
     }
+ */
 }
