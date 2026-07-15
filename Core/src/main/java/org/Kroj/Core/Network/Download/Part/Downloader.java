@@ -3,9 +3,12 @@ package org.Kroj.Core.Network.Download.Part;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.NetUtil;
 import org.Kroj.Core.Network.DNS.DNS;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Handlers.DownloadHandler;
@@ -18,6 +21,9 @@ import org.Kroj.Core.Tools.Exceptions.TooMuchRedirections;
 import org.Kroj.Core.Tools.URL.URL;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -63,20 +69,24 @@ public class Downloader {
 
     private void connect() {
         if (state.get() != DOWNLOADING) return;
-
-        URI uri = part.getUri();
-        boolean secure = "https".equalsIgnoreCase(uri.getScheme());
-        int port = uri.getPort() == -1 ? (secure ? 443 : 80) : uri.getPort();
+        final URI uri = part.getUri();
+        final boolean secure = "https".equalsIgnoreCase(uri.getScheme());
+        final int port = uri.getPort() == -1 ? (secure ? 443 : 80) : uri.getPort();
+        final boolean isIP = NetUtil.isValidIpV4Address(uri.getHost());
+        final String path = uri.getRawPath();
+        final CharSequence host = isIP ? uri.getHost() :
+                path.startsWith("/prv/") ? path.subSequence(4,path.indexOf('/',4)) : uri.getHost();
 
         Bootstrap b = new Bootstrap()
                 .group(io)
                 .channel(NettyUtil.getTCPClass())
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT)
                 .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
-                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
+//                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
+//                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
                 .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -85,16 +95,19 @@ public class Downloader {
                         pipe.addFirst(new BindToDeviceHandler(part.getDevice()));
                         pipe.addLast(new ReadTimeoutHandler(RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS));
 
-                        if (secure) {
-                            pipe.addLast(TLS.ssl.newHandler(ch.alloc(), uri.getHost(), port));
-                        }
-                        pipe.addLast(new HttpClientCodec());
+                        if (secure) pipe.addLast(TLS.ssl.newHandler(ch.alloc(), (String) host, port));
+
+                        pipe.addLast(new HttpClientCodec(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE));
                         pipe.addLast(new HeaderHandler(Downloader.this));
                         pipe.addLast(new DownloadHandler(part, Downloader.this, download));
                     }
                 });
 
-        CompletableFuture.supplyAsync(() -> DNS.getInstance().resolve(uri.getHost()))
+        if (Epoll.isAvailable()) {
+            b.option(EpollChannelOption.TCP_QUICKACK,Boolean.TRUE);
+        }
+
+        CompletableFuture.supplyAsync(() -> isIP ? Inet4Address.ofLiteral(uri.getHost()) : DNS.getInstance().resolve(uri.getHost()))
                 .whenCompleteAsync(((inetAddress, throwable) -> {
                     if (throwable != null) {
                         onFailure(throwable);
