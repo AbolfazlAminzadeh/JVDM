@@ -26,6 +26,7 @@ public class NetworkInterfaces {
                                     !ni.getDisplayName().contains("vnet") &&
                                     !ni.getDisplayName().contains("rndis") &&
                                     !ni.getDisplayName().contains("dummy") &&
+                                    !ni.getDisplayName().contains("waydroid") &&
                                     ni.getInetAddresses().hasMoreElements() &&
                                     ni.isUp();
                         } catch (SocketException e) {
