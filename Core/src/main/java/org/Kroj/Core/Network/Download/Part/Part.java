@@ -83,7 +83,7 @@ public class Part {
 
     @Override
     public String toString() {
-        return "[21: Start: "+ SizeManager.formatSize(start) +", End: "+
+        return "[" + id +": Start: "+ SizeManager.formatSize(start) +", End: "+
                 SizeManager.formatSize(end.get())+
                 ", Queued: "+
                 SizeManager.formatSize(queued.sum())+
