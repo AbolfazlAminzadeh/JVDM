@@ -22,8 +22,6 @@ import org.Kroj.Core.Tools.URL.URL;
 
 import java.io.IOException;
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -84,10 +82,13 @@ public class Downloader {
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-//                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
-//                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
-                .option(ChannelOption.RECVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE))
+                .option(ChannelOption.SO_RCVBUF, RECEIVE_BUFFER_SIZE)
+                .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        var allocator = new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE);
+        allocator.maxMessagesPerRead(DOWNLOADER_THREADS);
+        b
+                .option(ChannelOption.RECVBUF_ALLOCATOR, allocator)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
@@ -103,8 +104,24 @@ public class Downloader {
                     }
                 });
 
+
         if (Epoll.isAvailable()) {
             b.option(EpollChannelOption.TCP_QUICKACK,Boolean.TRUE);
+            b.option(EpollChannelOption.TCP_NOTSENT_LOWAT ,(long) 1 << 26);
+            b.option(EpollChannelOption.TCP_USER_TIMEOUT, TCP_TIMEOUT);
+            b.option(EpollChannelOption.TCP_KEEPIDLE, TCP_IDLE);
+            b.option(EpollChannelOption.TCP_KEEPINTVL, TCP_INTERVAL);
+            b.option(EpollChannelOption.TCP_KEEPCNT, TCP_MAX_TRIES);
+            // TODO Req & Apply OS Optimization
+            /*
+            net.core.rmem_max = read memory
+            net.core.wmem_max = write memory
+            net.ipv4.tcp_rmem = init min max
+            net.ipv4.tcp_wmem = init min max
+
+            net.core.netdev_max_backlog = 250k - 300k
+            net.ipv4.tcp_congestion_control = bbr
+             */
         }
 
         CompletableFuture.supplyAsync(() -> isIP ? Inet4Address.ofLiteral(uri.getHost()) : DNS.getInstance().resolve(uri.getHost()))
@@ -249,7 +266,7 @@ public class Downloader {
     }
     private void onNetworkFailed(Throwable e) {
         if (state.get() == PAUSED || state.get() == COMPLETE) return;
-        logger.append("Retrying Part (").append(part).append("), Because of:").append(e).nextLine();
+        logger.append("Retrying Part (").append(part).append("), On Device: (\"" + part.getDevice() + "\"), Because of:").append(e).nextLine();
         int tries = retryCount.incrementAndGet();
         if (tries <= MAX_RETRIES) {
             io.schedule(this::connect, RETRY_DELAY, TimeUnit.MILLISECONDS);
