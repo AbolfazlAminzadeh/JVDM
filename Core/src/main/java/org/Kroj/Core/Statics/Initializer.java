@@ -30,9 +30,17 @@ public final class Initializer {
 
     public final static int CONNECTION_TIMEOUT = 10000;
 
+    public final static int TCP_TIMEOUT = 15000;
+
     public final static int RECEIVE_TIMEOUT = 10000;
 
-    public final static int DOWNLOADER_THREADS = JVDM_THREADS;
+    public final static int TCP_IDLE = 60;
+
+    public final static int TCP_INTERVAL = 15;
+
+    public final static int TCP_MAX_TRIES = 3;
+
+    public final static int DOWNLOADER_THREADS = JVDM_THREADS * 3 / 2;
 
     public static final int MAX_RETRIES = 5;
 
