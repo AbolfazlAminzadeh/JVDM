@@ -21,12 +21,7 @@ JVDM is Netty based so data passthrough pipelines:
 3. **⏳Asynchronous Pipes:** Data transfer over non-blocking stream channels of netty, this means there is no bottleneck for receiving data, no wait, no blocking = more speed
 4. **🚦Backpressure Managing:** Slow Disk? No worry, JVDM waits until your disk handle it
 
----
-## 📊 Benchmark
-
-Want to see performance results and comparisons?
-
-👉 [View Benchmark Results](BENCHMARK.md)
+> ⚡ See how JVDM performs: [Benchmark Results](BENCHMARK.md)
 
 ---
 ## 🚀 How to Use
