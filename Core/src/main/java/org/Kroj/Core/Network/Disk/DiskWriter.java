@@ -103,7 +103,7 @@ public class DiskWriter implements Runnable {
                 int totalWritten = 0;
                 for (ByteBuffer buf : buffers) {
                     if (buf.hasRemaining()) {
-                        int remaining = buf.remaining();
+                        final int remaining = buf.remaining();
                         channel.write(buf, pos);
                         pos += remaining;
                         totalWritten += remaining;
@@ -121,9 +121,7 @@ public class DiskWriter implements Runnable {
 
             if (queue.size() <= DISK_QUEUE_RESUME_READ && !paused.isEmpty()) {
                 for (Channel ch : paused) {
-                    if (paused.remove(ch)) {
-                        ch.config().setAutoRead(true);
-                    }
+                    if (paused.remove(ch)) ch.config().setAutoRead(true);
                 }
             }
             download.checkComplete();
