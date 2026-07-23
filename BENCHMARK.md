@@ -60,7 +60,7 @@ hyperfine --warmup 1 --runs 3 \
 ---
 
 ## 3. Loopback Benchmark (`127.0.0.1`)
-
+#### Tested on NGINX server
 ### Command
 
 ```bash
@@ -71,7 +71,7 @@ hyperfine './JVDM http://127.0.0.1/testfile.bin' \
 ### Results
 
 | Tool   | Mean Time | Std Dev  | Min     | Max     | User Time | System Time |
-| ------ | --------- | -------- | ------- | ------- | --------- | ----------- |
+|--------|-----------|----------|---------|---------|-----------|-------------|
 | JVDM   | 1.072 s   | ±0.036 s | 1.010 s | 1.123 s | 0.637 s   | 2.090 s     |
 | aria2c | 1.414 s   | ±0.067 s | 1.328 s | 1.571 s | 0.174 s   | 0.785 s     |
 
