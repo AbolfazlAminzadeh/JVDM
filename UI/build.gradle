@@ -9,21 +9,22 @@ plugins {
 group = 'org.kroj'
 version = '1.0.0'
 
+ext.targetPlatform = project.hasProperty('targetPlatform') ? project.property('targetPlatform') :
+    (System.getProperty('os.name').toLowerCase().contains('win') ? 'windows-x86_64' :
+     System.getProperty('os.name').toLowerCase().contains('mac') ? (System.getProperty('os.arch').contains('aarch64') ? 'osx-aarch_64' : 'osx-x86_64') : 'linux-x86_64')
+
 dependencies {
     implementation project(":Core")
     implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
 
     def jfx = javafx.version
-    def OSes = ['win', 'mac', 'mac-aarch64', 'linux'];
+    def jfxOs = targetPlatform.startsWith('win') ? 'win' :
+                targetPlatform.startsWith('osx') ? (targetPlatform.contains('aarch64') ? 'mac-aarch64' : 'mac') : 'linux'
 
-    OSes.forEach { os ->
-        runtimeOnly "org.openjfx:javafx-base:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-graphics:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-controls:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-fxml:$jfx:$os"
-
-    }
-
+    runtimeOnly "org.openjfx:javafx-base:$jfx:$jfxOs"
+    runtimeOnly "org.openjfx:javafx-graphics:$jfx:$jfxOs"
+    runtimeOnly "org.openjfx:javafx-controls:$jfx:$jfxOs"
+    runtimeOnly "org.openjfx:javafx-fxml:$jfx:$jfxOs"
 }
 
 javafx {
@@ -38,6 +39,10 @@ application {
 shadowJar {
     archiveFileName = "JVDM-UI.jar"
     mergeServiceFiles()
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+    exclude "META-INF/versions/**/module-info.class"
 }
 
 graalvmNative {
@@ -49,7 +54,7 @@ graalvmNative {
             imageName = 'JVDM'
             mainClass = application.mainClass.get()
             debug = false
-            verbose = true
+            verbose = false
             fallback = false
             sharedLibrary = false
             quickBuild = false
@@ -58,7 +63,10 @@ graalvmNative {
 
 //            buildArgs.add()
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            buildArgs.add('-H:IncludeResources=.*')
+            buildArgs.add('-H:IncludeResources=.*\\.(fxml|css|png|so|json|properties)')
+            buildArgs.add('-H:-ReportExceptionStackTraces')
+            buildArgs.add('--gc=serial')
+            buildArgs.add('--no-fallback')
             buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('-O3')
 
@@ -72,7 +80,9 @@ graalvmNative {
             buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
 
             def pgo = file("src/pgo-profiles/main/default.iprof");
-            buildArgs.add("--pgo=${pgo.absolutePath}")
+            if (pgo.exists()) {
+                buildArgs.add("--pgo=${pgo.absolutePath}")
+            }
 
             def currentArch = System.getProperty("os.arch").toLowerCase()
 
@@ -90,13 +100,6 @@ graalvmNative {
             jvmArgs.add('-Dglass.gtk.disableGtk3=true')
             jvmArgs.add('-Dprism.order=d3d,es2,sw')
             jvmArgs.add('-Dprism.vsync=true')
-
-
-            // For Optimizations and more
-//            runtimeArgs.add()
-            // buildArgs.add('--pgo-instrument')
-            // buildArgs.add('--pgo=default.iprof')
-
         }
     }
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" styleClass="settings-root" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Kroj.UI.Controllers.SettingsController">
+    <padding>
+        <Insets bottom="25" left="25" right="25" top="25" />
+    </padding>
+    <Label styleClass="settings-title" text="⚙ JVDM Settings &amp; Engine Config" />
+
+    <VBox spacing="8">
+        <Label styleClass="settings-label" text="Downloader Concurrency Threads:" />
+        <Spinner fx:id="threadsSpinner" editable="true" styleClass="settings-spinner" />
+    </VBox>
+
+    <VBox spacing="8">
+        <Label styleClass="settings-label" text="Progress Refresh Interval (ms):" />
+        <Spinner fx:id="progressIntervalSpinner" editable="true" styleClass="settings-spinner" />
+    </VBox>
+
+    <VBox spacing="8">
+        <Label styleClass="settings-label" text="Connection Timeout (ms):" />
+        <Spinner fx:id="timeoutSpinner" editable="true" styleClass="settings-spinner" />
+    </VBox>
+
+    <VBox spacing="8">
+        <Label styleClass="settings-label" text="Animation Speed Multiplier (0.25x - 3.0x):" />
+        <Spinner fx:id="animSpeedSpinner" editable="true" styleClass="settings-spinner" />
+    </VBox>
+
+    <CheckBox fx:id="h2CheckBox" styleClass="settings-checkbox" text="Prefer HTTP/2 Multiplexing (H2)" />
+
+    <HBox alignment="CENTER_RIGHT" spacing="12">
+        <Button onAction="#handleCancel" styleClass="action-button" text="Cancel" />
+        <Button defaultButton="true" onAction="#handleSave" styleClass="neon-button" text="Save Configuration" />
+    </HBox>
+</VBox>
