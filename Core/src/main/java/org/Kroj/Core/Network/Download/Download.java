@@ -132,11 +132,11 @@ public class Download {
         }
     }
 
-    private synchronized void splitParts() {
+    private void splitParts() {
         splitParts("");
     }
 
-    private synchronized void splitParts(String preferedDevice) {
+    private void splitParts(String preferedDevice) {
         if (isFinished.get()) return;
         if (downloadings.get() >= concurrency) return;
 
@@ -154,23 +154,21 @@ public class Download {
         }
 
         if (target != null) {
-            final Part part = target.getPart();
-            synchronized (part) {
-                final long pos = part.getWritePos();
-                final long oldEnd = part.getEnd();
-                final long remaining = oldEnd - pos + 1;
+            Part part = target.getPart();
+            long pos = part.getWritePos();
+            long oldEnd = part.getEnd();
+            long remaining = oldEnd - pos + 1;
 
-                if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
-                    final long half = pos + (remaining / 2);
-                    part.setEnd(half - 1);
+            if (remaining > Initializer.SPLIT_PART_MIN_THRESHOLD_BYTE) {
+                long half = pos + (remaining / 2);
+                part.setEnd(half - 1);
 
-                    int id = parts.size();
-                    String device = preferedDevice.isEmpty() ? devices.get(id % devices.size()) : preferedDevice;
+                int id = parts.size();
+                String device = preferedDevice.isEmpty() ? devices.get(id % devices.size()) : preferedDevice;
 
-                    Part newPart = new Part(part.getUri(), device, half, oldEnd);
-                    parts.add(newPart);
-                    addDownloader(newPart);
-                }
+                Part newPart = new Part(part.getUri(), device, half, oldEnd);
+                parts.add(newPart);
+                addDownloader(newPart);
             }
         }
     }
