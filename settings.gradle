@@ -20,4 +20,5 @@ dependencyResolutionManagement {
 rootProject.name = "JVDM-Netty"
 include 'Android'
 include 'Core'
-include 'UI'
+include 'GUI'
+include 'CLI'
