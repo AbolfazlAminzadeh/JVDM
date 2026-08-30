@@ -88,6 +88,7 @@ public class Manager {
 //                System.exit(0);
             }
         }, NetworkInterfaces.getDevices().toArray(String[]::new)).start();
+        Thread.sleep(2500);
     }
 
 }

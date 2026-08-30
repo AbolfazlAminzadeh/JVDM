@@ -40,9 +40,6 @@ public class Downloader {
         };
     } 
 
-    public void sendGet() {
-
-    }
 
     public void onH1Headers(HttpResponse response) {
         this.protocol.set(Protocol.H1_1);
@@ -65,6 +62,7 @@ public class Downloader {
         System.out.println(contentLength+" "+CONTENT_DISPOSITION);
         response.headers().forEach(System.out::println);
         listener.onHeadersReceived();
+
     }
 
     public void onContent(ByteBuf buf) {
@@ -79,7 +77,7 @@ public class Downloader {
     public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
         URI uri = URL.getSafeURI("https://dkstatics-public.digikala.com/digikala-products/af0103d79469c23779191b2d310192061bb2af40_1774359684.jpg?x-oss-process=image/resize,m_lfit,h_2400,w_2400/quality,q_100");
         Downloader d = new Downloader(new Part(uri,"eno1",0,-1));
-        d.sendGet();
+
     }
 
 }

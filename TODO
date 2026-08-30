@@ -1,5 +1,12 @@
 
-Core:
+Structuring:
+Core
+Android
+GUI
+TUI
+
+
+Core: Complete
 Linux-Router-Bypass: Complete
 Logger: Complete
 DNS Cache: Complete
@@ -28,8 +35,8 @@ Download List Share Between Devices: Soon
 
 -- For Far Future --
 HTTP/1.1: Complete
-HTTP/2: Near
-HTTP/3: Near
+HTTP/2: Very Very Soon
+HTTP/3: Very Very Soon
 FTP: Too Far
 SFTP: Too Far
 FTPS: Too Far

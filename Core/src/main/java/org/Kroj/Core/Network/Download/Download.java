@@ -263,14 +263,6 @@ public class Download {
         return channel;
     }
 
-    public void decreasePendingWrite() {
-        pendings.decrementAndGet();
-    }
-
-    public void increasePendingWrite() {
-        pendings.incrementAndGet();
-    }
-
     public void checkComplete() {
         if (downloadings.get() == 0 && pendings.get() == 0) {
             if (isFinished.compareAndSet(false, true)) {

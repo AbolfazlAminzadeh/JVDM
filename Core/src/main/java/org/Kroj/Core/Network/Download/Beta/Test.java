@@ -50,7 +50,7 @@ public class Test {
                 bt.handler(new ChannelInitializer<Http2StreamChannel>() {
                     @Override
                     protected void initChannel(Http2StreamChannel ch) throws Exception {
-                        ch.pipeline().addLast(new ReceiveHandler(new Downloader(new Part(url,"eno1",0,-1))));
+                        ch.pipeline().addLast(new ReceiveHandler(new Downloader(new Part(url,"eno1",0,-1)),null));
                     }
                 });
                 for (int i = 0; i < 32; i ++)
