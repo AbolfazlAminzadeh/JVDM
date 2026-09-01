@@ -1,4 +1,4 @@
-package org.Kroj.Core.Tools.Exceptions;
+package org.kroj.Core.Exceptions;
 
 public class AlreadyConnectedException extends RuntimeException {
     public AlreadyConnectedException(String message) {
