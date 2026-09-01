@@ -1,10 +1,12 @@
-package org.Kroj.Core.Network.SocketBind;
+package org.kroj.Core.Network.Interface.Binder;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.kqueue.KQueueSocketChannel;
+import io.netty.channel.unix.UnixChannel;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,20 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static org.kroj.Core.Tools.Logger.Logger.logger;
 
 // TODO Caching + Performance Increase
 public class BindToDeviceHandler extends ChannelDuplexHandler {
 
     private final String deviceName;
-
-    static {
-        if (Epoll.isAvailable()) {
-            logger.debug().append("OS Is Linux, Using EPOLL :)").nextLine();
-            loadSocBind();
-            logger.append("SocBind Library Loaded Successfully").nextLine();
-        }
-    }
 
     public BindToDeviceHandler(String device) {
         this.deviceName = device;
@@ -35,12 +29,12 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
 
     @Override
     public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-
+        logger.debug().append("Connecting Using ").append(deviceName).nextLine();
         if (ctx.channel() instanceof EpollSocketChannel ch) {
             try {
                 int fd = ch.fd().intValue();
-                ChannelBinder.bindToDevice(fd, deviceName);
-//                logger.debug().append("Linux/Epoll: Successfully bound FD ").append(fd).append(" to ").append(deviceName).nextLine();
+                PanamaBinder.bindToDevice(fd, deviceName);
+                logger.debug().append("Linux/Epoll: Successfully bound FD ").append(fd).append(" to ").append(deviceName).nextLine();
             } catch (Exception e) {
                 logger.error().append("Linux Native Bind Failed: ").append(e.getMessage()).nextLine();
             }
