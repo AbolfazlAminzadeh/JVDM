@@ -14,7 +14,7 @@ import org.Kroj.UI.Controllers.MainController;
 
 import java.io.IOException;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static org.kroj.Core.Tools.Logger.Logger.logger;
 
 public class App extends Application {
 

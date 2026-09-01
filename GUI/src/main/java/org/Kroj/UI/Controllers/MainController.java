@@ -10,8 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.Kroj.Core.Tools.String.FileName;
-import org.Kroj.Core.Tools.URL.URL;
+import org.kroj.Core.Tools.String.FileName;
+import org.kroj.Core.Tools.URL.URL;
 import org.Kroj.UI.Items.DownloadItem;
 import org.Kroj.UI.Items.DownloadUIUpdater;
 
@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
+import static org.kroj.Core.Tools.Logger.Logger.logger;
 
 public class MainController {
 

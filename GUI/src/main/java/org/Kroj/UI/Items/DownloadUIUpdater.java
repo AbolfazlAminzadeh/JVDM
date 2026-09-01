@@ -1,12 +1,12 @@
 package org.Kroj.UI.Items;
 
 import javafx.application.Platform;
-import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.DownloadListener;
-import org.Kroj.Core.Network.Download.Manager;
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.NI.NetworkInterfaces;
-import org.Kroj.Core.Tools.String.SizeManager;
+import org.kroj.Core.Download.Download;
+import org.kroj.Core.Download.DownloadListener;
+import org.kroj.Core.Download.Manager;
+import org.kroj.Core.Config.Initializer;
+import org.kroj.Core.Network.Interface.NetworkInterfaces;
+import org.kroj.Core.Tools.String.SizeManager;
 
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;

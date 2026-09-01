@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements DownloadManager.D
         String targetDir = Objects.requireNonNull(getExternalFilesDir(null)).getAbsolutePath();
 
         if (item.getDownload() == null) {
-            item.setDownload(Manager.getInstance().makeDownload(item.getUrl(), targetDir + "/" + item.getName(), new org.Kroj.Core.Network.Download.Handlers.DownloadListener() {
+            item.setDownload(Manager.getInstance().makeDownload(item.getUrl(), targetDir + "/" + item.getName(), new org.future.kroj.Core.Download.Handlers.DownloadListener() {
                 @Override
                 public void onReady(String resolvedFileName, long totalSizeBytes) {
                     runOnUiThread(() -> {

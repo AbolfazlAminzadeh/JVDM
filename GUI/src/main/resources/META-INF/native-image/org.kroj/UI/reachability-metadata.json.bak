@@ -2374,10 +2374,10 @@
       "type": "javax.net.ssl.X509ExtendedTrustManager"
     },
     {
-      "type": "org.Kroj.Core.Network.Download.Handlers.H1.DownloadHandler"
+      "type": "H1.Handlers.Download.org.kroj.Core.DownloadHandler"
     },
     {
-      "type": "org.Kroj.Core.Network.Download.Handlers.H1.HeaderHandler"
+      "type": "H1.Handlers.Download.org.kroj.Core.HeaderHandler"
     },
     {
       "type": "org.Kroj.Core.Network.Download.Part.Downloader$1"
