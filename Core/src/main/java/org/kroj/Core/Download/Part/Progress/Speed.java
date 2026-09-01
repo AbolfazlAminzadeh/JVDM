@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Progress;
+package org.kroj.Core.Download.Part.Progress;
 
 import java.util.LinkedList;
 import java.util.Queue;

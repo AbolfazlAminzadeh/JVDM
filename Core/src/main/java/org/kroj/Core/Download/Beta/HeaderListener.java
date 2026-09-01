@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http2.Http2Headers;

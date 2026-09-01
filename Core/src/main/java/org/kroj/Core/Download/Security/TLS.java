@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Security;
+package org.kroj.Core.Download.Security;
 
 import io.netty.handler.codec.http3.Http3;
 import io.netty.handler.codec.quic.Quic;

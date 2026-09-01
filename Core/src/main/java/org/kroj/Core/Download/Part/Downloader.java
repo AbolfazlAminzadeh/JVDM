@@ -1,33 +1,25 @@
-package org.Kroj.Core.Network.Download.Part;
+package org.kroj.Core.Download.Part;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http2.Http2HeadersFrame;
-import io.netty.handler.codec.http3.Http3Headers;
-import io.netty.handler.codec.http3.Http3HeadersFrame;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.util.AsciiString;
-import org.Kroj.Core.Network.DNS.DNS;
-import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.Handlers.H1.DownloadHandler;
-import org.Kroj.Core.Network.Download.Handlers.H1.HeaderHandler;
-import org.Kroj.Core.Network.Download.Handlers.HttpVersionSwitch;
-import org.Kroj.Core.Network.Download.Security.TLS;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Network.SocketBind.BindToDeviceHandler;
-import org.Kroj.Core.Tools.Exceptions.AlreadyConnectedException;
-import org.Kroj.Core.Tools.Exceptions.DiskQueueFailedException;
-import org.Kroj.Core.Tools.Exceptions.TooMuchRedirections;
-import org.Kroj.Core.Tools.URL.URL;
+import org.kroj.Core.Network.DNS.DNS;
+import org.kroj.Core.Download.Download;
+import org.kroj.Core.Download.Handlers.H1.DownloadHandler;
+import org.kroj.Core.Download.Handlers.H1.HeaderHandler;
+import org.kroj.Core.Download.Security.TLS;
+import org.kroj.Core.Tools.NettyUtil;
+import org.kroj.Core.Network.Interface.Binder.BindToDeviceHandler;
+import org.kroj.Core.Exceptions.AlreadyConnectedException;
+import org.kroj.Core.Exceptions.DiskQueueFailedException;
+import org.kroj.Core.Exceptions.TooMuchRedirections;
+import org.kroj.Core.Tools.URL.URL;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,9 +27,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 
-import static org.Kroj.Core.Network.Download.Part.Downloader.State.*;
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
-import static org.Kroj.Core.Statics.Initializer.*;
+import static org.kroj.Core.Download.Part.Downloader.State.*;
+import static org.kroj.Core.Tools.Logger.Logger.logger;
+import static org.kroj.Core.Config.Initializer.*;
 
 public class Downloader {
 

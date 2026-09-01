@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Part;
+package org.kroj.Core.Download.Part;
 
 public enum Protocol {
     HTTP1_1,

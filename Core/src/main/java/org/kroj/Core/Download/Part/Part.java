@@ -1,6 +1,6 @@
-package org.Kroj.Core.Network.Download.Part;
+package org.kroj.Core.Download.Part;
 
-import org.Kroj.Core.Tools.String.SizeManager;
+import org.kroj.Core.Tools.String.SizeManager;
 
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;

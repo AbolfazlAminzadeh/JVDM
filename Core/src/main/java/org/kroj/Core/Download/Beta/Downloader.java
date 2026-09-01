@@ -1,12 +1,12 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http3.Http3HeadersFrame;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.URL.URL;
+import org.kroj.Core.Download.Part.Part;
+import org.kroj.Core.Tools.URL.URL;
 
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;

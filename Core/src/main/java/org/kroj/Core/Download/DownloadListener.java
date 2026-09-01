@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download;
+package org.kroj.Core.Download;
 
 public interface DownloadListener {
     void onReady(String fileName, long size);

@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Handlers;
+package org.kroj.Core.Download.Handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -9,7 +9,7 @@ import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
 import io.netty.handler.codec.http2.Http2MultiplexHandler;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
-import org.Kroj.Core.Tools.Logger.Logger;
+import org.kroj.Core.Tools.Logger.Logger;
 
 public class HttpVersionSwitch extends ApplicationProtocolNegotiationHandler {
 

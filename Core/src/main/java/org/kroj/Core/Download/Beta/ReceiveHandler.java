@@ -1,8 +1,7 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;

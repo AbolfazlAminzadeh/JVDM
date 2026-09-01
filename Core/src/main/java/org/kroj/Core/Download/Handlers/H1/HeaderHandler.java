@@ -1,10 +1,10 @@
-package org.Kroj.Core.Network.Download.Handlers.H1;
+package org.kroj.Core.Download.Handlers.H1;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpResponse;
-import org.Kroj.Core.Network.Download.Part.Downloader;
-import org.Kroj.Core.Tools.URL.ResponseCodes;
+import org.kroj.Core.Download.Part.Downloader;
+import org.kroj.Core.Tools.URL.ResponseCodes;
 
 public class HeaderHandler extends ChannelInboundHandlerAdapter {
     private final Downloader downloader;

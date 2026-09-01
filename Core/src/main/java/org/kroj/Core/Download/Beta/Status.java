@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 public enum Status {
     Idle,

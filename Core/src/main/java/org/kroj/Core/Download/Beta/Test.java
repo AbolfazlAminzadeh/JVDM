@@ -1,15 +1,14 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
-import org.Kroj.Core.Network.DNS.DNS;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Download.Security.TLS;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Tools.URL.URL;
+import org.kroj.Core.Network.DNS.DNS;
+import org.kroj.Core.Download.Part.Part;
+import org.kroj.Core.Download.Security.TLS;
+import org.kroj.Core.Tools.NettyUtil;
+import org.kroj.Core.Tools.URL.URL;
 
 import java.net.InetAddress;
 import java.net.URI;

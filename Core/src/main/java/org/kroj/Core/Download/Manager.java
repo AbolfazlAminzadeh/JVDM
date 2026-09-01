@@ -1,12 +1,12 @@
-package org.Kroj.Core.Network.Download;
+package org.kroj.Core.Download;
 
 import io.netty.channel.IoEventLoopGroup;
-import org.Kroj.Core.Network.Netty.NettyUtil;
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.Logger.Logger;
-import org.Kroj.Core.Tools.NI.NetworkInterfaces;
-import org.Kroj.Core.Tools.String.SizeManager;
-import org.Kroj.Core.Tools.URL.URL;
+import org.kroj.Core.Tools.NettyUtil;
+import org.kroj.Core.Config.Initializer;
+import org.kroj.Core.Tools.Logger.Logger;
+import org.kroj.Core.Network.Interface.NetworkInterfaces;
+import org.kroj.Core.Tools.String.SizeManager;
+import org.kroj.Core.Tools.URL.URL;
 
 import java.net.URI;
 import java.nio.file.Path;

@@ -1,18 +1,16 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http3.*;
 import io.netty.handler.codec.quic.QuicChannel;
 import io.netty.handler.codec.quic.QuicStreamChannel;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Download.Security.TLS;
-import org.Kroj.Core.Network.Netty.NettyUtil;
+import org.kroj.Core.Download.Part.Part;
+import org.kroj.Core.Download.Security.TLS;
+import org.kroj.Core.Tools.NettyUtil;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class H3 implements HeaderListener {
@@ -74,7 +72,7 @@ public class H3 implements HeaderListener {
     }
 
     public void sendGetRequest(URI uri) throws Exception {
-        Downloader downloader = new Downloader(new Part(uri,"eno1",0,-1));
+        Downloader downloader = new Downloader(new Part(uri,"enp0s20f0u10",0,-1));
 
         QuicStreamChannel stream = Http3.newRequestStream(
                 quicChannel,

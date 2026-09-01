@@ -1,14 +1,13 @@
-package org.Kroj.Core.Network.Download;
+package org.kroj.Core.Download;
 
 import io.netty.channel.EventLoopGroup;
-import org.Kroj.Core.Network.Disk.DiskWriter;
-import org.Kroj.Core.Network.Download.Part.Downloader;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Network.Download.Progress.Speed;
-import org.Kroj.Core.Statics.Initializer;
-import org.Kroj.Core.Tools.Exceptions.DownloadCompletionException;
-import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
-import org.Kroj.Core.Tools.String.FileName;
+import org.kroj.Core.Download.Part.Downloader;
+import org.kroj.Core.Download.Part.Part;
+import org.kroj.Core.Download.Part.Progress.Speed;
+import org.kroj.Core.Config.Initializer;
+import org.kroj.Core.Exceptions.DownloadCompletionException;
+import org.kroj.Core.Disk.File.SafeFileChannel;
+import org.kroj.Core.Tools.String.FileName;
 
 import java.io.IOException;
 import java.net.URI;

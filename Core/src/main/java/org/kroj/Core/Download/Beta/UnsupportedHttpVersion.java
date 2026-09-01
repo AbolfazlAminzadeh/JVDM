@@ -1,4 +1,4 @@
-package org.Kroj.Core.Network.Download.Beta;
+package org.kroj.Core.Download.Beta;
 
 public class UnsupportedHttpVersion extends RuntimeException {
     public UnsupportedHttpVersion(String message) {

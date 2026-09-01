@@ -1,14 +1,14 @@
-package org.Kroj.Core.Network.Download.Handlers.H1;
+package org.kroj.Core.Download.Handlers.H1;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.Kroj.Core.Network.Download.Download;
-import org.Kroj.Core.Network.Download.Part.Downloader;
-import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Tools.Exceptions.DiskQueueFailedException;
+import org.kroj.Core.Download.Download;
+import org.kroj.Core.Download.Part.Downloader;
+import org.kroj.Core.Download.Part.Part;
+import org.kroj.Core.Exceptions.DiskQueueFailedException;
 
 public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
     private final Part part;
