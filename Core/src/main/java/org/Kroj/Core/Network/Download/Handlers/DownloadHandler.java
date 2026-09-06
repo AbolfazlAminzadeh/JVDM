@@ -61,7 +61,7 @@ public class DownloadHandler extends SimpleChannelInboundHandler<HttpContent> {
         if (msg instanceof LastHttpContent) {
             if (part.getEnd() >= 0 && part.getWritePos() <= part.getEnd()) {
                 ctx.close();
-                downloader.onFailure(new java.io.IOException("Premature end of stream. Missing bytes."));
+                downloader.onFailure(new java.io.IOException("Final Byte Corrupted"));
             } else {
                 ctx.close();
                 downloader.onComplete();
