@@ -19,7 +19,7 @@ public class FileName {
             }
         }
         String p = uri.getPath();
-        if (p == null || p.isEmpty() || p.equals("/")) return "downloaded_file."+ UUID.randomUUID();
+        if (p == null || p.isEmpty() || p.endsWith("/")) return "downloaded_file."+ UUID.randomUUID();
         int ls = p.lastIndexOf("/");
         return URLDecoder.decode(ls == -1 ? p : p.substring(ls + 1), StandardCharsets.UTF_8);
     }
