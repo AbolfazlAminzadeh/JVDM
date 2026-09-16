@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.Kroj.Core.Network.Download.Download;
 import org.Kroj.Core.Network.Download.Part.Part;
-import org.Kroj.Core.Statics.Initializer;
 import org.Kroj.Core.Tools.FileManagement.SafeFileChannel;
+import org.Kroj.Core.Tools.Logger.Logger;
 
 import java.nio.ByteBuffer;
 import java.util.Set;
@@ -75,6 +75,7 @@ public class DiskWriter implements Runnable {
             if (channel.config().isAutoRead()) {
                 channel.config().setAutoRead(false);
                 paused.add(channel);
+                Logger.logger.debug().append("Reading Stopped").nextLine();
             }
         }
 
@@ -88,10 +89,9 @@ public class DiskWriter implements Runnable {
         }
     }
 
-    private void write(Task task) {
+    private void write(Task task) throws InterruptedException {
         try {
             SafeFileChannel channel = null;
-
             while ((channel = download.getChannel()) == null) {
                 if (!running.get()) return;
                 Thread.sleep(DISK_QUEUE_WAIT_TIME);
@@ -100,13 +100,12 @@ public class DiskWriter implements Runnable {
             if (!channel.isClosed()) {
                 ByteBuffer[] buffers = task.buffer().nioBuffers();
                 long pos = task.pos();
-                int totalWritten = 0;
+                long totalWritten = 0;
                 for (ByteBuffer buf : buffers) {
                     if (buf.hasRemaining()) {
-                        final int remaining = buf.remaining();
-                        channel.write(buf, pos);
-                        pos += remaining;
-                        totalWritten += remaining;
+                        final long written = channel.write(buf, pos);
+                        pos += written;
+                        totalWritten += written;
                     }
                 }
                 task.part().addWrittenBytes(totalWritten);
@@ -121,7 +120,10 @@ public class DiskWriter implements Runnable {
 
             if (queue.size() <= DISK_QUEUE_RESUME_READ && !paused.isEmpty()) {
                 for (Channel ch : paused) {
-                    if (paused.remove(ch)) ch.config().setAutoRead(true);
+                    if (paused.remove(ch)) {
+                        ch.config().setAutoRead(true);
+                        Logger.logger.debug().append("Reading Resumed").nextLine();
+                    }
                 }
             }
             download.checkComplete();

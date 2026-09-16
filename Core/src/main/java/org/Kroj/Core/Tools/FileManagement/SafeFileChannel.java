@@ -50,11 +50,13 @@ public class SafeFileChannel implements AutoCloseable {
         return channel == null || !channel.isOpen();
     }
 
-    public void write(ByteBuffer buf, long pos) throws IOException{
+    public long write(ByteBuffer buf, long pos) throws IOException{
         if (isClosed()) throw new ClosedChannelException();
+        long written = 0;
         while (buf.hasRemaining()) {
-            pos += channel.write(buf, pos);
+            written += channel.write(buf, pos);
         }
+        return written;
     }
 
 

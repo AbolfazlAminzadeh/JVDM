@@ -187,7 +187,6 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
-        writer.stop();
         for (Part part : parts) {
             part.queuedToWritten();
         }
@@ -248,6 +247,7 @@ public class Download {
         for (Downloader d : downloaders) {
             d.pause();
         }
+        writer.stop();
         pendings.set(0);
         downloadings.set(0);
         downloaders.clear();
