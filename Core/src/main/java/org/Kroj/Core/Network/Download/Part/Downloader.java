@@ -86,7 +86,7 @@ public class Downloader {
                 .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         var allocator = new AdaptiveRecvByteBufAllocator(MINIMUM_BUFFER_SIZE, INITIAL_BUFFER_SIZE, MAXIMUM_BUFFER_SIZE);
-        allocator.maxMessagesPerRead(DOWNLOADER_THREADS);
+        allocator.maxMessagesPerRead(DOWNLOADER_CONNECTIONS);
         b
                 .option(ChannelOption.RECVBUF_ALLOCATOR, allocator)
                 .handler(new ChannelInitializer<SocketChannel>() {
