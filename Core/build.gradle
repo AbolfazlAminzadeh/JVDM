@@ -59,7 +59,7 @@ graalvmNative {
 
 //            buildArgs.add()
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            buildArgs.add('-H:IncludeResources=.*')
+            buildArgs.add('-H:IncludeResources=META-INF/.*')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
             buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
