@@ -22,13 +22,6 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
     private final String deviceName;
     private final boolean isDisabled;
 
-    static {
-        if (Epoll.isAvailable()) {
-            logger.debug().append("OS Is Linux, Using EPOLL :)").nextLine();
-            loadSocBind();
-            logger.append("SocBind Library Loaded Successfully").nextLine();
-        }
-    }
 
     public BindToDeviceHandler(String device) {
         if (device == null || device.isEmpty()) {
@@ -50,7 +43,7 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
         if (ctx.channel() instanceof EpollSocketChannel ch) {
             try {
                 int fd = ch.fd().intValue();
-                ChannelBinder.bindToDevice(fd, deviceName);
+                PanamaBinder.bindToDevice(fd, deviceName);
 //                logger.debug().append("Linux/Epoll: Successfully bound FD ").append(fd).append(" to ").append(deviceName).nextLine();
             } catch (Exception e) {
                 logger.error().append("Linux Native Bind Failed: ").append(e.getMessage()).nextLine();
@@ -73,7 +66,6 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
 
                     if (targetIpv4 != null) {
                         localAddress = new InetSocketAddress(targetIpv4, 0);
-//                        logger.debug().append("Windows/NIO: Intercepted connect. Binding to IP: ").append(targetIpv4.getHostAddress()).nextLine();
                     } else {
                         logger.warn().append("Interface ").append(deviceName).append(" has no valid IPv4.").nextLine();
                     }
@@ -92,24 +84,4 @@ public class BindToDeviceHandler extends ChannelDuplexHandler {
         ctx.close();
     }
 
-    private static void loadSocBind() {
-        try {
-            InputStream in = ChannelBinder.class.getResourceAsStream("/libSocBind.so");
-            if (in == null) {
-                logger.append("No libSocBind.so Found!");
-                System.exit(1);
-            }
-
-            File tempLib = File.createTempFile("libSocBind", ".so");
-            tempLib.deleteOnExit();
-
-            Files.copy(in, tempLib.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            in.close();
-
-            System.load(tempLib.getAbsolutePath());
-        } catch (IOException e) {
-            logger.append("Failed to load libSocBind.so!").nextLine();
-            System.exit(1);
-        }
-    }
 }
