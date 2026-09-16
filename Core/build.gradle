@@ -39,7 +39,6 @@ else if (os.isWindows())
 dependencies {
     def nettyVersion = "4.2.15.Final"
     def bsslVersion = "2.0.77.Final"
-    def quicVersion = "0.0.70.Final"
 
     implementation "io.netty:netty-buffer:$nettyVersion"
     implementation "io.netty:netty-transport:$nettyVersion"
@@ -48,6 +47,7 @@ dependencies {
     implementation "io.netty:netty-codec-dns:$nettyVersion"
     implementation "io.netty:netty-codec-socks:$nettyVersion"
     implementation "io.netty:netty-handler-proxy:$nettyVersion"
+    implementation "io.netty:netty-codec-classes-quic:$nettyVersion"
 
     implementation "io.netty:netty-transport-classes-epoll:$nettyVersion"
     implementation "io.netty:netty-transport-classes-kqueue:$nettyVersion"
@@ -58,7 +58,6 @@ dependencies {
     // Filters for native
     classifiers.each { c ->
         theNative "io.netty:netty-tcnative-boringssl-static:$bsslVersion:$c"
-        theNative "io.netty.incubator:netty-incubator-codec-quic:$quicVersion:$c"
     }
     classifiers.findAll { it.startsWith("linux-") }.each { c ->
         theNative "io.netty:netty-transport-native-epoll:$nettyVersion:$c"
@@ -68,7 +67,6 @@ dependencies {
     }
 
     runtimeOnly "io.netty:netty-tcnative-boringssl-static:$bsslVersion:$classifier"
-    runtimeOnly "io.netty.incubator:netty-incubator-codec-quic:$quicVersion:$classifier"
     if (os.isLinux()) runtimeOnly "io.netty:netty-transport-native-epoll:$nettyVersion:$classifier"
     if (os.isMacOsX()) runtimeOnly "io.netty:netty-transport-native-kqueue:$nettyVersion:$classifier"
 //    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" // Vulnerable
