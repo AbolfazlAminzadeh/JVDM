@@ -1,3 +1,4 @@
+import org.gradle.internal.os.OperatingSystem
 plugins {
     id 'java'
     id 'application'
@@ -14,22 +15,63 @@ java {
     }
 }
 
+configurations {
+    theNative
+}
+
 group = 'org.kroj'
 version = '1.0.0'
 
+def os = OperatingSystem.current();
+def arch = System.getProperty("os.arch").toLowerCase();
+def isArm = arch.contains("aarch64") || arch.contains("arm");
+final def classifiers = ["linux-aarch_64", "linux-x86_64", "osx-aarch_64", "osx-x86_64", "windows-x86_64"]
+def classifier
+if (project.hasProperty("platform"))
+    classifier = project.property("platform");
+else if (os.isLinux())
+    classifier = isArm ? classifiers[0] : classifiers[1]
+else if (os.isMacOsX())
+    classifier = isArm ? classifiers[2] : classifiers[3]
+else if (os.isWindows())
+    classifier = classifiers[4]
+
 dependencies {
-    implementation "io.netty:netty-all:4.2.15.Final"
-    String[] natives = ['windows-x86_64', 'linux-x86_64', 'linux-aarch_64', 'osx-x86_64', 'osx-aarch_64']
+    def nettyVersion = "4.2.15.Final"
+    def bsslVersion = "2.0.77.Final"
+    def quicVersion = "0.0.70.Final"
 
-    String boringSSL = "io.netty:netty-tcnative-boringssl-static:2.0.77.Final"
-    implementation("$boringSSL")
+    implementation "io.netty:netty-buffer:$nettyVersion"
+    implementation "io.netty:netty-transport:$nettyVersion"
+    implementation "io.netty:netty-handler:$nettyVersion"
+    implementation "io.netty:netty-codec-http:$nettyVersion"
+    implementation "io.netty:netty-codec-dns:$nettyVersion"
+    implementation "io.netty:netty-codec-socks:$nettyVersion"
+    implementation "io.netty:netty-handler-proxy:$nettyVersion"
 
-    for (String nat : natives) {
-        implementation("$boringSSL:$nat")
-    }
+    implementation "io.netty:netty-transport-classes-epoll:$nettyVersion"
+    implementation "io.netty:netty-transport-classes-kqueue:$nettyVersion"
+    implementation "io.netty:netty-tcnative-classes:$bsslVersion"
 
     implementation "org.msgpack:msgpack-core:0.9.12"
-    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" // Vulnerable
+
+    // Filters for native
+    classifiers.each { c ->
+        theNative "io.netty:netty-tcnative-boringssl-static:$bsslVersion:$c"
+        theNative "io.netty.incubator:netty-incubator-codec-quic:$quicVersion:$c"
+    }
+    classifiers.findAll { it.startsWith("linux-") }.each { c ->
+        theNative "io.netty:netty-transport-native-epoll:$nettyVersion:$c"
+    }
+    classifiers.findAll { it.startsWith("osx-") }.each { c ->
+        theNative "io.netty:netty-transport-native-kqueue:$nettyVersion:$c"
+    }
+
+    runtimeOnly "io.netty:netty-tcnative-boringssl-static:$bsslVersion:$classifier"
+    runtimeOnly "io.netty.incubator:netty-incubator-codec-quic:$quicVersion:$classifier"
+    if (os.isLinux()) runtimeOnly "io.netty:netty-transport-native-epoll:$nettyVersion:$classifier"
+    if (os.isMacOsX()) runtimeOnly "io.netty:netty-transport-native-kqueue:$nettyVersion:$classifier"
+//    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.12" // Vulnerable
 }
 
 application {
@@ -38,7 +80,22 @@ application {
 
 shadowJar {
     archiveFileName = "JVDM-UI.jar"
+
+    configurations = [
+            project.configurations.runtimeClasspath,
+            project.configurations.theNative
+    ]
     mergeServiceFiles()
+
+    // Size Reduce
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/maven/**'
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE*'
+    exclude '**/*.md'
+    exclude '**/*.txt'
 }
 
 graalvmNative {
@@ -57,7 +114,8 @@ graalvmNative {
             richOutput = true
             useFatJar = false
 
-//            buildArgs.add()
+            buildArgs.add('-H:+StripDebugInfo')
+            buildArgs.add('-H:GenerateDebugInfo=0')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:IncludeResources=META-INF/.*')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
