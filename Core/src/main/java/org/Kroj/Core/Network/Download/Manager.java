@@ -1,6 +1,7 @@
 package org.Kroj.Core.Network.Download;
 
 import io.netty.channel.IoEventLoopGroup;
+import org.Kroj.Core.Network.DNS.DNS;
 import org.Kroj.Core.Network.Download.Handlers.DownloadListener;
 import org.Kroj.Core.Network.Netty.NettyUtil;
 import org.Kroj.Core.Statics.Initializer;
@@ -8,6 +9,7 @@ import org.Kroj.Core.Tools.Logger.Logger;
 import org.Kroj.Core.Tools.String.SizeManager;
 import org.Kroj.Core.Tools.URL.URL;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public class Manager {
 
-    private static final Manager instance = new Manager(Initializer.DOWNLOADER_THREADS);
+    private static final Manager instance = new Manager(Initializer.DOWNLOADER_CONNECTIONS);
     public final IoEventLoopGroup io = NettyUtil.getEventLoopGroup();
     private final int concurrency;
 

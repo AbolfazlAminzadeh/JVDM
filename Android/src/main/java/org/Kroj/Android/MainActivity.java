@@ -1,7 +1,5 @@
 package org.Kroj.Android;
 
-import static org.Kroj.Core.Tools.Logger.Logger.logger;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Button;
