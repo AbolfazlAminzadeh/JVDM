@@ -119,8 +119,6 @@ graalvmNative {
             buildArgs.add('-Dio.netty.tryReflectionSetAccessible=true')
             buildArgs.add('-Dio.netty.allocator.type=pooled')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
-            buildArgs.add('-Dglass.gtk.disableGtk3=true')
-            buildArgs.add('-Dprism.order=d3d,es2,sw')
             buildArgs.add('-Dprism.vsync=true')
 
             jvmArgs.add('-XX:MaxDirectMemorySize=2G')

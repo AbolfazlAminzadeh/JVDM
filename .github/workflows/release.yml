@@ -113,7 +113,6 @@ jobs:
         if: matrix.os == 'linux' && matrix.arch == 'x86_64'
         uses: svenstaro/upx-action@v3
         with:
-          file: UI/build/native/nativeCompile/JVDM
           args: --best --lzma
           files: UI/build/native/nativeCompile/JVDM
 
