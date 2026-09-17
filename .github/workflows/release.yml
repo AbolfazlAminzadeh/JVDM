@@ -72,11 +72,6 @@ jobs:
             artifact: JVDM-windows-x86_64
 
           - os: macos
-            arch: x86_64
-            runner: macos-13
-            artifact: JVDM-macos-x86_64
-
-          - os: macos
             arch: aarch64
             runner: macos-latest
             artifact: JVDM-macos-arm64
