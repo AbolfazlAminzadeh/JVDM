@@ -10,26 +10,41 @@ group = 'org.kroj'
 version = '1.0.0'
 
 configurations {
-    theNative
+    theWin { transitive = false }
+    theLinux { transitive = false }
+    theMac { transitive = false }
+    theMacArm { transitive = false }
 }
 
 dependencies {
     implementation project(":Core")
     implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
 
-    def jfx = javafx.version
-    def OSes = ['win', 'mac', 'mac-aarch64', 'linux']
+    def jfx = '21'
 
-    OSes.forEach { os ->
-        theNative "org.openjfx:javafx-base:$jfx:$os"
-        theNative "org.openjfx:javafx-graphics:$jfx:$os"
-        theNative "org.openjfx:javafx-controls:$jfx:$os"
-        theNative "org.openjfx:javafx-fxml:$jfx:$os"
-    }
+    theWin "org.openjfx:javafx-base:$jfx:win"
+    theWin "org.openjfx:javafx-graphics:$jfx:win"
+    theWin "org.openjfx:javafx-controls:$jfx:win"
+    theWin "org.openjfx:javafx-fxml:$jfx:win"
+
+    theLinux "org.openjfx:javafx-base:$jfx:linux"
+    theLinux "org.openjfx:javafx-graphics:$jfx:linux"
+    theLinux "org.openjfx:javafx-controls:$jfx:linux"
+    theLinux "org.openjfx:javafx-fxml:$jfx:linux"
+
+    theMac "org.openjfx:javafx-base:$jfx:mac"
+    theMac "org.openjfx:javafx-graphics:$jfx:mac"
+    theMac "org.openjfx:javafx-controls:$jfx:mac"
+    theMac "org.openjfx:javafx-fxml:$jfx:mac"
+
+    theMacArm "org.openjfx:javafx-base:$jfx:mac-aarch64"
+    theMacArm "org.openjfx:javafx-graphics:$jfx:mac-aarch64"
+    theMacArm "org.openjfx:javafx-controls:$jfx:mac-aarch64"
+    theMacArm "org.openjfx:javafx-fxml:$jfx:mac-aarch64"
 }
 
 javafx {
-    version = "21.0.2"
+    version = "21"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.base' ]
 }
 
@@ -42,9 +57,11 @@ shadowJar {
 
     configurations = [
             project.configurations.runtimeClasspath,
-            project.configurations.theNative
+            project.configurations.theWin,
+            project.configurations.theLinux,
+            project.configurations.theMac,
+            project.configurations.theMacArm
     ]
-
     mergeServiceFiles()
 
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
