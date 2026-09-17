@@ -1,0 +1,12 @@
+[
+  {
+    "returnType": "int",
+    "parameterTypes": [
+      "int",
+      "int",
+      "int",
+      "void*",
+      "int"
+    ]
+  }
+]

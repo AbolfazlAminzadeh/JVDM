@@ -133,6 +133,7 @@
     { "type": "com.sun.prism.GraphicsPipeline", "allDeclaredMethods": true },
     { "type": "com.sun.prism.d3d.D3DPipeline", "allDeclaredMethods": true },
     { "type": "com.sun.prism.es2.ES2Pipeline", "allDeclaredMethods": true },
+    { "type": "com.sun.prism.sw.SWPipeline", "allDeclaredMethods": true },
     { "type": "com.sun.prism.es2.X11GLFactory", "allDeclaredConstructors": true },
     { "type": "com.sun.prism.es2.MacGLFactory", "allDeclaredConstructors": true },
     { "type": "com.sun.prism.impl.PrismSettings", "jniAccessible": true, "allDeclaredFields": true },
@@ -338,5 +339,6 @@
     { "bundle": "com.sun.glass.ui.win.themes" },
     { "bundle": "com.sun.javafx.scene.control.skin.resources.controls" },
     { "bundle": "sun.util.logging.resources.logging" }
-  ]
+  ],
+  "foreign": {"downcalls": [{"returnType": "int", "parameterTypes": ["int", "int", "int", "void*", "int"]}]}
 }

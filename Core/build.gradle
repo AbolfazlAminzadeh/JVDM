@@ -126,6 +126,7 @@ graalvmNative {
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSL')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLContext')
             buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
+            buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.SocketBind.PanamaBinder')
 
             // For Optimizations and more
 //            jvmArgs.add()

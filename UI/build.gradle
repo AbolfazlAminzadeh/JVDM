@@ -9,21 +9,32 @@ plugins {
 group = 'org.kroj'
 version = '1.0.0'
 
+java {
+    sourceCompatibility = 25
+    targetCompatibility = 25
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.ORACLE
+    }
+}
+
+configurations {
+    theNative
+}
+
 dependencies {
     implementation project(":Core")
     implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
 
     def jfx = javafx.version
-    def OSes = ['win', 'mac', 'mac-aarch64', 'linux'];
+    def OSes = ['win', 'mac', 'mac-aarch64', 'linux']
 
     OSes.forEach { os ->
-        runtimeOnly "org.openjfx:javafx-base:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-graphics:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-controls:$jfx:$os"
-        runtimeOnly "org.openjfx:javafx-fxml:$jfx:$os"
-
+        theNative "org.openjfx:javafx-base:$jfx:$os"
+        theNative "org.openjfx:javafx-graphics:$jfx:$os"
+        theNative "org.openjfx:javafx-controls:$jfx:$os"
+        theNative "org.openjfx:javafx-fxml:$jfx:$os"
     }
-
 }
 
 javafx {
@@ -37,7 +48,18 @@ application {
 
 shadowJar {
     archiveFileName = "JVDM-UI.jar"
+
+    configurations = [
+            project.configurations.runtimeClasspath,
+            project.configurations.theNative
+    ]
+
     mergeServiceFiles()
+
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    exclude 'META-INF/maven/**'
+    exclude 'META-INF/LICENSE*', 'META-INF/NOTICE*'
+    exclude '**/*.md', '**/*.txt'
 }
 
 graalvmNative {
@@ -56,11 +78,14 @@ graalvmNative {
             richOutput = true
             useFatJar = false
 
-//            buildArgs.add()
-            buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            buildArgs.add('-H:IncludeResources=.*')
-            buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('-O3')
+            buildArgs.add('-H:+StripDebugInfo')
+            buildArgs.add('-H:GenerateDebugInfo=0')
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+
+            buildArgs.add('-H:IncludeResources=.*\\.(fxml|css|png|jpg|jpeg|svg|properties|ttf|otf|ico|icns|so|dll|dylib|frag|vert|glsl|hlsl|cl|bsm)$') // Not Completed Yet
+            buildArgs.add('--enable-url-protocols=http,https')
+            buildArgs.add('--enable-native-access=ALL-UNNAMED')
 
             buildArgs.add('--initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier')
@@ -70,32 +95,28 @@ graalvmNative {
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSL')
             buildArgs.add('--initialize-at-run-time=io.netty.internal.tcnative.SSLContext')
             buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.Download.Security.TLS')
+            buildArgs.add('--initialize-at-run-time=org.Kroj.Core.Network.SocketBind.PanamaBinder')
 
-            def pgo = file("src/pgo-profiles/main/default.iprof");
-            buildArgs.add("--pgo=${pgo.absolutePath}")
+            def pgo = file("src/pgo-profiles/main/default.iprof")
+            if (pgo.exists()) {
+                buildArgs.add("--pgo=${pgo.absolutePath}")
+            }
 
             def currentArch = System.getProperty("os.arch").toLowerCase()
-
             if (currentArch.contains("aarch64") || currentArch.contains("arm64")) {
                 buildArgs.add('-march=armv8-a')
             } else {
                 buildArgs.add('-march=x86-64-v3')
             }
 
-            jvmArgs.add('-Dio.netty.tryReflectionSetAccessible=true')
-            jvmArgs.add('-Dio.netty.allocator.type=pooled')
+            buildArgs.add('-Dio.netty.tryReflectionSetAccessible=true')
+            buildArgs.add('-Dio.netty.allocator.type=pooled')
+            buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            buildArgs.add('-Dglass.gtk.disableGtk3=true')
+            buildArgs.add('-Dprism.order=d3d,es2,sw')
+            buildArgs.add('-Dprism.vsync=true')
+
             jvmArgs.add('-XX:MaxDirectMemorySize=2G')
-            jvmArgs.add('--enable-native-access=ALL-UNNAMED')
-
-            jvmArgs.add('-Dglass.gtk.disableGtk3=true')
-            jvmArgs.add('-Dprism.order=d3d,es2,sw')
-            jvmArgs.add('-Dprism.vsync=true')
-
-
-            // For Optimizations and more
-//            runtimeArgs.add()
-            // buildArgs.add('--pgo-instrument')
-            // buildArgs.add('--pgo=default.iprof')
 
         }
     }
@@ -103,13 +124,6 @@ graalvmNative {
     agent {
         defaultMode = "standard"
         enabled = true
-
         trackReflectionMetadata = true
-
-        metadataCopy {
-            inputTaskNames.add("run")
-            outputDirectories.add("src/main/resources/META-INF/native-image/org.kroj/UI/")
-            mergeWithExisting = true
-        }
     }
 }
