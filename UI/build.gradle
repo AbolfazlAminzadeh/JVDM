@@ -1,3 +1,4 @@
+import org.gradle.internal.os.OperatingSystem
 plugins {
     id 'java'
     id 'application'
@@ -8,6 +9,8 @@ plugins {
 
 group = 'org.kroj'
 version = '1.0.0'
+
+def os = OperatingSystem.current();
 
 configurations {
     theWin { transitive = false }
@@ -86,8 +89,8 @@ graalvmNative {
             richOutput = true
             useFatJar = false
 
+            if (!os.isMacOsX()) buildArgs.add('-H:+StripDebugInfo')
             buildArgs.add('-O3')
-            buildArgs.add('-H:+StripDebugInfo')
             buildArgs.add('-H:GenerateDebugInfo=0')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
 

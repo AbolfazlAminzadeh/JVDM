@@ -1,4 +1,4 @@
-name: Release JVDM-UI Native
+name: Release JVDM (All Platforms)
 
 on:
   push:
@@ -11,10 +11,46 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------
-  # JOB 1: Build Desktop Native Images
+  # JOB 1: Build Standalone & Portable JARs (CLI & UI)
+  # ---------------------------------------------------------
+  build_jars:
+    name: Build Portable JARs (CLI & UI)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup GraalVM (Java 25)
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Portable Shadow JARs
+        run: ./gradlew :Core:shadowJar :UI:shadowJar --no-daemon
+
+      - name: Prepare Clean JAR Artifacts
+        run: |
+          mkdir -p jar-artifacts
+          cp Core/build/libs/*-UI.jar jar-artifacts/JVDM-CLI.jar 2>/dev/null || cp Core/build/libs/*.jar jar-artifacts/JVDM-CLI.jar
+          cp UI/build/libs/JVDM-UI.jar jar-artifacts/JVDM-UI-Portable.jar
+
+      - name: Upload JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-jars
+          path: jar-artifacts/*
+          retention-days: 1
+
+  # ---------------------------------------------------------
+  # JOB 2: Build Desktop Native Binaries (No JARs Inside!)
   # ---------------------------------------------------------
   build_desktop:
-    name: Build ${{ matrix.os }} (${{ matrix.arch }})
+    name: Build ${{ matrix.artifact }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -25,15 +61,25 @@ jobs:
             runner: ubuntu-24.04
             artifact: JVDM-linux-x86_64
 
-          - os: macos
+          - os: linux
             arch: aarch64
-            runner: macos-latest
-            artifact: JVDM-macos-arm64
+            runner: ubuntu-24.04-arm
+            artifact: JVDM-linux-arm64
 
           - os: windows
             arch: x86_64
             runner: windows-2022
             artifact: JVDM-windows-x86_64
+
+          - os: macos
+            arch: x86_64
+            runner: macos-13
+            artifact: JVDM-macos-x86_64
+
+          - os: macos
+            arch: aarch64
+            runner: macos-latest
+            artifact: JVDM-macos-arm64
 
     steps:
       - name: Checkout
@@ -46,18 +92,17 @@ jobs:
           distribution: 'graalvm'
           cache: gradle
 
-      - name: Install Native Image prerequisites (Linux)
+      - name: Install Linux GUI Dependencies
         if: matrix.os == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libz-dev zlib1g-dev
+          sudo apt-get install -y build-essential libz-dev zlib1g-dev \
+                                  libasound2-dev libavcodec-dev libavformat-dev libavutil-dev \
+                                  libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
         if: matrix.os != 'windows'
-
-      - name: Build Shadow JAR
-        run: ./gradlew :UI:shadowJar --no-daemon
+        run: chmod +x gradlew
 
       - name: Build Native Image
         run: ./gradlew :UI:nativeCompile --no-daemon
@@ -69,8 +114,8 @@ jobs:
         run: strip UI/build/native/nativeCompile/JVDM || true
         shell: bash
 
-      - name: Compress executable with UPX (Linux Only)
-        if: matrix.os == 'linux'
+      - name: Compress executable with UPX (Linux x86_64 Only)
+        if: matrix.os == 'linux' && matrix.arch == 'x86_64'
         uses: svenstaro/upx-action@v3
         with:
           file: UI/build/native/nativeCompile/JVDM
@@ -83,15 +128,13 @@ jobs:
           SIGNING_CERT_BASE64: ${{ secrets.WIN_SIGNING_CERT_BASE64 }}
           SIGNING_CERT_PASS: ${{ secrets.WIN_SIGNING_CERT_PASS }}
         run: |
-          # Only attempt signing if the repository secret exists
           if [ -z "$SIGNING_CERT_BASE64" ]; then
-            echo "::warning ::WIN_SIGNING_CERT_BASE64 is missing. Skipping code-signing. Output binary will trigger SmartScreen alerts."
+            echo "::warning ::WIN_SIGNING_CERT_BASE64 is missing. Skipping code-signing."
           else
             echo "Decoding certificate..."
             echo "$SIGNING_CERT_BASE64" | base64 --decode > cert.pfx
           
             echo "Signing JVDM.exe..."
-            # Uses standard Windows SDK SignTool pre-installed on windows-2022 runners
             /c/Program\ Files\ \(x86\)/Windows\ Kits/10/bin/10.0.22621.0/x64/signtool.exe sign \
               /f cert.pfx \
               /p "$SIGNING_CERT_PASS" \
@@ -105,20 +148,20 @@ jobs:
           fi
         shell: bash
 
-      - name: Zip Artifacts
+      - name: Package Native Binary Only
         run: |
           mkdir -p artifacts
           cd UI/build/native/nativeCompile
-          cp ../../libs/*.jar . 2>/dev/null || true
           
           if [[ "${{ matrix.os }}" == "windows" ]]; then
-            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe *.jar
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe
           else
-            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM *.jar
+            chmod +x JVDM
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM
           fi
         shell: bash
 
-      - name: Upload Artifact
+      - name: Upload Native Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
@@ -126,7 +169,7 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------
-  # JOB 2: Build Android APK
+  # JOB 3: Build Android APK
   # ---------------------------------------------------------
   build_android:
     name: Build Android (APK)
@@ -135,7 +178,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java for Core
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -153,12 +196,12 @@ jobs:
       - name: Build Android Release APK
         run: ./gradlew :Android:assembleRelease --no-daemon --stacktrace
 
-      - name: Zip APK
+      - name: Package APK
         run: |
           mkdir -p artifacts
-          find Android/build/outputs/apk/release -name "*.apk" -exec 7z a -tzip -mx=9 "artifacts/JVDM-android-apk.zip" {} +
+          find Android/build/outputs/apk/release -name "*.apk" -exec cp {} artifacts/JVDM-Android.apk \;
 
-      - name: Upload Artifact
+      - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
         with:
           name: JVDM-android
@@ -166,11 +209,11 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------
-  # JOB 3: Publish GitHub Release
+  # JOB 4: Publish All Release Assets
   # ---------------------------------------------------------
   publish_release:
-    name: Publish Release
-    needs: [build_desktop, build_android]
+    name: Publish GitHub Release
+    needs: [build_jars, build_desktop, build_android]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:

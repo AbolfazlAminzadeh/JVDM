@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java'
     id 'application'
@@ -108,7 +109,7 @@ graalvmNative {
             richOutput = true
             useFatJar = false
 
-            buildArgs.add('-H:+StripDebugInfo')
+            if (!os.isMacOsX()) buildArgs.add('-H:+StripDebugInfo')
             buildArgs.add('-H:GenerateDebugInfo=0')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:IncludeResources=META-INF/.*')
