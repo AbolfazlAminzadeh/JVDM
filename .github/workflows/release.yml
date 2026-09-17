@@ -4,35 +4,21 @@ on:
   push:
     tags:
       - 'v*'
-
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to release (for example: v1.0.7)'
-        required: true
-        type: string
-
-concurrency:
-  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
-  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-
-  # =========================================================
-  # JOB 1: Build Standalone & Portable JARs
-  # =========================================================
+  # ---------------------------------------------------------
+  # JOB 1: Build Standalone & Portable JARs (CLI & UI)
+  # ---------------------------------------------------------
   build_jars:
     name: Build Portable JARs (CLI & UI)
-    runs-on: ubuntu-24.04
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Setup GraalVM (Java 25)
         uses: graalvm/setup-graalvm@v1
@@ -48,53 +34,28 @@ jobs:
         run: ./gradlew :Core:shadowJar :UI:shadowJar --no-daemon
 
       - name: Prepare Clean JAR Artifacts
-        shell: bash
         run: |
-          set -euo pipefail
-          
           mkdir -p jar-artifacts
-          
-          if compgen -G "Core/build/libs/*-UI.jar" > /dev/null; then
-            cp Core/build/libs/*-UI.jar jar-artifacts/JVDM-CLI.jar
-          else
-            cp Core/build/libs/*.jar jar-artifacts/JVDM-CLI.jar
-          fi
-          
+          cp Core/build/libs/*-UI.jar jar-artifacts/JVDM-CLI.jar 2>/dev/null || cp Core/build/libs/*.jar jar-artifacts/JVDM-CLI.jar
           cp UI/build/libs/JVDM-UI.jar jar-artifacts/JVDM-UI-Portable.jar
-          
-          echo "Prepared JAR artifacts:"
-          ls -lh jar-artifacts
-
-      - name: Validate JAR Artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          test -f jar-artifacts/JVDM-CLI.jar
-          test -f jar-artifacts/JVDM-UI-Portable.jar
 
       - name: Upload JARs
         uses: actions/upload-artifact@v4
         with:
           name: portable-jars
           path: jar-artifacts/*
-          if-no-files-found: error
           retention-days: 1
 
-
-  # =========================================================
-  # JOB 2: Build Desktop Native Binaries
-  # =========================================================
+  # ---------------------------------------------------------
+  # JOB 2: Build Desktop Native Binaries (No JARs Inside!)
+  # ---------------------------------------------------------
   build_desktop:
     name: Build ${{ matrix.artifact }}
     runs-on: ${{ matrix.runner }}
-
     strategy:
       fail-fast: false
-
       matrix:
         include:
-
           - os: linux
             arch: x86_64
             runner: ubuntu-24.04
@@ -118,216 +79,101 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
-      - name: Setup GraalVM (Java 25)
+      - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '25'
           distribution: 'graalvm'
           cache: gradle
 
-      # -----------------------------------------------------
-      # Linux dependencies
-      # -----------------------------------------------------
       - name: Install Linux GUI Dependencies
         if: matrix.os == 'linux'
         run: |
           sudo apt-get update
-          
-          sudo apt-get install -y \
-            build-essential \
-            libz-dev \
-            zlib1g-dev \
-            libasound2-dev \
-            libavcodec-dev \
-            libavformat-dev \
-            libavutil-dev \
-            libgl-dev \
-            libgtk-3-dev \
-            libpango1.0-dev \
-            libxtst-dev
+          sudo apt-get install -y build-essential libz-dev zlib1g-dev \
+                                  libasound2-dev libavcodec-dev libavformat-dev libavutil-dev \
+                                  libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
       - name: Grant execute permission for gradlew
         if: matrix.os != 'windows'
         run: chmod +x gradlew
 
-      # -----------------------------------------------------
-      # Native compilation
-      # -----------------------------------------------------
       - name: Build Native Image
         run: ./gradlew :UI:nativeCompile --no-daemon
         env:
           GRADLE_OPTS: "-Xmx8g"
 
-      # -----------------------------------------------------
-      # Verify native executable exists
-      # -----------------------------------------------------
-      - name: Validate Native Executable
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          if [[ "${{ matrix.os }}" == "windows" ]]; then
-            test -f UI/build/native/nativeCompile/JVDM.exe
-            ls -lh UI/build/native/nativeCompile/JVDM.exe
-          else
-            test -f UI/build/native/nativeCompile/JVDM
-            ls -lh UI/build/native/nativeCompile/JVDM
-          fi
-
-      # -----------------------------------------------------
-      # Strip symbols
-      # -----------------------------------------------------
-      - name: Strip Debug Symbols
+      - name: Strip Debug Symbols (Linux & macOS)
         if: matrix.os == 'linux' || matrix.os == 'macos'
+        run: strip UI/build/native/nativeCompile/JVDM || true
         shell: bash
-        run: |
-          set -euo pipefail
-          
-          strip UI/build/native/nativeCompile/JVDM
 
-      # -----------------------------------------------------
-      # UPX only for Linux x86_64
-      # -----------------------------------------------------
-      - name: Compress Executable with UPX
+      - name: Compress executable with UPX (Linux x86_64 Only)
         if: matrix.os == 'linux' && matrix.arch == 'x86_64'
         uses: svenstaro/upx-action@v3
         with:
+          file: UI/build/native/nativeCompile/JVDM
           args: --best --lzma
           files: UI/build/native/nativeCompile/JVDM
 
-      # -----------------------------------------------------
-      # Windows signing
-      # -----------------------------------------------------
-      - name: Find SignTool
-        if: matrix.os == 'windows' && env.SIGNING_CERT_BASE64 != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          SIGNTOOL="$(find "/c/Program Files (x86)/Windows Kits" \
-            -type f \
-            -iname "signtool.exe" \
-            2>/dev/null | sort -V | tail -n 1)"
-          
-          if [[ -z "$SIGNTOOL" ]]; then
-            echo "::error::signtool.exe was not found."
-            exit 1
-          fi
-          
-          echo "SIGNTOOL_PATH=$SIGNTOOL" >> "$GITHUB_ENV"
-          echo "Found SignTool: $SIGNTOOL"
-
       - name: Code Sign Windows Executable
         if: matrix.os == 'windows'
-        shell: bash
         env:
           SIGNING_CERT_BASE64: ${{ secrets.WIN_SIGNING_CERT_BASE64 }}
           SIGNING_CERT_PASS: ${{ secrets.WIN_SIGNING_CERT_PASS }}
         run: |
-          set -euo pipefail
+          if [ -z "$SIGNING_CERT_BASE64" ]; then
+            echo "::warning ::WIN_SIGNING_CERT_BASE64 is missing. Skipping code-signing."
+          else
+            echo "Decoding certificate..."
+            echo "$SIGNING_CERT_BASE64" | base64 --decode > cert.pfx
           
-          if [[ -z "$SIGNING_CERT_BASE64" ]]; then
-            echo "::warning::WIN_SIGNING_CERT_BASE64 is missing. Skipping code-signing."
-            exit 0
+            echo "Signing JVDM.exe..."
+            /c/Program\ Files\ \(x86\)/Windows\ Kits/10/bin/10.0.22621.0/x64/signtool.exe sign \
+              /f cert.pfx \
+              /p "$SIGNING_CERT_PASS" \
+              /tr http://timestamp.digicert.com \
+              /td sha256 \
+              /fd sha256 \
+              UI/build/native/nativeCompile/JVDM.exe
+          
+            rm cert.pfx
+            echo "Successfully code-signed JVDM.exe!"
           fi
-          
-          if [[ -z "${SIGNING_CERT_PASS:-}" ]]; then
-            echo "::error::WIN_SIGNING_CERT_PASS is missing."
-            exit 1
-          fi
-          
-          if [[ -z "${SIGNTOOL_PATH:-}" ]]; then
-            echo "::error::SIGNTOOL_PATH is not available."
-            exit 1
-          fi
-          
-          echo "Decoding certificate..."
-          
-          echo "$SIGNING_CERT_BASE64" | base64 --decode > cert.pfx
-          
-          echo "Signing JVDM.exe..."
-          
-          "$SIGNTOOL_PATH" sign \
-            /f cert.pfx \
-            /p "$SIGNING_CERT_PASS" \
-            /tr http://timestamp.digicert.com \
-            /td sha256 \
-            /fd sha256 \
-            UI/build/native/nativeCompile/JVDM.exe
-          
-          rm -f cert.pfx
-          
-          echo "Successfully code-signed JVDM.exe."
-
-      # -----------------------------------------------------
-      # Package
-      # -----------------------------------------------------
-      - name: Package Native Binary Only
         shell: bash
+
+      - name: Package Native Binary Only
         run: |
-          set -euo pipefail
-          
           mkdir -p artifacts
-          
           cd UI/build/native/nativeCompile
           
           if [[ "${{ matrix.os }}" == "windows" ]]; then
-            7z a \
-              -tzip \
-              -mx=9 \
-              "../../../../artifacts/${{ matrix.artifact }}.zip" \
-              JVDM.exe
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe
           else
             chmod +x JVDM
-          
-            7z a \
-              -tzip \
-              -mx=9 \
-              "../../../../artifacts/${{ matrix.artifact }}.zip" \
-              JVDM
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM
           fi
-          
-          cd ../../../../
-          
-          echo "Created package:"
-          ls -lh artifacts/
-
-      - name: Validate Native Artifact
         shell: bash
-        run: |
-          set -euo pipefail
-          
-          test -f "artifacts/${{ matrix.artifact }}.zip"
-          
-          echo "Artifact:"
-          ls -lh "artifacts/${{ matrix.artifact }}.zip"
 
       - name: Upload Native Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: artifacts/*
-          if-no-files-found: error
           retention-days: 1
 
-
-  # =========================================================
+  # ---------------------------------------------------------
   # JOB 3: Build Android APK
-  # =========================================================
+  # ---------------------------------------------------------
   build_android:
     name: Build Android (APK)
-    runs-on: ubuntu-24.04
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
-      - name: Setup Java 25 for Android
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -335,10 +181,7 @@ jobs:
           cache: gradle
 
       - name: Create local.properties
-        shell: bash
         run: |
-          set -euo pipefail
-          
           mkdir -p Android
           echo "sdk.dir=$ANDROID_HOME" > Android/local.properties
 
@@ -349,197 +192,59 @@ jobs:
         run: ./gradlew :Android:assembleRelease --no-daemon --stacktrace
 
       - name: Package APK
-        shell: bash
         run: |
-          set -euo pipefail
-          
           mkdir -p artifacts
-          
-          APK_COUNT="$(find Android/build/outputs/apk/release \
-            -type f \
-            -name "*.apk" \
-            | wc -l)"
-          
-          if [[ "$APK_COUNT" -eq 0 ]]; then
-            echo "::error::No APK was produced."
-            exit 1
-          fi
-          
-          if [[ "$APK_COUNT" -gt 1 ]]; then
-            echo "::error::More than one APK was produced:"
-            find Android/build/outputs/apk/release -type f -name "*.apk"
-            exit 1
-          fi
-          
-          APK="$(find Android/build/outputs/apk/release \
-            -type f \
-            -name "*.apk" \
-            | head -n 1)"
-          
-          cp "$APK" artifacts/JVDM-Android.apk
-          
-          echo "Created APK:"
-          ls -lh artifacts/JVDM-Android.apk
-
-      - name: Validate APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f artifacts/JVDM-Android.apk
-          test -s artifacts/JVDM-Android.apk
+          find Android/build/outputs/apk/release -name "*.apk" -exec cp {} artifacts/JVDM-Android.apk \;
 
       - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
         with:
           name: JVDM-android
           path: artifacts/*
-          if-no-files-found: error
           retention-days: 1
 
-
-  # =========================================================
-  # JOB 4: Publish GitHub Release
-  # =========================================================
+  # ---------------------------------------------------------
+  # JOB 4: Publish All Release Assets
+  # ---------------------------------------------------------
+  # ---------------------------------------------------------
+  # JOB 4: Publish All Release Assets
+  # ---------------------------------------------------------
   publish_release:
     name: Publish GitHub Release
-    needs:
-      - build_jars
-      - build_desktop
-      - build_android
-
-    if: |
-      always() &&
-      needs.build_jars.result == 'success' &&
-      needs.build_desktop.result == 'success' &&
-      needs.build_android.result == 'success' &&
-      (
-        github.event_name == 'push' &&
-        startsWith(github.ref, 'refs/tags/')
-        ||
-        github.event_name == 'workflow_dispatch' &&
-        startsWith(inputs.tag, 'v')
-      )
-
-    runs-on: ubuntu-24.04
-
+    needs: [build_jars, build_desktop, build_android]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
     steps:
-      # -----------------------------------------------------
-      # Checkout the actual release tag
-      # -----------------------------------------------------
-      - name: Checkout release tag
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
-      # -----------------------------------------------------
-      # Download every build artifact
-      # -----------------------------------------------------
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts
           merge-multiple: true
 
-      # -----------------------------------------------------
-      # Show downloaded files
-      # -----------------------------------------------------
-      - name: List release artifacts
-        shell: bash
+      - name: Generate Checksums
         run: |
-          set -euo pipefail
-          
-          echo "Release artifacts:"
-          find release-artifacts -maxdepth 1 -type f -printf '%f\n' | sort
-          
-          echo
-          echo "Detailed listing:"
-          ls -lah release-artifacts
-
-      # -----------------------------------------------------
-      # Validate exact release contents
-      # -----------------------------------------------------
-      - name: Validate release artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          expected=(
-            "JVDM-CLI.jar"
-            "JVDM-UI-Portable.jar"
-            "JVDM-Android.apk"
-            "JVDM-linux-x86_64.zip"
-            "JVDM-linux-arm64.zip"
-            "JVDM-windows-x86_64.zip"
-            "JVDM-macos-arm64.zip"
-          )
-          
-          for file in "${expected[@]}"; do
-            if [[ ! -f "release-artifacts/$file" ]]; then
-              echo "::error::Missing release artifact: $file"
-              exit 1
-            fi
-          
-            if [[ ! -s "release-artifacts/$file" ]]; then
-              echo "::error::Empty release artifact: $file"
-              exit 1
-            fi
-          done
-          
-          echo "All expected release artifacts are present."
-
-      # -----------------------------------------------------
-      # Generate checksums
-      # -----------------------------------------------------
-      - name: Generate SHA256 checksums
-        shell: bash
-        run: |
-          set -euo pipefail
-          
           cd release-artifacts
-          
-          rm -f SHA256-Checksums.txt
-          
-          sha256sum \
-            JVDM-CLI.jar \
-            JVDM-UI-Portable.jar \
-            JVDM-Android.apk \
-            JVDM-linux-x86_64.zip \
-            JVDM-linux-arm64.zip \
-            JVDM-windows-x86_64.zip \
-            JVDM-macos-arm64.zip \
-            > SHA256-Checksums.txt
-          
-          echo "SHA256 checksums:"
-          cat SHA256-Checksums.txt
+          sha256sum * > SHA256-Checksums.txt
 
-      # -----------------------------------------------------
-      # Final release contents
-      # -----------------------------------------------------
-      - name: Validate final release files
+      - name: Publish or Update GitHub Release
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          
-          test -f release-artifacts/SHA256-Checksums.txt
-          
-          echo "Final release files:"
-          ls -lah release-artifacts
 
-      # -----------------------------------------------------
-      # Create/update GitHub Release
-      # -----------------------------------------------------
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            release-artifacts/JVDM-CLI.jar
-            release-artifacts/JVDM-UI-Portable.jar
-            release-artifacts/JVDM-Android.apk
-            release-artifacts/JVDM-linux-x86_64.zip
-            release-artifacts/JVDM-linux-arm64.zip
-            release-artifacts/JVDM-windows-x86_64.zip
-            release-artifacts/JVDM-macos-arm64.zip
-            release-artifacts/SHA256-Checksums.txt
-          generate_release_notes: true
-          overwrite_files: true
-          fail_on_unmatched_files: true
+          TAG="${{ github.ref_name }}"
+          echo "Processing release for tag: $TAG"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG does not exist. Creating new release..."
+            gh release create "$TAG" --generate-notes --title "$TAG"
+          else
+            echo "Release $TAG already exists. Updating existing assets..."
+          fi
+
+          echo "Uploading assets with clobber enabled..."
+          gh release upload "$TAG" release-artifacts/* --clobber
