@@ -9,15 +9,6 @@ plugins {
 group = 'org.kroj'
 version = '1.0.0'
 
-java {
-    sourceCompatibility = 25
-    targetCompatibility = 25
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.ORACLE
-    }
-}
-
 configurations {
     theNative
 }
