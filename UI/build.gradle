@@ -114,11 +114,7 @@ graalvmNative {
             }
 
             def currentArch = System.getProperty("os.arch").toLowerCase()
-            if (currentArch.contains("aarch64") || currentArch.contains("arm64")) {
-                buildArgs.add('-march=armv8-a')
-            } else {
-                buildArgs.add('-march=x86-64-v3')
-            }
+            buildArgs.add('-march=compatibility')
 
             buildArgs.add('-Dio.netty.tryReflectionSetAccessible=true')
             buildArgs.add('-Dio.netty.allocator.type=pooled')
