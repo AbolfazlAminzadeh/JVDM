@@ -113,6 +113,11 @@
     { "type": "com.sun.glass.ui.gtk.GtkView", "jniAccessible": true, "allDeclaredMethods": true },
     { "type": "com.sun.glass.ui.gtk.GtkWindow", "jniAccessible": true, "allDeclaredMethods": true },
 
+    { "type": "com.sun.glass.ui.win.WinApplication", "jniAccessible": true, "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.glass.ui.win.WinPlatformFactory", "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.glass.ui.win.WinWindow", "jniAccessible": true, "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.glass.ui.win.WinView", "jniAccessible": true, "allDeclaredConstructors": true, "allDeclaredMethods": true },
+
     { "type": "com.sun.glass.ui.mac.MacApplication", "jniAccessible": true, "allDeclaredMethods": true },
     { "type": "com.sun.glass.ui.mac.MacPlatformFactory", "allDeclaredConstructors": true },
     { "type": "com.sun.glass.ui.mac.MacWindow", "jniAccessible": true, "allDeclaredMethods": true },
@@ -137,6 +142,10 @@
     { "type": "com.sun.prism.es2.X11GLFactory", "allDeclaredConstructors": true },
     { "type": "com.sun.prism.es2.MacGLFactory", "allDeclaredConstructors": true },
     { "type": "com.sun.prism.impl.PrismSettings", "jniAccessible": true, "allDeclaredFields": true },
+    { "type": "com.sun.prism.d3d.D3DResourceFactory", "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.prism.d3d.D3DShader", "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.prism.sw.SWPipeline", "allDeclaredConstructors": true, "allDeclaredMethods": true },
+    { "type": "com.sun.prism.sw.SWResourceFactory", "allDeclaredConstructors": true, "allDeclaredMethods": true },
 
     { "type": "com.sun.prism.shader.DrawPgram_Color_Loader", "allDeclaredMethods": true },
     { "type": "com.sun.prism.shader.FillPgram_Color_Loader", "allDeclaredMethods": true },

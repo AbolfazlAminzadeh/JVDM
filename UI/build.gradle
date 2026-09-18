@@ -94,7 +94,7 @@ graalvmNative {
             buildArgs.add('-H:GenerateDebugInfo=0')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
 
-            buildArgs.add('-H:IncludeResources=.*\\.(fxml|css|png|jpg|jpeg|svg|properties|ttf|otf|ico|icns|so|dll|dylib|frag|vert|glsl|hlsl|cl|bsm)$') // Not Completed Yet
+            buildArgs.add('-H:IncludeResources=.*\\.(fxml|css|png|jpg|jpeg|svg|properties|ttf|otf|ico|icns|so|dll|dylib|frag|vert|glsl|hlsl|cl|bsm|obj)$') //Not Tested Completely Yet
             buildArgs.add('--enable-url-protocols=http,https')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
 
