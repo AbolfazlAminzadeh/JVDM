@@ -87,7 +87,7 @@ graalvmNative {
 
             // Performance
             buildArgs.add('-O3')
-            buildArgs.add('--gc=G1')
+            if (!os.isLinux()) buildArgs.add('--gc=G1')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-Dio.netty.allocator.type=pooled')
             buildArgs.add('-Dprism.vsync=true')
