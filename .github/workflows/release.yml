@@ -148,7 +148,7 @@ jobs:
           cd UI/build/native/nativeCompile
           
           if [[ "${{ matrix.os }}" == "windows" ]]; then
-            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe
+            7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM.exe *.dll
           else
             chmod +x JVDM
             7z a -tzip -mx=9 "../../../../artifacts/${{ matrix.artifact }}.zip" JVDM
